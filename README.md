@@ -1,4 +1,4 @@
-# Projetos Integradores Infórmatica para Internet - IFRN - Campos São Paulo do Potengi
+# Projetos Integradores Informática para Internet - IFRN - Campus São Paulo do Potengi
 ## 2025
 ### BE-Desk 
   - Equipe: [Willianny lima](https://github.com/WilliannyLima), [Igor Murilo](https://github.com/devigMurilo), [Wallison Andre](https://github.com/WallisonAndre)
