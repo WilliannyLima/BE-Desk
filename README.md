@@ -2,4 +2,4 @@
 ## 2025
 ### BE-Desk 
   - Equipe: [Willianny lima](https://github.com/WilliannyLima), [Igor Murilo](https://github.com/devigMurilo), [Wallison Andre](https://github.com/WallisonAndre)
-  - Descrição: Projeto de criação de um sistema para reservas do Bloco E e solicitação de materias esportivos, digitalizando os processos manuais e tornando-os mais práticos e acessíveis. 
+  - Descrição: O projeto consiste no desenvolvimento de um sistema online de cadastro, reservas e solicitação de materiais esportivos para o Bloco E do IFRN-SPP. O sistema busca substituir o modelo atual, que depende de atendimentos presenciais, por uma solução digital, prática e acessível a toda a comunidade acadêmica.
