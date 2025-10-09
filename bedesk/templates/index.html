@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+<DOCTYPE html!>
+<html lang="en">
+<head>  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}
+    <title>BE-Desk</title>
+    {% endblock %}
+    
+    {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    {% endblock %}
+
+</head>
+<body>
+    {%block navbar%}
+    <div class="navbar">
+        <a href="index.html" class="navbar-logo">
+            <img src="imagens/logo1.png" alt="Logo">
+        </a>
+
+        <div class="nav-menu-container">
+            <a href="index.html"><i class="fa-solid fa-house"></i> Início</a>
+
+            <div class="dropdown" id="agendamentosDropdown">
+                <a class="dropdown-toggle" onclick="toggleDropdown()"><i class="fa-solid fa-calendar-check"></i> Agendamentos</a>
+                
+                <div class="dropdown-content">
+                    <a href="ginasio.html"><i class="fa-solid fa-futbol"></i> Ginásio</a>
+                    <a href="salas.html"><i class="fa-solid fa-door-open"></i> Salas</a>
+                    <a href="piscina.html"><i class="fa-solid fa-person-swimming"></i> Piscina</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-buttons">
+            <a href="login.html" class="header-button login-button-header">LOGIN</a>
+            <a href="registrar.html" class="header-button register-button-header">CADASTRAR</a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="content">
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab(this, 'tabela')">Tabela de Horários</button>
+            <button class="tab-button" onclick="showTab(this, 'meus-agendamentos')">Meus Agendamentos</button>
+            <button class="tab-button" onclick="showTab(this, 'processos')">Processos de Agendamento</button>
+        </div>
+
+        <div id="tabela-tab" class="tab-content active">
+            <div id="scheduleTableContainer">
+                </div>
+        </div>
+        <div id="meus-agendamentos-tab" class="tab-content">
+            <h2>Meus Agendamentos</h2>
+            <div id="myAppointmentsContainer">
+                <ul id="myBookingsList" class ="my-booking-list">
+
+                </ul>
+            </div>
+
+             <div id="meus-agendamentos-tab" class="tab-content">
+            <h3>Minhas Solicitações</h3>
+            <ul id="myBookingsList" class="my-bookings-list">
+                </ul>
+        </div>
+
+        <div id="processos-tab" class="tab-content">
+            <h3>Pedidos Pendentes</h3>
+            <ul id="pendingBookingsList" class="my-bookings-list">
+                </ul>
+        </div>
+    </div>
+    {% endblock %}
+    {% block modals %}
+    {% endblock %} 
+
+
+    {% block scripts %}
+    {% endblock %}
