@@ -1,2 +1,165 @@
-{% extends "base.html" %}
+
 {% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salas - BE-Desk</title>
+  <link rel="stylesheet" href="{% static 'css/salas.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<body>
+
+  <!-- Navbar -->
+    <div class="navbar">
+        <a href="index.html" class="navbar-logo">
+            <img src="{static  img/logo1.png}"" alt="Logo">
+        </a>
+
+        <div class="nav-menu-container">
+            <a href="index.html"><i class="fa-solid fa-house"></i> Início</a>
+
+            
+            <div class="dropdown" id="agendamentosDropdown">
+                <a class="dropdown-toggle" onclick="toggleDropdown()"><i class="fa-solid fa-calendar-check"></i> Agendamentos</a>
+                
+                    <div class="dropdown-content">
+                        <a href="ginasio.html"><i class="fa-solid fa-futbol"></i> Ginásio</a>
+                        <a href="salas.html"><i class="fa-solid fa-door-open"></i> Salas</a>
+                        <a href="piscina.html"><i class="fa-solid fa-person-swimming"></i> Piscina</a>
+                    </div>
+            </div>
+        </div>
+
+        <div class="header-buttons">
+            <a href="login.html" class="header-button login-button-header">LOGIN</a>
+            <a href="registrar.html" class="header-button register-button-header">CADASTRAR</a>
+        </div>
+    </div>
+  <!-- Conteúdo -->
+  <div class="content">
+    <h1>Salas do Bloco E</h1>
+    <div class="salas">
+
+      <!-- Sala 1 -->
+      <div class="sala">
+        <h2>Sala 1</h2>
+        <p class="disponivel">Disponível</p>
+        <button class="ver-mais">Ver Mais</button>
+        <div class="tabela-container">
+          <table class="horarios">
+            <thead>
+              <tr>
+                <th>Horário</th>
+                <th>Segunda</th><th>Terça</th><th>Quarta</th><th>Quinta</th><th>Sexta</th><th>Sábado</th><th>Domingo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>07:00 às 07:45</td>
+                <td><button class="agendar-btn">Agendar</button></td><td>Ocupado</td><td>Livre</td><td>Ocupado</td><td>Livre</td><td>Livre</td><td>Livre</td>
+              </tr>
+              <tr>
+                <td>09:35 às 10:20</td>
+                <td>Ocupado</td><td><button class="agendar-btn">Agendar</button></td><td>Ocupado</td><td>Livre</td><td>Ocupado</td><td>Livre</td><td>Livre</td>
+              </tr>
+              <tr>
+                <td>10:30 às 12:00</td>
+                <td><button class="agendar-btn">Agendar</button></td><td>Livre</td><td>Livre</td><td>Ocupado</td><td>Livre</td><td>Livre</td><td>Ocupado</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sala 2 -->
+      <div class="sala">
+        <h2>Sala 2</h2>
+        <p class="ocupada">Ocupada</p>
+        <button class="ver-mais">Ver Mais</button>
+        <div class="tabela-container">
+          <table class="horarios">
+            <thead>
+              <tr>
+                <th>Horário</th>
+                <th>Segunda</th><th>Terça</th><th>Quarta</th><th>Quinta</th><th>Sexta</th><th>Sábado</th><th>Domingo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>07:00 às 07:45</td>
+                <td>Ocupado</td><td>Ocupado</td><td>Ocupado</td><td>Ocupado</td><td>Ocupado</td><td>Livre</td><td><button class="agendar-btn">Agendar</button></td>
+              </tr>
+              <tr>
+                <td>09:35 às 10:20</td>
+                <td>Ocupado</td><td>Ocupado</td><td>Livre</td><td>Ocupado</td><td>Ocupado</td><td>Ocupado</td><td>Livre</td>
+              </tr>
+              <tr>
+                <td>10:30 às 12:00</td>
+                <td>Livre</td><td>Ocupado</td><td>Ocupado</td><td>Livre</td><td>Ocupado</td><td>Livre</td><td>Livre</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+        <!-- Sala 1 -->
+        <div class="sala">
+          <h2>Sala 3</h2>
+          <p class="disponivel">Disponível</p>
+          <button class="ver-mais">Ver Mais</button>
+          <div class="tabela-container">
+            <table class="horarios">
+              <thead>
+                <tr>
+                  <th>Horário</th>
+                  <th>Segunda</th>
+                  <th>Terça</th>
+                  <th>Quarta</th>
+                  <th>Quinta</th>
+                  <th>Sexta</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>07:00 às 07:45</td>
+                  <td>Livre</td>
+                  <td>Ocupado</td>
+                  <td>Livre</td>
+                  <td>Ocupado</td>
+                  <td>Livre</td>
+                </tr>
+                <tr>
+                  <td>09:35 às 10:20</td>
+                  <td>Ocupado</td>
+                  <td>Livre</td>
+                  <td>Ocupado</td>
+                  <td>Livre</td>
+                  <td>Ocupado</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="agendarModal" class="modal">
+    <div class="modal-content">
+      <h2>Novo Agendamento</h2>
+      <input type="text" id="nome" placeholder="Seu nome">
+      <textarea id="motivo" placeholder="Motivo do uso"></textarea>
+      <button class="btn-salvar" id="salvarAgendamento">Salvar</button>
+      <button class="btn-cancelar" id="cancelarModal">Cancelar</button>
+    </div>
+  </div>
+
+
+
+
+<script src="{% static 'bedesk/js/ScriptSalas.js' %}"></script>
+
+</body>
+</html>
