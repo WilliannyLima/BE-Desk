@@ -35,7 +35,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\igorm\BE-desk\BE-Desk\venv"
+VIRTUAL_ENV="C:\Users\igorm\OneDrive\Área de Trabalho\PI\BE-Desk\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

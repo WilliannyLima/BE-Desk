@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\igorm\BE-desk\BE-Desk\venv
+set VIRTUAL_ENV=C:\Users\igorm\OneDrive\Área de Trabalho\PI\BE-Desk\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
