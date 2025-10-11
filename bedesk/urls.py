@@ -9,8 +9,5 @@ urlpatterns = [
 
     path('', views.index, name='index'),           # CORRIGIDO
     path('inicio/', views.inicio, name='inicio'),
-    path('index.html', views.index, name='index_html'), 
-    path('ginasio.html', views.ginasio, name='ginasio_html'),
-    path('salas.html', views.salas, name='salas_html'),
-    path('piscina.html', views.piscina, name='piscina_html'), # CORRIGIDO
+       # CORRIGIDO
 ]

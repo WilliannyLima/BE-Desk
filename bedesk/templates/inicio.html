@@ -1,0 +1,49 @@
+{% extends base.html %}
+{% load static %}
+<DOCTYPE html!> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}
+    <title>BE-Desk</title>
+    {% endblock %}
+    
+    {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    {% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+    {%block navbar%}
+    <div class="navbar">
+        <a href="index.html" class="navbar-logo">
+            <img src="{% static 'img/logo1.png' %}" alt="Logo">
+        </a>
+
+        <div class="nav-menu-container">
+            <a href="index.html"><i class="fa-solid fa-house"></i> Início</a>
+
+            <div class="dropdown" id="agendamentosDropdown">
+                <a class="dropdown-toggle" onclick="toggleDropdown()"><i class="fa-solid fa-calendar-check"></i> Agendamentos</a>
+                
+                <div class="dropdown-content">
+                    <a href="ginasio.html"><i class="fa-solid fa-futbol"></i> Ginásio</a>
+                    <a href="salas.html"><i class="fa-solid fa-door-open"></i> Salas</a>
+                    <a href="piscina.html"><i class="fa-solid fa-person-swimming"></i> Piscina</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-buttons">
+            <a href="login.html" class="header-button login-button-header">LOGIN</a>
+            <a href="registrar.html" class="header-button register-button-header">CADASTRAR</a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="content">
+        <div class="tabs">
+            <button class="tab-button
