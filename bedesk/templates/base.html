@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -67,24 +68,19 @@
     </div>
     {% endblock %}
     
-    {% block modals %}
-    <div id="bookingModal" class="modal">
+{% block modals %}
+    <div  id="bookingModal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h3>Agendar Horário</h3>
-            <form id="bookingForm">
-                <label for="personName">Seu Nome:</label>
-                <input type="text" id="personName" name="personName" required>
+            span class="close-button">&times;</span>
+            <h3>Agendar Horario</h3>
+            <form metdhod="post" id="bookingForm">
+                {% csrf_token %}
 
-                <label for="sport">Qual o Esporte:</label>
-                <input type="text" id="sport" name="sport" required>
+                {{ form.non_field_errors }}
+                
+                {{form.as_p}}
 
-                <label for="reason">Motivo da Solicitação:</label>
-                <input type="text" id="reason" name="reason" required>
-
-                <button type="submit">Salvar</button>
-            </form>
-        </div>
+                <button type="submit" class="details-button">Enviar Solicitação</button>
     </div>
 
     <div id="detailsModal" class="modal">
@@ -96,8 +92,29 @@
             <button id="acceptButton" class="details-button" style="display:none;">Aceitar</button>
         </div>
     </div>
-    {% endblock %}
+{% endblock %}
 
-    {% block scripts %}
-    <script src="static/js/ScriptBase.js"></script>
-    {% endblock %}
+ {% block scripts %}
+    <script src="{% static 'js/ScriptBase.js' %}">
+    function toggleDropdown() {
+        document.getElementById("agendamentosDropdown").querySelector(".dropdown-content").classList.toggle("show");
+    }
+
+   
+    document.addEventListener('DOMContentLoaded', (event) => {
+       
+        if (document.querySelector('.errorlist, .error')) {
+            const bookingModal = document.getElementById('bookingModal');
+            if (bookingModal) {
+                bookingModal.style.display = 'block';
+            }
+        }
+    });
+
+  
+
+   
+    
+</script>
+{% endblock %}
+    

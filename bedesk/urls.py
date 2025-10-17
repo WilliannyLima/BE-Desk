@@ -9,5 +9,11 @@ urlpatterns = [
 
     path('', views.index, name='index'),           # CORRIGIDO
     path('inicio/', views.inicio, name='inicio'),
-       # CORRIGIDO
+    path('ginasio/', views.ginasio, name='ginasio'),
+    path('piscina/', views.piscina, name='piscina'),
+    path('salas/', views.salas, name='salas'),
+
+
+    path('agendar/', views.agendar_view, name='agendar'),  # Adiciona a URL para a view agendar_view
+    path('agendamento/successo/', views.agendar_view, name='agendar_successo'),  # Página de sucesso após agendamento
 ]
