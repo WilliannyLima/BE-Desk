@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Agendar Sala Esportiva</title>
+</head>
+<body>
+    <h1>Nova Reserva</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Confirmar Reserva</button>
+    </form>
+
+    {% if form.errors %}
+        <div style="color: red;">
+            <h2>Erros Encontrados:</h2>
+            {{ form.errors }}
+        </div>
+    {% endif %}
+</body>
+</html>

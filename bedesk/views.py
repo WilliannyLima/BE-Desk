@@ -1,29 +1,46 @@
-from django.shortcuts import render
-from .forms import AgendarForm
-# Create your views here.
-def index(request):
+# reservas/views.py
+
+from django.shortcuts import render, redirect # Importa render e redirect para redirecionamento
+from .forms import AgendarForm             # Importa o formulário que você criou
+
+# 1. View para Agendar a Sala (Criação)
+def agendar_sala(request):
+    """
+    Exibe o formulário de agendamento e processa a submissão.
+    """
     if request.method == 'POST':
-        form = AgendarForm(request.POST)
+        # Cria uma instância do formulário com os dados enviados (POST)
+        form = AgendarForm(request.POST) 
+        
+        # O método is_valid() chama o clean() do formulário, 
+        # que verifica a disponibilidade e o horário de funcionamento.
         if form.is_valid():
-            form.save()
-            return render(request, 'agendar_successo.html')
- # Página de sucesso após agendamento
+            form.save() # Salva a reserva no banco de dados
+            return redirect('reserva_sucesso') # Redireciona para a página de sucesso
     else:
+        # Se não for POST (primeira vez que a página é carregada), 
+        # cria um formulário vazio
         form = AgendarForm()
+        
     context = {'form': form}
-    return render(request, 'index.html', context)
+    # Renderiza o template com o formulário
+    return render(request, 'agendar.html', context)
+
+# 2. View de Confirmação de Sucesso
+def reserva_sucesso(request):
     
+#    Página simples de confirmação de reserva.
+    
+    return render(request, 'sucesso.html')
 
-def inicio(request):
-    return render(request, 'inicio.html')
 
-def ginasio(request):
-    return render(request, 'ginasio.html')
 
-def piscina(request):
-    return render(request, 'piscina.html')
 
-def salas(request):
-    return render(request, 'salas.html')
 
-#render(request, 'agendar.html', {'form': form})
+    def listar_reservas(request):
+
+ #   Lista todas as reservas existentes.
+   
+     reservas = Agendamento.objects.all().order_by('-data', '-horario')
+     context = {'reservas': reservas}
+     return render(request, 'reservas/lista_reservas.html', context)
