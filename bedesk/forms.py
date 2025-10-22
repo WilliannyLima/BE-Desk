@@ -9,6 +9,10 @@ class AgendarForm(forms.ModelForm):
         widgets = {
             'horario': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
         }
+    widgets = {
+        'motivo': forms.Textarea(attrs={'rows': 4}),
+        'horario': forms.TimeInput(attrs={'type': 'time'}),
+    }
 def clean_horario(self):
     horario = self.cleaned_data['horario']
     if horario < datetime.time(7, 0) or horario > datetime.time(18, 0):

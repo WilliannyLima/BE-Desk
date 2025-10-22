@@ -12,7 +12,18 @@ def index(request):
         form = AgendarForm()
     context = {'form': form}
     return render(request, 'index.html', context)
+
+    dias_semana = [d[0] for d in Agendamento.DIA_SEMANA]
+
+    aprovados = Agendamento.objects.filter(status='Aprovado')
     
+    dados_Agendamento = {}
+    for dia in dias_semana: 
+        dados_Agendamento[dia] = {}
+
+    for booking in aprovados:
+        dia = agendamento.dia
+        dados_Agendamento[dia]
 
 def inicio(request):
     return render(request, 'inicio.html')

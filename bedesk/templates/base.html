@@ -57,7 +57,9 @@
         <div id="meus-agendamentos-tab" class="tab-content">
             <h3>Minhas Solicitações</h3>
             <ul id="myBookingsList" class="my-bookings-list">
-                </ul>
+                {% for booking.dia %}
+            
+            </ul>
         </div>
 
         <div id="processos-tab" class="tab-content">
@@ -71,9 +73,9 @@
 {% block modals %}
     <div  id="bookingModal" class="modal">
         <div class="modal-content">
-            span class="close-button">&times;</span>
+            <span class="close-button">&times;</span>
             <h3>Agendar Horario</h3>
-            <form metdhod="post" id="bookingForm">
+            <form method="post" id="bookingForm">
                 {% csrf_token %}
 
                 {{ form.non_field_errors }}
