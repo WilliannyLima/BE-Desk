@@ -1,16 +1,7 @@
-# CÓDIGO CORRETO
-from django.urls import path
+# Em config/urls.py
+from django.urls import path, include
 from django.contrib import admin
-from bedesk import views  # Importa o módulo views
-
 urlpatterns = [
-    # A linha do admin provavelmente deveria estar no urls.py do projeto (config), não no app.
-    path('admin/', admin.site.urls), 
-
-    path('', views.index, name='index'),           # CORRIGIDO
-    path('inicio/', views.inicio, name='inicio'),
-    path('index.html', views.index, name='index_html'), 
-    path('ginasio.html', views.ginasio, name='ginasio_html'),
-    path('salas.html', views.salas, name='salas_html'),
-    path('piscina.html', views.piscina, name='piscina_html'), # CORRIGIDO
+    path('admin/', admin.site.urls),
+    path('', include('bedesk.urls')),  # <-- Mude aqui
 ]
