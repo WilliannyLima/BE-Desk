@@ -1,0 +1,55 @@
+
+{% block content %}
+
+    <div class="container mt-5">
+        <h2>{{ titulo }}</h2>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if reservas %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuário</th>
+                        <th>Sala</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                        <tr>
+                            <td>{{ reserva.pk }}</td>
+                            <td>{{ reserva.usuario.username }}</td>
+                            <td>{{ reserva.sala.nome }}</td>
+                            <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
+                            <td>{{ reserva.data_fim|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'aprovar_reserva' reserva.pk %}" class="btn btn-sm btn-success">
+                                    Aprovar
+                                </a>
+                                
+                                <a href="{% url 'rejeitar_reserva' reserva.pk %}" class="btn btn-sm btn-danger">
+                                    Rejeitar
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-info">
+                Não há reservas pendentes de aprovação no momento.
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock content %}

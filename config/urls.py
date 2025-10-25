@@ -3,5 +3,6 @@ from django.urls import path, include
 from django.contrib import admin
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('bedesk.urls')),  # <-- Mude aqui
+    path('', include('bedesk.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),  
 ]
