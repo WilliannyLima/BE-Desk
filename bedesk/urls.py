@@ -5,7 +5,7 @@ urlpatterns = [
     path('', views.inicio, name='inicio'),
     path('agendar/', views.agendar_sala, name='agendar_sala'),
     path('sucesso/', views.reserva_sucesso, name='reserva_sucesso'), # Este nome é usado no redirect
-    path('lista/', views.listar_reservas, name='listar_reservas'),
+   
 
     # Rotas de Gerenciamento
     path('gerenciar/', views.gerenciar_reservas, name='listar_pendentes'), # Este nome é usado nos redirect('listar_pendentes')
@@ -15,4 +15,11 @@ urlpatterns = [
          views.mudar_status_reserva, {'novo_status': 'REJEITADO'}, name='rejeitar_reserva'),
 
     # A rota de login deve estar no urls.py principal
+    
+     path('reservas/', views.lista_reservas, name='lista_reserva'),
+    path('reservas/editar/<int:id>/', views.editar_reserva, name='editar_reserva'),
+    path('reservas/excluir/<int:id>/', views.excluir_reserva, name='excluir_reserva'),
+    
+    path('logout/', views.log_out, name='logout'),
+
 ]

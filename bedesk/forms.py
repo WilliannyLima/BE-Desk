@@ -5,7 +5,7 @@ import datetime
 class AgendarForm(forms.ModelForm):
     class Meta:
         model = Agendamento
-        fields = ['nome', 'motivo', 'horario']
+        fields = ['nome','sala', 'motivo', 'horario']
         widgets = {
             'horario': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
         }

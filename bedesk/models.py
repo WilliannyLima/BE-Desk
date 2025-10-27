@@ -19,6 +19,7 @@ class Agendamento(models.Model):
 
     # Campos de Dados
     nome = models.CharField(max_length=100) # Nome do Agendamento (ex: Reunião de Marketing)
+    sala = models.ForeignKey(Sala, on_delete=models.CASCADE)
     motivo = models.TextField()
     horario = models.TimeField()
     
