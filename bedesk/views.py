@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import logout, authenticate, login
 from datetime import datetime, timedelta
-
+from django.contrib.auth.forms import UserCreationForm
  
     
     
@@ -26,6 +26,17 @@ def inicio(request):
 
 # 1. View para Agendar a Sala (Criação)
 def agendar_sala(request):
+    hora_predefinida = request.GET.get('hora', None)
+    sala_nome = request.GET.get('sala', None)
+    
+    sala_obj = None
+    if sala_nome:
+        try:
+            sala_obj = Sala.objects.get(nome__iexact=sala_nome)
+        except Sala.DoesNotExist:
+            sala_obj = None
+            
+    
     if request.method == 'POST':
         form = AgendarForm(request.POST)
         if form.is_valid():
@@ -36,8 +47,8 @@ def agendar_sala(request):
             # CORREÇÃO: Use o NOME DA URL (que deve ser 'reserva_sucesso' no seu urls.py)
             return redirect('reserva_sucesso') 
     else:
-        form = AgendarForm()
-    context = {'form': form}
+        form = AgendarForm(initial={'horario': hora_predefinida,'sala': sala_obj})
+    context = {'form': form, 'hora_predefinida': hora_predefinida,'sala_predefinida': sala_nome}
     # CORREÇÃO: Removido o espaço antes do 'bedesk/agendar.html'
     return render(request, 'bedesk/agendar.html', context)
 
@@ -135,3 +146,14 @@ def excluir_reserva(request, id):
 def log_out(request):
     logout(request)
     return redirect('inicio')
+
+def registrar_usuario(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Usuário registrado com sucesso! Faça login.')
+            return redirect('logar')
+    else:
+        form = UserCreationForm()
+    return render(request, 'bedesk/registrar_usuario.html', {'form': form})

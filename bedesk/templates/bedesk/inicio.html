@@ -75,7 +75,7 @@
                     <tr>
                         <td class="align-middle">{{ hora }}</td>
                         <td class="text-center">
-                            <a href="{% url 'agendar_sala' %}" class="d-grid gap-2">
+                            <a href="{% url 'agendar_sala' %}?hora={{ hora }}" class="d-grid gap-2">
                                 <button class="agendar-button btn btn-primary">
                                     <i class="fas fa-calendar-plus me-2"></i>Agendar Horario
                                 </button>

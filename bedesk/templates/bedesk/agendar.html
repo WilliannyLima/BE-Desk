@@ -52,19 +52,49 @@
             {% csrf_token %}
 
             {% for field in form %}
-                <div class="mb-3">
-                    {{ field.label_tag }}
-                    {{ field|add_class:"form-control" }}
-                    {% for error in field.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-                    {% if field.help_text %}
-                        <div class="form-text">{{ field.help_text }}</div>
-                    {% endif %}
+    {% if field.name == 'horario' %}
+        {% if hora_predefinida %}
+            <div class="mb-3">
+                <label class="form-label">Horário</label>
+                <input type="text" name="horario" value="{{ hora_predefinida }}" class="form-control" readonly>
+            </div>
+        {% else %}
+            <div class="mb-3">
+                {{ field.label_tag }}
+                {{ field|add_class:"form-control" }}
+            </div>
+        {% endif %}
+    
+    {% elif field.name == 'sala' %}
+        {% if sala_predefinida %}
+            <div class="mb-3">
+                <label class="form-label">Sala</label>
+                <input type="text" name="sala" value="{{ sala_predefinida.nome }}" class="form-control" readonly>
+            </div>
+        {% else %}
+            <div class="mb-3">
+                {{ field.label_tag }}
+                {{ field|add_class:"form-control" }}
+            </div>
+        {% endif %}
+    
+    {% else %}
+        <div class="mb-3">
+            {{ field.label_tag }}
+            {{ field|add_class:"form-control" }}
+            {% for error in field.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ error }}
                 </div>
             {% endfor %}
+            {% if field.help_text %}
+                <div class="form-text">{{ field.help_text }}</div>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% endfor %}
+
+
 
             <button type="submit" class="btn btn-primary mt-3">Confirmar Reserva</button>
         </form>
@@ -75,7 +105,7 @@
                 {{ form.non_field_errors }}
             </div>
         {% endif %}
-    </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
