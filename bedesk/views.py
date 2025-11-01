@@ -2,13 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import AgendarForm 
 from .models import Agendamento, Sala
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth import logout, authenticate, login
 from datetime import datetime, timedelta
 from django.contrib.auth.forms import UserCreationForm
  
     
-    
+@login_required
 def inicio(request):
     horarios = []
     inicio = datetime.strptime("07:00", "%H:%M")
@@ -25,6 +25,7 @@ def inicio(request):
 
 
 # 1. View para Agendar a Sala (Criação)
+@login_required
 def agendar_sala(request):
     hora_predefinida = request.GET.get('hora', None)
     sala_nome = request.GET.get('sala', None)
@@ -58,15 +59,16 @@ def reserva_sucesso(request):
     return render(request, 'bedesk/sucesso.html')
 
 # 3. View para Listar todas as reservas (para o usuário ver suas reservas, por exemplo)
+@login_required
 def lista_reservas(request):
     # ATENÇÃO: Se seu campo de data for 'data_inicio' e não 'data', ajuste aqui
-    reservas = Agendamento.objects.all().order_by('-data_inicio', '-horario') 
+    reservas = Agendamento.objects.filter(usuario=request.user).order_by('-data_inicio', '-horario') 
     # Assumindo que você está consolidando no 'bedesk':
     context = {'reservas': reservas}
     return render(request, 'bedesk/lista_reservas.html', context) 
 
 def is_admin_or_staff(user):
-    return user.is_staff
+    return user.is_staff or user.is_superuser
 
 @user_passes_test(is_admin_or_staff)
 def gerenciar_reservas(request):
@@ -114,34 +116,6 @@ def logar(request):
             messages.error(request, 'Usuário ou senha inválidos.')
 
     return render(request, 'registration/login.html')
-
-
-# 4. View para Editar uma Reserva (Corrigida)
-def editar_reserva(request, id):
-    reserva = get_object_or_404(Agendamento, id=id)
-    salas = Sala.objects.all() # Assumindo que você precisa de todas as salas
-
-    if request.method == 'POST':
-        # Você deve usar um formulário (AgendarForm) aqui para validação!
-        # Exemplo de como salvar dados brutos, mas recomenda-se usar o Form:
-        reserva.sala_id = request.POST.get('sala')
-        reserva.data = request.POST.get('data') # Cuidado com o nome do campo de data
-        reserva.hora = request.POST.get('hora') # Cuidado com o nome do campo de hora
-        reserva.save()
-        messages.success(request, 'Reserva atualizada com sucesso!')
-        # CORREÇÃO: Usando 'lista_reserva'
-        return redirect('lista_reserva') 
-
-    # O template deve estar em 'bedesk/editar_reserva.html' ou 'editar_reserva.html'
-    return render(request, 'editar_reserva.html', {'reserva': reserva, 'salas': salas})
-
-# 5. View para Excluir uma Reserva (Corrigida)
-def excluir_reserva(request, id):
-    reserva = get_object_or_404(Agendamento, id=id)
-    reserva.delete()
-    messages.success(request, 'Reserva excluída com sucesso!')
-    # CORREÇÃO: Usando 'lista_reserva'
-    return redirect('lista_reserva')
 
 def log_out(request):
     logout(request)
