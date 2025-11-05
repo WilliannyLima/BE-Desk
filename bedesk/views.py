@@ -125,9 +125,13 @@ def registrar_usuario(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
+            user = form.save(commit=False)
+            user.is_staff = False  # Define como False para usuários comuns
+            user.is_superuser = False  # Define como False para usuários comuns
             form.save()
+            
             messages.success(request, 'Usuário registrado com sucesso! Faça login.')
-            return redirect('logar')
+            return redirect('login')
     else:
         form = UserCreationForm()
     return render(request, 'bedesk/registrar_usuario.html', {'form': form})
