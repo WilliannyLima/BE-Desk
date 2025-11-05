@@ -1,13 +1,13 @@
-from django.shortcuts import render, redirect, get_object_or_404 
-from .forms import AgendarForm 
-from .models import Agendamento, Sala
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import AgendarForm
+from .models import Sala, Agendamento
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth import logout, authenticate, login
 from datetime import datetime, timedelta
 from django.contrib.auth.forms import UserCreationForm
- 
-    
+
+
 @login_required
 def inicio(request):
     horarios = []
