@@ -1,3 +1,5 @@
+# Em forms.py
+
 from django import forms
 from .models import Agendamento
 import datetime
@@ -5,42 +7,70 @@ import datetime
 class AgendarForm(forms.ModelForm):
     class Meta:
         model = Agendamento
-        fields = ['nome','sala', 'motivo', 'horario']
+        
+        # --- PASSO 1: CORREÇÃO PRINCIPAL ---
+        # Adicionamos 'data_inicio' à lista de campos.
+        fields = ['nome', 'sala', 'motivo', 'horario', 'data_inicio']
+        
+        # --- PASSO 2: CONSOLIDAR WIDGETS ---
         widgets = {
+            'motivo': forms.Textarea(attrs={'rows': 4}),
             'horario': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
+            
+            # Nós escondemos 'data_inicio' porque a view já o preenche.
+            # O template (agendar.html) já o esconde, mas isso é uma 
+            # garantia extra e define o widget correto.
+            'data_inicio': forms.HiddenInput(),
         }
+
+    # --- PASSO 3: CORRIGIR O MÉTODO CLEAN ---
     def clean(self):
         cleaned_data = super().clean()
+        
+        # Pegar os dados corretos que agora estão sendo processados
         sala = cleaned_data.get('sala')
-        data = cleaned_data.get('data')
         horario = cleaned_data.get('horario')
+        data_inicio = cleaned_data.get('data_inicio') # O DateTimeField
 
-        # === Validação 1: Expediente (ajuste conforme o horário das salas) ===
-        # Exemplo: As salas só estão abertas das 07:00 às 22:00
+        # --- Validação 1: Expediente (das 07:00 às 18:00) ---
         HORARIO_ABERTURA = datetime.time(7, 0)
-        HORARIO_FECHAMENTO = datetime.time(22, 0)
+        HORARIO_FECHAMENTO = datetime.time(18, 0) 
 
         if horario and (horario < HORARIO_ABERTURA or horario > HORARIO_FECHAMENTO):
              self.add_error('horario', f"O horário deve estar entre {HORARIO_ABERTURA.strftime('%H:%M')} e {HORARIO_FECHAMENTO.strftime('%H:%M')}.")
-             # Retornar early se o horário for inválido
-             return cleaned_data
+             # Parar a validação aqui se o horário for inválido
+             return cleaned_data 
+
+        # --- Validação 2: Disponibilidade (Verificação de Conflito) ---
         
-        # === Validação 2: Disponibilidade (a regra de ouro da reserva) ===
-        if sala and data and horario:
-            # 💡 Verifica se já existe uma reserva para ESTA SALA, NESTA DATA, NESTE HORÁRIO
-            if Agendamento.objects.filter(sala=sala, data=data, horario=horario).exists():
+        # Verifica se todos os dados necessários existem antes de checar
+        if sala and data_inicio and horario:
+            
+            # 'data_inicio' é um objeto datetime (data+hora).
+            # Nós pegamos apenas a .date() dele para a busca.
+            data_do_agendamento = data_inicio.date() 
+            
+            # Procura por agendamentos APROVADOS ou PENDENTES
+            conflitos = Agendamento.objects.filter(
+                sala=sala, 
+                data_inicio__date=data_do_agendamento, # Compara só a data
+                horario=horario,                      # Compara a hora
+                status__in=['PENDENTE', 'APROVADO']   # Ignora rejeitados
+            )
+
+            # Se esta é uma *edição* (self.instance.pk existe), 
+            # exclui a si mesmo da verificação de conflito.
+            if self.instance and self.instance.pk:
+                conflitos = conflitos.exclude(pk=self.instance.pk)
+
+            # Se encontrou algum conflito...
+            if conflitos.exists():
                 self.add_error(
-                    'horario',
-                    f"A sala {sala.nome} já está reservada para as {horario.strftime('%H:%M')} de {data.strftime('%d/%m/%Y')}."
+                    None, # Adiciona o erro ao topo do formulário
+                    f"A sala {sala.nome} já tem uma reserva (Pendente ou Aprovada) para as {horario.strftime('%H:%M')} de {data_do_agendamento.strftime('%d/%m/%Y')}."
                 )
         
         return cleaned_data
-    widgets = {
-        'motivo': forms.Textarea(attrs={'rows': 4}),
-        'horario': forms.TimeInput(attrs={'type': 'time'}),
-    }
-def clean_horario(self):
-    horario = self.cleaned_data['horario']
-    if horario < datetime.time(7, 0) or horario > datetime.time(18, 0):
-        raise forms.ValidationError("O horário deve estar entre 07:00 e 18:00.")
-    return horario 
+
+# O 'clean_horario' e o 'widgets' que estavam aqui embaixo
+# foram removidos pois já estão incluídos na classe acima.

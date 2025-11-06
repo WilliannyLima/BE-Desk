@@ -1,36 +1,82 @@
 {% extends 'bedesk/base.html' %}
 
-{% block title %}Início - BE-Desk{% endblock %}
+{% block title %}Horários da Semana - Ginásio{% endblock %}
 
 {% block content %}
-    <h2 class="mb-4 text-center">Horários Disponíveis - Ginásio</h2>
+    <h2 class="mb-4 text-center">Horários da Semana - Ginásio</h2>
 
     <div class="table-responsive">
-        <table class="table table-bordered table-hover shadow-sm">
+        <table class="table table-bordered table-hover shadow-sm text-center">
+            
             <thead class="table-dark">
                 <tr>
-                    <th>Horário</th>
-                    <th>Ação</th>
+                    <th style="width: 12%;">Horário</th>
+                    
+                    {% for dia_nome in dias_semana_nomes %}
+                        <th style="width: 17.6%;">{{ dia_nome }}</th>
+                    {% endfor %}
+                    
                 </tr>
             </thead>
+
             <tbody>
-                {% for hora in horarios %}
-                <tr>
-                    <td class="align-middle">{{ hora }}</td>
-                    <td class="text-center">
-                        <a href="{% url 'agendar_sala' %}?hora={{ hora }}" class="d-grid gap-2">
-                            <button class="agendar-button btn btn-primary">
-                                <i class="fas fa-calendar-plus me-2"></i> Agendar Horário
-                            </button>
-                        </a>
-                    </td>
-                </tr>
+                {% for linha in tabela_horarios %}
+                    
+                    {% comment %} TIPO 1: Linha Separadora (Manhã/Tarde) {% endcomment %}
+                    {% if linha.tipo == 'separador' %}
+                        <tr class="table-light">
+                            <td colspan="6" class="text-center fw-bold fs-5">
+                                {{ linha.nome }}
+                            </td>
+                        </tr>
+
+                    {% comment %} TIPO 2: Linha de Intervalo {% endcomment %}
+                    {% elif linha.tipo == 'intervalo' %}
+                        <tr class="table-secondary text-muted">
+                            <td class="align-middle">
+                                {{ linha.inicio }} às {{ linha.fim }}
+                            </td>
+                            <td colspan="5" class="align-middle fst-italic">
+                                {{ linha.nome }}
+                            </td>
+                        </tr>
+
+                    {% comment %} TIPO 3: Linha de Horário Normal {% endcomment %}
+                    {% elif linha.tipo == 'hora' %}
+                        <tr>
+                            <td class="align-middle fw-bold">
+                                {{ linha.horario_str }}
+                            </td>
+                            
+                            {% for celula in linha.celulas %}
+                                <td class="align-middle">
+                                    
+                                    {% if celula.agendamento %}
+                                        <strong>{{ celula.agendamento.usuario.username }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ celula.agendamento.nome }}</small>
+                                    
+                                    {% else %}
+                                        <a href="{% url 'agendar_sala' %}?hora={{ linha.hora_para_link }}&data={{ celula.data|date:'Y-m-d' }}&sala={{ sala_ginasio_nome }}" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-calendar-plus me-1"></i> Reservar
+                                        </a>
+                                    {% endif %}
+
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+
                 {% empty %}
-                <tr>
-                    <td colspan="2" class="text-center text-muted">Nenhum horário disponível no momento.</td>
-                </tr>
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            Nenhum horário definido na estrutura da view.
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
 {% endblock %}
