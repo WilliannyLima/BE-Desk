@@ -1,5 +1,6 @@
-# Em forms.py
-
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from .models import Profile
 from django import forms
 from .models import Agendamento, Recurso, ReservaRecurso
 import datetime
@@ -94,3 +95,39 @@ class ReservaRecursoForm(forms.ModelForm):
         }
 # O 'clean_horario' e o 'widgets' que estavam aqui embaixo
 # foram removidos pois já estão incluídos na classe acima.
+class CustomUserCreationForm(UserCreationForm):
+    # 1. Adicionamos os novos campos
+    
+    # Nota: "Nome Completo" é melhor dividido em Nome e Sobrenome.
+    # O Django já tem campos 'first_name' e 'last_name' para isso.
+    first_name = forms.CharField(max_length=150, required=True, label="Nome")
+    last_name = forms.CharField(max_length=150, required=True, label="Sobrenome")
+    matricula = forms.CharField(max_length=50, required=True, label="Matrícula")
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        # 3. Definimos os campos que aparecerão
+        # O UserCreationForm já cuida de 'username' e 'password'
+        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'matricula',)
+
+    def save(self, commit=True):
+        # 4. Sobrescrevemos o método 'save'
+        
+        # Salva o usuário (username, password, first_name, last_name)
+        user = super(CustomUserCreationForm, self).save(commit=False)
+        
+        # O formulário não salva 'first_name' e 'last_name' por padrão,
+        # então fazemos isso manualmente.
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
+        
+        if commit:
+            user.save() # Salva o usuário
+
+            # 5. Agora, salvamos a matrícula no Perfil
+            # (O perfil foi criado automaticamente pelo 'signal' que fizemos)
+            matricula_data = self.cleaned_data.get('matricula')
+            user.profile.matricula = matricula_data
+            user.profile.save() # Salva o perfil com a matrícula
+
+        return user

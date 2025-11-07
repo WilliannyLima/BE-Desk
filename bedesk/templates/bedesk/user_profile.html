@@ -8,22 +8,33 @@
         
         <div class="card shadow-sm">
             <div class="card-header fs-5">
-                {{ user.username }}
+                <strong>{{ user.get_full_name|default:user.username }}</strong>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
+                    
                     <li class="list-group-item">
-                        <strong>Usuário:</strong> {{ user.username }}
+                        <strong>Nome Completo:</strong> 
+                        {{ user.get_full_name }}
+                    </li>
+                    
+                    <li class="list-group-item">
+                        <strong>Matrícula:</strong> 
+                        {{ user.profile.matricula|default:"Não informada." }}
+                    </li>
+
+                    <li class="list-group-item">
+                        <strong>Usuário (Login):</strong> {{ user.username }}
                     </li>
                     <li class="list-group-item">
-                        <strong>Email:</strong> {{ user.email|default:"Nenhum email cadastrado." }}
+                        <strong>Email:</strong> {{ user.email|default:"Não informado." }}
                     </li>
                     <li class="list-group-item">
                         <strong>Tipo de Conta:</strong> 
                         {% if user.is_superuser %}
                             <span class="badge bg-danger">Superusuário (Admin)</span>
                         {% elif user.is_staff %}
-                            <span class="badge bg-primary">Gerente (Staff)</span>
+                            <span class="badge" style="background-color: #a01c1c;">Gerente (Staff)</span>
                         {% else %}
                             <span class="badge bg-secondary">Usuário Padrão</span>
                         {% endif %}
@@ -32,7 +43,7 @@
                 
                 <div class="mt-4">
                     <a href="{% url 'password_reset' %}" class="btn btn-outline-primary">Alterar Senha</a>
-                </div>
+                    </div>
             </div>
         </div>
 

@@ -1,19 +1,19 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="pt-br"> 
+<html lang="pt-br">
 <head>
     {% block head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}BE-Desk{% endblock %}</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-          rel="stylesheet"
-          crossorigin="anonymous">
-
-    <link rel="stylesheet" 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    
 
     {% block extra_head %}{% endblock %}
     {% endblock %}
@@ -25,13 +25,14 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="{% url 'inicio' %}">
-            <img src="{% static 'img/logo1.png' %}" 
-                 alt="Logo BE-Desk - Voltar ao Início" 
-                 height="30" 
+            <img src="{% static 'img/logo1.png' %}"
+                 alt="Logo BE-Desk - Voltar ao Início"
+                 height="30"
                  class="d-inline-block align-text-top">
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -47,7 +48,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'lista_reserva' %}">Reservas</a>
                 </li>
-                
+
                 {% if user.is_staff %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'listar_pendentes' %}">
@@ -63,20 +64,37 @@
             <ul class="navbar-nav ms-auto align-items-center">
                 {% if user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdownMenuLink" 
+                    <a class="nav-link dropdown-toggle text-white"
+                       href="#" id="navbarDropdownMenuLink"
                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-user-circle me-1"></i>
-                        Olá, <strong>{{ user.username }}</strong>
+                        Olá, <strong>
+                            {% if user.first_name %}
+                                {{ user.first_name }}
+                            {% else %}
+                                {{ user.username }}
+                            {% endif %}
+                        </strong>
                     </a>
+
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
                         <li><a class="dropdown-item" href="{% url 'user_profile' %}">Meu Perfil</a></li>
                         <li><a class="dropdown-item" href="{% url 'lista_reserva' %}">Minhas Reservas</a></li>
+
                         {% if user.is_staff %}
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'listar_pendentes' %}">Gerenciar Site</a></li>
                         {% endif %}
+
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Sair</a></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">
+                                    Sair
+                                </button>
+                            </form>
+                        </li>
                     </ul>
                 </li>
                 {% else %}

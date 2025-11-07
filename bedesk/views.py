@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import AgendarForm, ReservaRecursoForm
-from .models import Sala, Agendamento, Recurso, ReservaRecurso
+from .forms import AgendarForm, ReservaRecursoForm, CustomUserCreationForm
+from .models import Sala, Agendamento, Recurso, ReservaRecurso, Profile
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth import logout, authenticate, login
@@ -350,17 +350,21 @@ def log_out(request):
 
 def registrar_usuario(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        # Agora usamos o nosso formulário customizado
+        form = CustomUserCreationForm(request.POST)
+        
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_staff = False  # Define como False para usuários comuns
-            user.is_superuser = False  # Define como False para usuários comuns
-            form.save()
+            # O método .save() que customizamos no forms.py
+            # já cuida de salvar o User E o Profile.
+            user = form.save()
             
             messages.success(request, 'Usuário registrado com sucesso! Faça login.')
             return redirect('login')
+        # Se o formulário não for válido, ele será renderizado novamente com os erros
     else:
-        form = UserCreationForm()
+        # Se for um GET, apenas mostra o formulário vazio
+        form = CustomUserCreationForm()
+        
     return render(request, 'bedesk/registrar_usuario.html', {'form': form})
 
 # Em /bedesk/views.py
@@ -446,7 +450,7 @@ def mudar_status_recurso(request, reserva_id, novo_status):
 def user_profile(request):
     """
     Mostra a página de perfil do usuário.
+    Garante que um perfil exista para usuários antigos.
     """
-    # O objeto 'user' (request.user) já é enviado automaticamente 
-    # para o template pelo context processor do Django.
+    profile, created = Profile.objects.get_or_create(user=request.user)
     return render(request, 'bedesk/user_profile.html')
