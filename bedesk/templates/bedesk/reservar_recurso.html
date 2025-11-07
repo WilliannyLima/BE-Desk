@@ -1,0 +1,45 @@
+{% extends 'bedesk/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Solicitar {{ recurso.nome }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">Solicitar Recurso</h1>
+            
+            <div class="alert alert-info" role="alert">
+                Você está solicitando: <strong>{{ recurso.nome }}</strong>
+            </div>
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ form.non_field_errors|join:", " }}
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                <div class="mb-3">
+                    {{ field.label_tag }}
+                    {{ field }} {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg mt-3">Enviar Pedido</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

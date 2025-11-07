@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import AgendarForm
-from .models import Sala, Agendamento
+from .forms import AgendarForm, ReservaRecursoForm
+from .models import Sala, Agendamento, Recurso, ReservaRecurso
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth import logout, authenticate, login
@@ -275,24 +275,34 @@ def is_admin_or_staff(user):
 @user_passes_test(is_admin_or_staff)
 def gerenciar_reservas(request):
     
-    # 1. Buscar as reservas PENDENTES (igual antes)
+    # 1. Reservas de SALAS (como antes)
     reservas_pendentes = Agendamento.objects.filter(
         status='PENDENTE'
     ).order_by('data_inicio')
-    
-    # 2. CORREÇÃO: Buscar TODAS as reservas APROVADAS
-    
-    # Removemos o filtro 'data_inicio__date__gte=date.today()'
-    # E ordenamos da mais recente/futura para a mais antiga ('-data_inicio')
     
     reservas_aprovadas = Agendamento.objects.filter(
         status='APROVADO'
     ).order_by('-data_inicio', '-horario') 
 
+    # 2. NOVO: Reservas de RECURSOS
+    recursos_pendentes = ReservaRecurso.objects.filter(
+        status='PENDENTE'
+    ).order_by('data_prevista')
+
+    recursos_aprovados = ReservaRecurso.objects.filter(
+        status='APROVADO'
+    ).order_by('-data_prevista')
+
     context = {
+        # Salas (existente)
         'reservas_pendentes': reservas_pendentes,
-        'reservas_aprovadas': reservas_aprovadas, # Lista corrigida
-        'titulo': 'Gerenciar Reservas' 
+        'reservas_aprovadas': reservas_aprovadas,
+        
+        # Recursos (novo)
+        'recursos_pendentes': recursos_pendentes,
+        'recursos_aprovados': recursos_aprovados,
+
+        'titulo': 'Gerenciar Reservas e Recursos' 
     }
     return render(request, 'bedesk/gerenciar_reservas.html', context)
 
@@ -352,3 +362,91 @@ def registrar_usuario(request):
     else:
         form = UserCreationForm()
     return render(request, 'bedesk/registrar_usuario.html', {'form': form})
+
+# Em /bedesk/views.py
+# (No topo, verifique se você tem todas estas importações)
+from .models import Sala, Agendamento, Recurso, ReservaRecurso
+from .forms import AgendarForm, ReservaRecursoForm
+
+# ... (outras importações como messages, redirect, get_object_or_404, etc.)
+
+
+# ... (suas views existentes: inicio, agendar_sala, lista_reservas, etc.)
+
+
+# --- ADICIONE ESTAS DUAS NOVAS VIEWS ABAIXO ---
+
+@login_required
+def lista_recursos(request):
+    """
+    Mostra a página com os "quadrados" de todos os recursos disponíveis
+    que o Superuser cadastrou no /admin.
+    """
+    recursos = Recurso.objects.all()
+    context = {
+        'recursos': recursos
+    }
+    return render(request, 'bedesk/lista_recursos.html', context)
+
+
+@login_required
+def reservar_recurso(request, recurso_id):
+    """
+    Mostra o formulário de reserva para um recurso específico.
+    """
+    recurso = get_object_or_404(Recurso, pk=recurso_id)
+    
+    if request.method == 'POST':
+        form = ReservaRecursoForm(request.POST)
+        if form.is_valid():
+            nova_reserva = form.save(commit=False)
+            nova_reserva.usuario = request.user
+            nova_reserva.recurso = recurso
+            nova_reserva.status = 'PENDENTE' # Envia para a fila de aprovação
+            nova_reserva.save()
+            
+            messages.success(request, f"Seu pedido para '{recurso.nome}' foi enviado e está pendente de aprovação.")
+            
+            # Redireciona para a lista de recursos (ou para "Minhas Reservas", se preferir)
+            return redirect('lista_recursos') 
+    else:
+        form = ReservaRecursoForm()
+
+    context = {
+        'form': form,
+        'recurso': recurso
+    }
+    return render(request, 'bedesk/reservar_recurso.html', context)
+
+@user_passes_test(is_admin_or_staff)
+def mudar_status_recurso(request, reserva_id, novo_status):
+    """
+    View para aprovar ou rejeitar uma RESERVA DE RECURSO.
+    """
+    reserva = get_object_or_404(ReservaRecurso, pk=reserva_id)
+    status_permitidos = ['APROVADO', 'REJEITADO']
+
+    if novo_status not in status_permitidos:
+        messages.error(request, 'Status inválido.')
+        return redirect('listar_pendentes') # Redireciona de volta para /gerenciar
+
+    reserva.status = novo_status
+    reserva.save()
+
+    if novo_status == 'APROVADO':
+        messages.success(request, f"Reserva de '{reserva.recurso.nome}' para {reserva.usuario.username} APROVADA.")
+    else:
+        messages.warning(request, f"Reserva de '{reserva.recurso.nome}' para {reserva.usuario.username} REJEITADA.")
+
+    return redirect('listar_pendentes')
+
+# Em /bedesk/views.py
+
+@login_required
+def user_profile(request):
+    """
+    Mostra a página de perfil do usuário.
+    """
+    # O objeto 'user' (request.user) já é enviado automaticamente 
+    # para o template pelo context processor do Django.
+    return render(request, 'bedesk/user_profile.html')

@@ -12,7 +12,15 @@ urlpatterns = [
     path('gerenciar/', views.gerenciar_reservas, name='listar_pendentes'), # Este nome é usado nos redirect('listar_pendentes')
     path('gerenciar/aprovar/<int:agendamento_id>/', views.mudar_status_reserva, {'novo_status': 'APROVADO'}, name='aprovar_reserva'),
     path('gerenciar/rejeitar/<int:agendamento_id>/', views.mudar_status_reserva, {'novo_status': 'REJEITADO'}, name='rejeitar_reserva'),
+    path('recursos/', views.lista_recursos, name='lista_recursos'),
+    path('recursos/reservar/<int:recurso_id>/', views.reservar_recurso, name='reservar_recurso'),
 
+# --- PERFIL DO USUÁRIO ---
+    path('perfil/', views.user_profile, name='user_profile'),
+
+# --- NOVAS LINHAS PARA OS RECURSOS ---
+    path('gerenciar/recurso/aprovar/<int:reserva_id>/', views.mudar_status_recurso, {'novo_status': 'APROVADO'}, name='aprovar_recurso'),
+    path('gerenciar/recurso/rejeitar/<int:reserva_id>/', views.mudar_status_recurso, {'novo_status': 'REJEITADO'}, name='rejeitar_recurso'),
     # A rota de login deve estar no urls.py principal
     
      path('reservas/', views.lista_reservas, name='lista_reserva'),

@@ -1,18 +1,18 @@
 {% extends 'bedesk/base.html' %}
 
-{% block title %}Gerenciar Reservas{% endblock %}
+{% block title %}{{ titulo }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
+    <h1 class="mb-5">{{ titulo }}</h1>
 
-    <h2 class="mb-4">Reservas Pendentes de Aprovação</h2>
+    <h2 class="mb-4">Reservas de Salas Pendentes</h2>
 
     {% if reservas_pendentes %}
-    <div class="table-responsive shadow-sm rounded">
+    <div class="table-responsive shadow-sm rounded mb-5">
         <table class="table table-hover align-middle">
             <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
                     <th>Usuário</th>
                     <th>Sala</th>
                     <th>Início</th>
@@ -23,14 +23,12 @@
             <tbody>
                 {% for reserva in reservas_pendentes %}
                 <tr>
-                    <td>{{ reserva.id }}</td>
                     <td>{{ reserva.usuario.username }}</td>
                     <td>{{ reserva.sala.nome }}</td>
                     <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
                     <td><span class="badge bg-warning text-dark">{{ reserva.status }}</span></td>
                     <td class="text-center">
                         <a href="{% url 'aprovar_reserva' reserva.id %}" class="btn btn-success btn-sm">Aprovar</a>
-                        
                         <a href="{% url 'rejeitar_reserva' reserva.id %}" class="btn btn-danger btn-sm">Rejeitar</a>
                     </td>
                 </tr>
@@ -39,40 +37,40 @@
         </table>
     </div>
     {% else %}
-    <div class="alert alert-info" role="alert">
-        Nenhuma reserva pendente no momento.
+    <div class="alert alert-info mb-5" role="alert">
+        Nenhuma reserva de sala pendente no momento.
     </div>
     {% endif %}
 
-    <hr class="my-5">
 
-    <h2 class="mb-4">Reservas Aprovadas (Agendadas)</h2>
+    <h2 class="mb-4">Pedidos de Recursos Pendentes</h2>
 
-    {% if reservas_aprovadas %}
-    <div class="table-responsive shadow-sm rounded">
+    {% if recursos_pendentes %}
+    <div class="table-responsive shadow-sm rounded mb-5">
         <table class="table table-hover align-middle">
             <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
                     <th>Usuário</th>
-                    <th>Sala</th>
-                    <th>Início</th>
+                    <th>Recurso</th>
+                    <th>Data Prevista</th>
+                    <th>Motivo</th>
+                    <th>Local</th>
                     <th>Status</th>
                     <th class="text-center">Ação</th>
                 </tr>
             </thead>
             <tbody>
-                {% for reserva in reservas_aprovadas %}
+                {% for reserva in recursos_pendentes %}
                 <tr>
-                    <td>{{ reserva.id }}</td>
                     <td>{{ reserva.usuario.username }}</td>
-                    <td>{{ reserva.sala.nome }}</td>
-                    <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
-                    <td><span class="badge bg-success">{{ reserva.status }}</span></td>
+                    <td>{{ reserva.recurso.nome }}</td>
+                    <td>{{ reserva.data_prevista|date:"d/m/Y H:i" }}</td>
+                    <td>{{ reserva.motivo_uso|truncatechars:30 }}</td>
+                    <td>{{ reserva.local_uso|truncatechars:30 }}</td>
+                    <td><span class="badge bg-warning text-dark">{{ reserva.status }}</span></td>
                     <td class="text-center">
-                        <a href="{% url 'rejeitar_reserva' reserva.id %}" class="btn btn-warning btn-sm">
-                            Cancelar Reserva
-                        </a>
+                        <a href="{% url 'aprovar_recurso' reserva.id %}" class="btn btn-success btn-sm">Aprovar</a>
+                        <a href="{% url 'rejeitar_recurso' reserva.id %}" class="btn btn-danger btn-sm">Rejeitar</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -80,9 +78,64 @@
         </table>
     </div>
     {% else %}
-    <div class="alert alert-info" role="alert">
-        Nenhuma reserva aprovada para os próximos dias.
+    <div class="alert alert-info mb-5" role="alert">
+        Nenhum pedido de recurso pendente no momento.
     </div>
+    {% endif %}
+
+
+    <hr class="my-5">
+
+    <h2 class="mb-4">Itens Aprovados (Agendados)</h2>
+
+    <h4 class="text-muted mt-4">Salas</h4>
+    {% if reservas_aprovadas %}
+    <div class="table-responsive shadow-sm rounded mb-4">
+        <table class="table table-hover align-middle small">
+            <thead class="table-secondary">
+                <tr><th>Usuário</th><th>Sala</th><th>Início</th><th class="text-center">Ação</th></tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas_aprovadas %}
+                <tr>
+                    <td>{{ reserva.usuario.username }}</td>
+                    <td>{{ reserva.sala.nome }}</td>
+                    <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'rejeitar_reserva' reserva.id %}" class="btn btn-warning btn-sm">Cancelar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">Nenhuma sala aprovada.</p>
+    {% endif %}
+
+    <h4 class="text-muted mt-4">Recursos</h4>
+    {% if recursos_aprovados %}
+    <div class="table-responsive shadow-sm rounded mb-4">
+        <table class="table table-hover align-middle small">
+            <thead class="table-secondary">
+                <tr><th>Usuário</th><th>Recurso</th><th>Data Prevista</th><th class="text-center">Ação</th></tr>
+            </thead>
+            <tbody>
+                {% for reserva in recursos_aprovados %}
+                <tr>
+                    <td>{{ reserva.usuario.username }}</td>
+                    <td>{{ reserva.recurso.nome }}</td>
+                    <td>{{ reserva.data_prevista|date:"d/m/Y H:i" }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'rejeitar_recurso' reserva.id %}" class="btn btn-warning btn-sm">Cancelar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">Nenhum recurso aprovado.</p>
     {% endif %}
 
 </div>

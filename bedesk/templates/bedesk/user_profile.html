@@ -1,0 +1,41 @@
+{% extends 'bedesk/base.html' %}
+{% block title %}Meu Perfil{% endblock %}
+        
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Meu Perfil</h2>
+        
+        <div class="card shadow-sm">
+            <div class="card-header fs-5">
+                {{ user.username }}
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Usuário:</strong> {{ user.username }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Email:</strong> {{ user.email|default:"Nenhum email cadastrado." }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Tipo de Conta:</strong> 
+                        {% if user.is_superuser %}
+                            <span class="badge bg-danger">Superusuário (Admin)</span>
+                        {% elif user.is_staff %}
+                            <span class="badge bg-primary">Gerente (Staff)</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Usuário Padrão</span>
+                        {% endif %}
+                    </li>
+                </ul>
+                
+                <div class="mt-4">
+                    <a href="{% url 'password_reset' %}" class="btn btn-outline-primary">Alterar Senha</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

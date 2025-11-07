@@ -1,7 +1,7 @@
 # Em forms.py
 
 from django import forms
-from .models import Agendamento
+from .models import Agendamento, Recurso, ReservaRecurso
 import datetime
 
 class AgendarForm(forms.ModelForm):
@@ -72,5 +72,25 @@ class AgendarForm(forms.ModelForm):
         
         return cleaned_data
 
+class ReservaRecursoForm(forms.ModelForm):
+    class Meta:
+        model = ReservaRecurso
+        
+        # Estes são os campos que o usuário irá preencher
+        # (O 'recurso', 'usuario' e 'status' serão definidos na view)
+        fields = ['data_prevista', 'motivo_uso', 'local_uso']
+        
+        # Adiciona widgets para os campos (para o Bootstrap)
+        widgets = {
+            'data_prevista': forms.DateTimeInput(
+                attrs={'type': 'datetime-local', 'class': 'form-control'}
+            ),
+            'motivo_uso': forms.Textarea(
+                attrs={'rows': 4, 'class': 'form-control'}
+            ),
+            'local_uso': forms.TextInput(
+                attrs={'class': 'form-control'}
+            ),
+        }
 # O 'clean_horario' e o 'widgets' que estavam aqui embaixo
 # foram removidos pois já estão incluídos na classe acima.

@@ -1,21 +1,26 @@
 # Em /bedesk/context_processors.py
 
-from .models import Agendamento
+# Importe os dois modelos
+from .models import Agendamento, ReservaRecurso 
 
 def notificacoes_pendentes(request):
     """
-    Verifica se existem reservas pendentes e disponibiliza a contagem
-    para todos os templates.
+    Verifica se existem reservas PENDENTES de Salas E Recursos
+    e disponibiliza a contagem total para todos os templates.
     """
     
-    # Inicia a contagem como 0
-    pendentes_count = 0
+    total_pendentes = 0
     
-    # Só faz a consulta no banco se o usuário for staff (otimização)
     if request.user.is_authenticated and request.user.is_staff:
-        pendentes_count = Agendamento.objects.filter(status='PENDENTE').count()
+        # 1. Conta as salas pendentes
+        salas_pendentes_count = Agendamento.objects.filter(status='PENDENTE').count()
+        
+        # 2. Conta os recursos pendentes
+        recursos_pendentes_count = ReservaRecurso.objects.filter(status='PENDENTE').count()
+        
+        # 3. Soma os dois
+        total_pendentes = salas_pendentes_count + recursos_pendentes_count
     
-    # Retorna um dicionário que será adicionado ao contexto do template
     return {
-        'pendentes_count': pendentes_count
+        'pendentes_count': total_pendentes
     }

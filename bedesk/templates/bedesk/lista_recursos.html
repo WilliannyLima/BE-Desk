@@ -1,0 +1,36 @@
+{% extends 'bedesk/base.html' %}
+
+{% block title %}Solicitar Recursos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Solicitar Recursos</h2>
+    <p class="text-muted">Clique em um item para solicitar a reserva.</p>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        
+        {% for recurso in recursos %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ recurso.nome }}</h5>
+                    <p class="card-text">{{ recurso.descricao|default:"Sem descrição." }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 p-3">
+                    <a href="{% url 'reservar_recurso' recurso.id %}" class="btn btn-primary w-100">
+                        <i class="fas fa-calendar-plus me-2"></i> Solicitar
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    Nenhum recurso cadastrado pelo administrador no momento.
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

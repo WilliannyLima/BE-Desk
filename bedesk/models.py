@@ -53,5 +53,61 @@ class Agendamento(models.Model):
         data_str = self.data_inicio.strftime('%d/%m/%Y') if self.data_inicio else 'Data não definida'
         return f"{self.nome} - {self.sala.nome} em {data_str}"
 
+class Recurso(models.Model):
+    """
+    O item que pode ser reservado (ex: Bola de Futsal, Corda).
+    O Superuser vai adicionar/editar estes itens pela tela /admin.
+    """
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField(blank=True, null=True, help_text="Descrição, regras de uso, etc.")
+    # Adicionaremos um campo de imagem no futuro, para os "quadrados"
+    
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = "Recurso"
+        verbose_name_plural = "Recursos"
+
+
+class ReservaRecurso(models.Model):
+    """
+    O pedido de reserva de um recurso, que irá para a fila de aprovação.
+    """
+    STATUS_CHOICES = [
+        ('PENDENTE', 'Pendente'),
+        ('APROVADO', 'Aprovado'),
+        ('REJEITADO', 'Rejeitado'),
+    ]
+    
+    # O que está sendo reservado
+    recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE)
+    
+    # Quem está pedindo
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    # Status da aprovação (igual ao Agendamento)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='PENDENTE'
+    )
+    
+    # Respostas do novo formulário
+    data_prevista = models.DateTimeField(verbose_name="Quando você precisa?")
+    motivo_uso = models.TextField(verbose_name="Para que o recurso será usado?")
+    local_uso = models.CharField(max_length=200, verbose_name="Onde você irá utilizá-lo?")
+    
+    # Data de criação do pedido
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.recurso.nome} ({self.status})"
+        
+    class Meta:
+        # Ordena os pedidos mais novos primeiro
+        ordering = ['-criado_em']
+        verbose_name = "Reserva de Recurso"
+        verbose_name_plural = "Reservas de Recursos"
 
 
