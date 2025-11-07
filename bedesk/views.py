@@ -198,12 +198,72 @@ def reserva_sucesso(request):
 
 # 3. View para Listar todas as reservas (para o usuário ver suas reservas, por exemplo)
 @login_required
+@login_required
 def lista_reservas(request):
-    # ATENÇÃO: Se seu campo de data for 'data_inicio' e não 'data', ajuste aqui
-    reservas = Agendamento.objects.filter(usuario=request.user).order_by('-data_inicio', '-horario') 
-    # Assumindo que você está consolidando no 'bedesk':
-    context = {'reservas': reservas}
-    return render(request, 'bedesk/lista_reservas.html', context) 
+    today = date.today()
+    
+    # 1. Pega as reservas ativas (futuras e pendentes)
+    reservas_ativas = Agendamento.objects.filter(
+        usuario=request.user,
+        data_inicio__date__gte=today, # Do dia de hoje em diante
+        status__in=['APROVADO', 'PENDENTE']
+    ).order_by('data_inicio', 'horario')
+
+    # 2. Pega o histórico (passado ou rejeitado)
+    reservas_historico = Agendamento.objects.filter(
+        usuario=request.user
+    ).exclude(
+        pk__in=reservas_ativas.values_list('pk', flat=True) # Exclui as que já estão na lista de ativas
+    ).order_by('-data_inicio', 'horario')
+
+    context = {
+        'reservas_ativas': reservas_ativas,
+        'reservas_historico': reservas_historico
+    }
+    return render(request, 'bedesk/lista_reservas.html', context)
+
+# 
+# ADICIONE ESTAS DUAS NOVAS FUNÇÕES NO FINAL DO SEU 'views.py':
+# 
+
+@login_required
+def cancelar_reserva_usuario(request, agendamento_id):
+    """
+    Permite ao usuário cancelar uma reserva PENDENTE ou APROVADA (futura).
+    Isso muda o status para REJEITADO.
+    """
+    # Busca a reserva E checa se pertence ao usuário logado
+    reserva = get_object_or_404(Agendamento, pk=agendamento_id, usuario=request.user)
+    
+    # Só pode cancelar se estiver PENDENTE ou APROVADO
+    if reserva.status in ['PENDENTE', 'APROVADO']:
+        reserva.status = 'REJEITADO'
+        reserva.save()
+        messages.success(request, "Reserva foi cancelada com sucesso.")
+    else:
+        messages.warning(request, "Esta reserva não pode ser cancelada.")
+        
+    return redirect('lista_reserva')
+
+
+@login_required
+def excluir_reserva_usuario(request, agendamento_id):
+    """
+    Permite ao usuário EXCLUIR uma reserva do seu histórico.
+    Isso SÓ funciona para reservas REJEITADAS ou PASSADAS.
+    """
+    # Busca a reserva E checa se pertence ao usuário logado
+    reserva = get_object_or_404(Agendamento, pk=agendamento_id, usuario=request.user)
+    
+    # Regra: Só pode excluir se NÃO estiver PENDENTE ou APROVADA (futura)
+    if reserva.status == 'REJEITADO' or (reserva.data_inicio.date() < date.today()):
+        reserva_id = reserva.id
+        reserva.delete()
+        messages.success(request, f"Reserva (ID: {reserva_id}) foi excluída do seu histórico.")
+    else:
+        messages.warning(request, "Você não pode excluir uma reserva ativa. Use 'Cancelar' primeiro.")
+
+    return redirect('lista_reserva') 
 
 def is_admin_or_staff(user):
     return user.is_staff or user.is_superuser
