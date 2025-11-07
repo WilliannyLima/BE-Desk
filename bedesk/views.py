@@ -208,12 +208,31 @@ def lista_reservas(request):
 def is_admin_or_staff(user):
     return user.is_staff or user.is_superuser
 
+# Em views.py
+
+# Em views.py
+
 @user_passes_test(is_admin_or_staff)
 def gerenciar_reservas(request):
-    # CORREÇÃO: Use 'PENDENTE' (em CAPS) conforme o models.py
-    reservas = Agendamento.objects.filter(status='PENDENTE').order_by('data_inicio')
-    context = {'reservas': reservas,
-               'titulo':'Reservas Pendentes de Aprovação'
+    
+    # 1. Buscar as reservas PENDENTES (igual antes)
+    reservas_pendentes = Agendamento.objects.filter(
+        status='PENDENTE'
+    ).order_by('data_inicio')
+    
+    # 2. CORREÇÃO: Buscar TODAS as reservas APROVADAS
+    
+    # Removemos o filtro 'data_inicio__date__gte=date.today()'
+    # E ordenamos da mais recente/futura para a mais antiga ('-data_inicio')
+    
+    reservas_aprovadas = Agendamento.objects.filter(
+        status='APROVADO'
+    ).order_by('-data_inicio', '-horario') 
+
+    context = {
+        'reservas_pendentes': reservas_pendentes,
+        'reservas_aprovadas': reservas_aprovadas, # Lista corrigida
+        'titulo': 'Gerenciar Reservas' 
     }
     return render(request, 'bedesk/gerenciar_reservas.html', context)
 
