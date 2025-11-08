@@ -17,15 +17,8 @@
                         <strong>Nome Completo:</strong> 
                         {{ user.get_full_name }}
                     </li>
-                    
-                    <li class="list-group-item">
-                        <strong>Matrícula:</strong> 
-                        {{ user.profile.matricula|default:"Não informada." }}
-                    </li>
+                
 
-                    <li class="list-group-item">
-                        <strong>Usuário (Login):</strong> {{ user.username }}
-                    </li>
                     <li class="list-group-item">
                         <strong>Email:</strong> {{ user.email|default:"Não informado." }}
                     </li>
