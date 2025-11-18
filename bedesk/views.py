@@ -14,7 +14,21 @@ def inicio(request):
     return render(request, 'bedesk/inicio.html')
 
 @login_required
-def pagina_ginasio(request):
+def lista_locais(request):
+    """
+    Esta view busca todas as salas cadastradas (Ginásio, E05, etc.)
+    e as envia para um novo template.
+    """
+    # Busca todas as salas no banco de dados
+    locais = Sala.objects.all().order_by('nome')
+    
+    context = {
+        'locais': locais
+    }
+    return render(request, 'bedesk/lista_locais.html', context)
+
+@login_required
+def detalhe_sala(request, nome_sala):
     
     # Esta lista define a estrutura exata da sua tabela
     horarios_estrutura = [
@@ -37,60 +51,50 @@ def pagina_ginasio(request):
         {'tipo': 'hora', 'inicio': '16:30', 'fim': '17:15'},
         {'tipo': 'hora', 'inicio': '17:15', 'fim': '18:00'},
     ]
-    
     dias_semana_nomes = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira']
 
-    # --- 2. Buscar Dados da Semana Atual ---
-    
-    # IMPORTANTE: Confirme que o nome da sala é 'Ginásio' no seu BD.
+    # 2. Busca a sala específica (E05 ou Ginásio)
     try:
-        sala_ginasio = Sala.objects.get(nome='Ginásio') 
+        sala_obj = get_object_or_404(Sala, nome__iexact=nome_sala) 
     except Sala.DoesNotExist:
-        messages.error(request, "A sala 'Ginásio' não foi encontrada no sistema.")
-        return render(request, 'bedesk/inicio.html', {'tabela_horarios': [], 'dias_semana_nomes': dias_semana_nomes})
+        messages.error(request, f"A sala '{nome_sala}' não foi encontrada.")
+        return redirect('inicio')
 
+    # 3. Busca os agendamentos APENAS desta sala
     today = date.today()
-    start_of_week = today - timedelta(days=today.weekday()) # Segunda-feira
-    
-    # Lista das 5 datas da semana (objetos date)
+    start_of_week = today - timedelta(days=today.weekday())
     dias_semana_datas = [start_of_week + timedelta(days=i) for i in range(5)]
 
-    # Busca agendamentos APROVADOS para esta sala, nesta semana
     agendamentos = Agendamento.objects.filter(
-        sala=sala_ginasio,
+        sala=sala_obj,  # <-- ESTE É O FILTRO!
         status='APROVADO',
         data_inicio__date__range=[start_of_week, dias_semana_datas[-1]]
     ).select_related('usuario')
 
-    # --- 3. Mapear Agendamentos para a Grade ---
+    # 4. Mapeia os agendamentos (copie sua lógica)
     agendamentos_map = {}
     for ag in agendamentos:
         hora_str = ag.horario.strftime("%H:%M")
-        dia_weekday = ag.data_inicio.weekday() # 0=Seg, 1=Ter...
+        dia_weekday = ag.data_inicio.weekday()
         agendamentos_map[(hora_str, dia_weekday)] = ag
 
-    # --- 4. Construir a Tabela para o Template ---
+    # 5. Constrói a tabela (copie sua lógica)
     tabela_horarios = []
     for item in horarios_estrutura:
-        
-        # Se for um separador ('Manhã', 'Tarde') ou intervalo
         if item['tipo'] != 'hora':
             tabela_horarios.append(item)
             continue
         
-        # Se for um horário normal
         hora_inicio_str = item['inicio']
         linha = {
             'tipo': 'hora',
             'horario_str': f"{item['inicio']} às {item['fim']}",
-            'hora_para_link': hora_inicio_str, # Apenas a hora de início para o link
-            'celulas': [] # Lista para as 5 células (Seg-Sex)
+            'hora_para_link': hora_inicio_str,
+            'celulas': []
         }
         
         for dia_num, data_do_dia in enumerate(dias_semana_datas):
-            # Pega o agendamento no map, ou None se não existir
             agendamento = agendamentos_map.get((hora_inicio_str, dia_num))
-            
             celula = {
                 'data': data_do_dia,
                 'agendamento': agendamento
@@ -99,13 +103,15 @@ def pagina_ginasio(request):
             
         tabela_horarios.append(linha)
 
-    # --- 5. Enviar para o Template ---
+    # 6. Manda tudo para o template
     context = {
         'tabela_horarios': tabela_horarios,
         'dias_semana_nomes': dias_semana_nomes,
-        'sala_ginasio_nome': sala_ginasio.nome, # Para usar no link do botão
+        'sala': sala_obj, # Passa o objeto sala (E05 ou Ginásio)
     }
-    return render(request, 'bedesk/pagina_ginasio.html', context)
+    
+    # 7. Renderiza o template
+    return render(request, 'bedesk/detalhe_sala.html', context)
 
 @login_required
 def agendar_sala(request):

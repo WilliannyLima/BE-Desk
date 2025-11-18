@@ -14,8 +14,7 @@
                 <tr>
                     <th>Sala</th>
                     <th>Início</th>
-                    <th>Motivo</th>
-                    <th>Status</th>
+                    <th>Título</th> <th>Status</th>
                     <th class="text-center">Ação</th>
                 </tr>
             </thead>
@@ -24,8 +23,7 @@
                 <tr>
                     <td>{{ reserva.sala.nome }}</td>
                     <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
-                    <td>{{ reserva.nome }}</td>
-                    <td>
+                    <td>{{ reserva.nome }}</td> <td>
                         {% if reserva.status == 'APROVADO' %}
                             <span class="badge bg-success">{{ reserva.status }}</span>
                         {% else %}
@@ -59,8 +57,7 @@
                 <tr>
                     <th>Sala</th>
                     <th>Data</th>
-                    <th>Motivo</th>
-                    <th>Status</th>
+                    <th>Título</th> <th>Status</th>
                     <th class="text-center">Ação</th>
                 </tr>
             </thead>
@@ -69,8 +66,7 @@
                 <tr class="{% if reserva.status == 'REJEITADO' %}text-muted{% endif %}">
                     <td>{{ reserva.sala.nome }}</td>
                     <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
-                    <td>{{ reserva.nome }}</td>
-                    <td>
+                    <td>{{ reserva.nome }}</td> <td>
                         {% if reserva.status == 'APROVADO' %}
                             <span class="badge bg-secondary">{{ reserva.status }} (Passada)</span>
                         {% else %}

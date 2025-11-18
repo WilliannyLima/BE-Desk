@@ -1,5 +1,3 @@
-# Em bedesk/forms.py
-
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
@@ -15,10 +13,12 @@ class AgendarForm(forms.ModelForm):
     class Meta:
         model = Agendamento
         fields = ['nome', 'sala', 'motivo', 'horario', 'data_inicio']
-        widgets = {
-            'motivo': forms.Textarea(attrs={'rows': 4}),
-            'horario': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
-            'data_inicio': forms.HiddenInput(),
+        labels = {
+            'nome': 'Título da Reserva', 
+            'sala': 'Sala',
+            'motivo': 'Motivo da Reserva',
+            'horario': 'Horário de Início',
+            'data_inicio': 'Data',
         }
     
     def clean(self):

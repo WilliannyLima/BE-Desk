@@ -17,17 +17,18 @@
                     <th>Sala</th>
                     <th>Início</th>
                     <th>Status</th>
-                    <th class="text-center">Ação</th>
+                    <th>Motivo da Solicitação</th> <th class="text-center">Ação</th>
                 </tr>
             </thead>
             <tbody>
                 {% for reserva in reservas_pendentes %}
                 <tr>
-                    <td>{{ reserva.usuario.username }}</td>
+                    <td>{{ reserva.usuario.first_name|default:reserva.usuario.username }}</td>
                     <td>{{ reserva.sala.nome }}</td>
                     <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
                     <td><span class="badge bg-warning text-dark">{{ reserva.status }}</span></td>
-                    <td class="text-center">
+                    
+                    <td>{{ reserva.motivo }}</td> <td class="text-center">
                         <a href="{% url 'aprovar_reserva' reserva.id %}" class="btn btn-success btn-sm">Aprovar</a>
                         <a href="{% url 'rejeitar_reserva' reserva.id %}" class="btn btn-danger btn-sm">Rejeitar</a>
                     </td>
@@ -98,7 +99,7 @@
             <tbody>
                 {% for reserva in reservas_aprovadas %}
                 <tr>
-                    <td>{{ reserva.usuario.username }}</td>
+                    <td>{{ reserva.usuario.first_name|default:reserva.usuario.username }}</td>
                     <td>{{ reserva.sala.nome }}</td>
                     <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
                     <td class="text-center">
@@ -123,7 +124,7 @@
             <tbody>
                 {% for reserva in recursos_aprovados %}
                 <tr>
-                    <td>{{ reserva.usuario.username }}</td>
+                   <td>{{ reserva.usuario.first_name|default:reserva.usuario.username }}</td>
                     <td>{{ reserva.recurso.nome }}</td>
                     <td>{{ reserva.data_prevista|date:"d/m/Y H:i" }}</td>
                     <td class="text-center">

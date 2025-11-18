@@ -1,0 +1,55 @@
+{% extends 'bedesk/base.html' %}
+
+{% block title %}Escolher Local{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="text-center mb-4">Reservar um Local</h1>
+            <p class="text-center text-muted fs-5 mb-5">
+                Selecione o local que você deseja consultar ou reservar.
+            </p>
+
+            <div class="row">
+                {% for local in locais %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        
+                        {% if local.foto %}
+                            <img src="{{ local.foto.url }}" class="card-img-top" 
+                                 alt="Foto de {{ local.nome }}" 
+                                 style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h3 class="card-title">{{ local.nome }}</h3>
+                            <p class="card-text">
+                                Capacidade: {{ local.capacidade|default:"Não informada" }}
+                            </p>
+                            
+                            {% if local.descricao %}
+                                <p class="card-text text-muted">
+                                    {{ local.descricao|truncatewords:20 }}
+                                </p>
+                            {% endif %}
+                            
+                            <a href="{% url 'detalhe_sala' local.nome %}" class="btn btn-primary mt-auto">
+                                Ver Horários
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-warning" role="alert">
+                        Nenhum local cadastrado no sistema ainda.
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

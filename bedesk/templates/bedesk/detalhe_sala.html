@@ -1,9 +1,9 @@
 {% extends 'bedesk/base.html' %}
 
-{% block title %}Horários da Semana - Ginásio{% endblock %}
-
-{% block content %}
-    <h2 class="mb-4 text-center">Horários da Semana - Ginásio</h2>
+{% block title %}Horários - {{ sala.nome }}{% endblock %} {% block content %}
+<div class="container-fluid mt-4">
+    
+    <h2 class="text-center mb-4">Horários -  {{ sala.nome }}</h2>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover shadow-sm text-center">
@@ -52,16 +52,31 @@
                                 <td class="align-middle">
                                     
                                     {% if celula.agendamento %}
-                                        <strong>{{ celula.agendamento.usuario.username }}</strong>
-                                        <br>
-                                        <small class="text-muted">{{ celula.agendamento.nome }}</small>
-                                    
-                                    {% else %}
-                                        <a href="{% url 'agendar_sala' %}?hora={{ linha.hora_para_link }}&data={{ celula.data|date:'Y-m-d' }}&sala={{ sala_ginasio_nome }}" 
-                                           class="btn btn-sm btn-primary">
-                                            <i class="fas fa-calendar-plus me-1"></i> Reservar
-                                        </a>
-                                    {% endif %}
+    <div class="d-flex flex-column justify-content-center align-items-center h-100">
+        
+        <span class="text-danger fw-bold text-uppercase" 
+              style="font-size: 0.9em;" 
+              data-bs-toggle="tooltip" 
+              title="Motivo: {{ celula.agendamento.motivo }}">
+            {{ celula.agendamento.nome }}
+        </span>
+        
+        <small class="text-muted fw-bold" style="font-size: 0.8em;">
+            ({{ celula.agendamento.usuario.first_name|default:celula.agendamento.usuario.username }})
+        </small>
+
+    </div>
+
+{% else %}
+    <a href="{% url 'agendar_sala' %}?hora={{ linha.hora_para_link }}&data={{ celula.data|date:'Y-m-d' }}&sala={{ sala.nome }}" 
+       class="btn btn-primary btn-sm w-100"
+       data-bs-toggle="tooltip" 
+       title="Clique para agendar">
+        
+        <i class="fa-solid fa-plus fa-lg"></i>
+        
+    </a>
+{% endif %}
 
                                 </td>
                             {% endfor %}
@@ -77,6 +92,6 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
+    </div> </div>
 
 {% endblock %}
