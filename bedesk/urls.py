@@ -1,11 +1,10 @@
-# Em /bedesk/urls.py
-
 from django.urls import path
 from . import views
 # Não precisamos mais do 'auth_views' aqui
 
 urlpatterns = [
     path('', views.inicio, name='inicio'),
+    path('ginasio/', views.pagina_ginasio, name='pagina_ginasio'),
     path('agendar/', views.agendar_sala, name='agendar_sala'),
     path('sucesso/', views.reserva_sucesso, name='reserva_sucesso'),
     

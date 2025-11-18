@@ -10,7 +10,11 @@ from datetime import datetime, timedelta, date
 
 @login_required
 def inicio(request):
-    # --- 1. Definição da Estrutura Fixa de Horários (Conforme sua imagem) ---
+    # Esta view agora só renderiza a página de boas-vindas
+    return render(request, 'bedesk/inicio.html')
+
+@login_required
+def pagina_ginasio(request):
     
     # Esta lista define a estrutura exata da sua tabela
     horarios_estrutura = [
@@ -101,13 +105,7 @@ def inicio(request):
         'dias_semana_nomes': dias_semana_nomes,
         'sala_ginasio_nome': sala_ginasio.nome, # Para usar no link do botão
     }
-    return render(request, 'bedesk/inicio.html', context)
-
-
-# 1. View para Agendar a Sala (Criação)
-# Em views.py
-
-# (Verifique se 'from datetime import datetime, timedelta, date' está no topo)
+    return render(request, 'bedesk/pagina_ginasio.html', context)
 
 @login_required
 def agendar_sala(request):
