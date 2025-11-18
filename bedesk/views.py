@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.forms import UserCreationForm
 from datetime import datetime, timedelta, date
 
-@login_required
+
 def inicio(request):
     # Esta view agora só renderiza a página de boas-vindas
     return render(request, 'bedesk/inicio.html')
@@ -27,7 +27,7 @@ def lista_locais(request):
     }
     return render(request, 'bedesk/lista_locais.html', context)
 
-@login_required
+
 def detalhe_sala(request, nome_sala):
     
     # Esta lista define a estrutura exata da sua tabela
@@ -384,7 +384,7 @@ from .forms import AgendarForm, ReservaRecursoForm
 
 # --- ADICIONE ESTAS DUAS NOVAS VIEWS ABAIXO ---
 
-@login_required
+
 def lista_recursos(request):
     """
     Mostra a página com os "quadrados" de todos os recursos disponíveis
