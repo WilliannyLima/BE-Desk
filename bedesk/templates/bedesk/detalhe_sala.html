@@ -1,10 +1,32 @@
 {% extends 'bedesk/base.html' %}
 
-{% block title %}Horários - {{ sala.nome }}{% endblock %} {% block content %}
+{% block title %}Horários - {{ sala.nome }}{% endblock %} 
+
+{% block content %}
 <div class="container-fluid mt-4">
     
-    <h2 class="text-center mb-4">Horários -  {{ sala.nome }}</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        
+        <a href="{% url 'detalhe_sala' nome_sala=sala.nome %}?foco={{ semana_anterior }}" 
+           class="btn btn-outline-secondary {% if disable_semana_anterior %}disabled{% endif %}"
+           {% if disable_semana_anterior %}aria-disabled="true" title="Limite de histórico: Somente a semana anterior é visível"{% endif %}>
+            <i class="fa-solid fa-chevron-left"></i> Semana Anterior
+        </a>
 
+        <a href="{% url 'detalhe_sala' nome_sala=sala.nome %}?foco={{ proxima_semana }}" 
+           class="btn btn-outline-primary {% if disable_proxima_semana %}disabled{% endif %}"
+           {% if disable_proxima_semana %}aria-disabled="true" title="Limite de futuro: Apenas a próxima semana é visível"{% endif %}>
+            Próxima Semana <i class="fa-solid fa-chevron-right"></i>
+        </a>
+    </div>
+    <h2 class="text-center mb-1">Horários da Sala {{ sala.nome }}</h2>
+    
+    <h4 class="text-center text-muted mb-4">
+        Semana de {{ faixa_datas_semana.inicio }} a {{ faixa_datas_semana.fim }}
+        {% if status_semana == 'PASSADA' %}
+            <span class="badge bg-danger ms-2">HISTÓRICO</span>
+        {% endif %}
+    </h4>
     <div class="table-responsive">
         <table class="table table-bordered table-hover shadow-sm text-center">
             
@@ -12,10 +34,12 @@
                 <tr>
                     <th style="width: 12%;">Horário</th>
                     
-                    {% for dia_nome in dias_semana_nomes %}
-                        <th style="width: 17.6%;">{{ dia_nome }}</th>
+                    {% for dia in dias_com_data %}
+                        <th style="width: 17.6%;">
+                            {{ dia.nome_dia }} <br> 
+                            <small class="text-light opacity-75 fw-normal">{{ dia.data_formatada }}</small>
+                        </th>
                     {% endfor %}
-                    
                 </tr>
             </thead>
 
@@ -52,31 +76,40 @@
                                 <td class="align-middle">
                                     
                                     {% if celula.agendamento %}
-    <div class="d-flex flex-column justify-content-center align-items-center h-100">
-        
-        <span class="text-danger fw-bold text-uppercase" 
-              style="font-size: 0.9em;" 
-              data-bs-toggle="tooltip" 
-              title="Motivo: {{ celula.agendamento.motivo }}">
-            {{ celula.agendamento.nome }}
-        </span>
-        
-        <small class="text-muted fw-bold" style="font-size: 0.8em;">
-            ({{ celula.agendamento.usuario.first_name|default:celula.agendamento.usuario.username }})
-        </small>
+                                        <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                                            
+                                            <span class="text-danger fw-bold text-uppercase" 
+                                                  style="font-size: 0.9em;" 
+                                                  data-bs-toggle="tooltip" 
+                                                  title="Motivo: {{ celula.agendamento.motivo }}">
+                                                {{ celula.agendamento.nome }}
+                                            </span>
+                                            
+                                            <small class="text-muted fw-bold" style="font-size: 0.8em;">
+                                                ({{ celula.agendamento.usuario.first_name|default:celula.agendamento.usuario.username }})
+                                            </small>
 
-    </div>
+                                        </div>
 
-{% else %}
-    <a href="{% url 'agendar_sala' %}?hora={{ linha.hora_para_link }}&data={{ celula.data|date:'Y-m-d' }}&sala={{ sala.nome }}" 
-       class="btn btn-primary btn-sm w-100"
-       data-bs-toggle="tooltip" 
-       title="Clique para agendar">
-        
-        <i class="fa-solid fa-plus fa-lg"></i>
-        
-    </a>
-{% endif %}
+                                    {% else %}
+                                        {% if status_semana == 'PASSADA' %}
+                                            <button class="btn btn-secondary btn-sm w-100" disabled>
+                                                <i class="fa-solid fa-lock fa-lg"></i>
+                                            </button>
+                                            <small class="text-muted" style="font-size: 0.75em;">Semana Encerrada</small>
+                                        
+                                        {% else %}
+                                            <a href="{% url 'agendar_sala' %}?hora={{ linha.hora_para_link }}&data={{ celula.data|date:'Y-m-d' }}&sala={{ sala.nome }}" 
+                                               class="btn btn-primary btn-sm w-100"
+                                               data-bs-toggle="tooltip" 
+                                               title="Clique para agendar">
+                                                
+                                                <i class="fa-solid fa-plus fa-lg"></i>
+                                                
+                                            </a>
+                                        {% endif %}
+
+                                    {% endif %}
 
                                 </td>
                             {% endfor %}
@@ -92,6 +125,7 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div> </div>
+    </div> 
+</div>
 
 {% endblock %}

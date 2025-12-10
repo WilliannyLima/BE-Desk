@@ -72,12 +72,7 @@
                         {% else %}
                             <span class="badge bg-danger">{{ reserva.status }}</span>
                         {% endif %}
-                    </td>
-                    <td class="text-center">
-                        <a href="{% url 'excluir_reserva_usuario' reserva.id %}" class="btn btn-danger btn-sm">
-                            Excluir
-                        </a>
-                    </td>
+                  
                 </tr>
                 {% endfor %}
             </tbody>

@@ -26,7 +26,7 @@ urlpatterns = [
     path('perfil/', views.user_profile, name='user_profile'), # <-- A rota que estava quebrando
     path('reservas/', views.lista_reservas, name='lista_reserva'),
     path('reservas/cancelar/<int:agendamento_id>/', views.cancelar_reserva_usuario, name='cancelar_reserva_usuario'),
-    path('reservas/excluir/<int:agendamento_id>/', views.excluir_reserva_usuario, name='excluir_reserva_usuario'),
+    
     
     # Cadastro (fica aqui porque é uma view customizada)
     path('registrar/', views.registrar_usuario, name='registrar_usuario'),
