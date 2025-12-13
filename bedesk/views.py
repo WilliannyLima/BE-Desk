@@ -30,15 +30,15 @@ def lista_locais(request):
 
 def detalhe_sala(request, nome_sala):
     
-    # Esta lista define a estrutura exata da sua tabela
+    # --- ESTRUTURA DE HORÁRIOS (garantindo que esteja aqui) ---
     horarios_estrutura = [
         {'tipo': 'separador', 'nome': 'Manhã'},
         {'tipo': 'hora', 'inicio': '07:00', 'fim': '07:45'},
         {'tipo': 'hora', 'inicio': '07:45', 'fim': '08:30'},
-        {'tipo': 'intervalo', 'inicio': '08:30', 'fim': '08:50', 'nome': 'Intervalo (20 min)'}, # Intervalo de 20 min
+        {'tipo': 'intervalo', 'inicio': '08:30', 'fim': '08:50', 'nome': 'Intervalo (20 min)'},
         {'tipo': 'hora', 'inicio': '08:50', 'fim': '09:35'},
         {'tipo': 'hora', 'inicio': '09:35', 'fim': '10:20'},
-        {'tipo': 'intervalo', 'inicio': '10:20', 'fim': '10:30', 'nome': 'Intervalo (10 min)'}, # Intervalo de 10 min
+        {'tipo': 'intervalo', 'inicio': '10:20', 'fim': '10:30', 'nome': 'Intervalo (10 min)'},
         {'tipo': 'hora', 'inicio': '10:30', 'fim': '11:15'},
         {'tipo': 'hora', 'inicio': '11:15', 'fim': '12:00'},
         {'tipo': 'separador', 'nome': 'Tarde'},
@@ -52,6 +52,46 @@ def detalhe_sala(request, nome_sala):
         {'tipo': 'hora', 'inicio': '17:15', 'fim': '18:00'},
     ]
     dias_semana_nomes = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira']
+    # ------------------------------------------------------------------
+
+    # --- NOVO: LÓGICA PARA NAVEGAR ENTRE SEMANAS E DEFINIR O FOCO ---
+    data_foco_str = request.GET.get('foco')
+    today = date.today()
+    
+    if data_foco_str:
+        try:
+            data_foco = datetime.strptime(data_foco_str, '%Y-%m-%d').date()
+        except ValueError:
+            data_foco = today
+    else:
+        data_foco = today
+
+    # Início da semana atual (sempre Segunda-feira)
+    start_of_current_week = today - timedelta(days=today.weekday())
+
+    # 1. Calcula o início da semana exibida
+    start_of_week = data_foco - timedelta(days=data_foco.weekday())
+    
+    # 2. Define os limites de navegação permitidos
+    start_of_previous_week_limit = start_of_current_week - timedelta(days=7)
+    start_of_next_week_limit = start_of_current_week + timedelta(days=7)
+
+    # 3. Calcula os alvos de navegação (o link real)
+    semana_anterior = start_of_week - timedelta(days=7)
+    proxima_semana = start_of_week + timedelta(days=7)
+    
+    # 4. Determina o status de desativação dos botões
+    disable_semana_anterior = (start_of_week <= start_of_previous_week_limit)
+    disable_proxima_semana = (start_of_week >= start_of_next_week_limit)
+
+
+    # 5. Define o status da semana em relação a hoje (para bloqueio de agendamento)
+    if start_of_week < start_of_current_week:
+        status_semana = 'PASSADA'
+    else:
+        status_semana = 'FUTURA' 
+    # --- FIM DA LÓGICA DE NAVEGAÇÃO ---
+
 
     # 2. Busca a sala específica (E05 ou Ginásio)
     try:
@@ -61,24 +101,22 @@ def detalhe_sala(request, nome_sala):
         return redirect('inicio')
 
     # 3. Busca os agendamentos APENAS desta sala
-    today = date.today()
-    start_of_week = today - timedelta(days=today.weekday())
     dias_semana_datas = [start_of_week + timedelta(days=i) for i in range(5)]
 
     agendamentos = Agendamento.objects.filter(
-        sala=sala_obj,  # <-- ESTE É O FILTRO!
+        sala=sala_obj,
         status='APROVADO',
         data_inicio__date__range=[start_of_week, dias_semana_datas[-1]]
     ).select_related('usuario')
 
-    # 4. Mapeia os agendamentos (copie sua lógica)
+    # 4. Mapeia os agendamentos (lógica anterior)
     agendamentos_map = {}
     for ag in agendamentos:
         hora_str = ag.horario.strftime("%H:%M")
         dia_weekday = ag.data_inicio.weekday()
         agendamentos_map[(hora_str, dia_weekday)] = ag
 
-    # 5. Constrói a tabela (copie sua lógica)
+    # 5. Constrói a tabela (lógica anterior)
     tabela_horarios = []
     for item in horarios_estrutura:
         if item['tipo'] != 'hora':
@@ -103,14 +141,39 @@ def detalhe_sala(request, nome_sala):
             
         tabela_horarios.append(linha)
 
+
+    # --- Cálculo das variáveis de cabeçalho ---
+    faixa_datas_semana = {
+        'inicio': start_of_week.strftime('%d/%m/%Y'),
+        'fim': dias_semana_datas[-1].strftime('%d/%m/%Y')
+    }
+    
+    dias_com_data = []
+    for nome, data_obj in zip(dias_semana_nomes, dias_semana_datas):
+        dias_com_data.append({
+            'nome_dia': nome,
+            'data_formatada': data_obj.strftime('%d/%m')
+        })
+    # --- FIM NOVO: Cálculo das variáveis de cabeçalho ---
+
+
     # 6. Manda tudo para o template
     context = {
         'tabela_horarios': tabela_horarios,
         'dias_semana_nomes': dias_semana_nomes,
-        'sala': sala_obj, # Passa o objeto sala (E05 ou Ginásio)
+        'sala': sala_obj,
+        'faixa_datas_semana': faixa_datas_semana,
+        'dias_com_data': dias_com_data,
+        
+        # --- VARIÁVEIS DE NAVEGAÇÃO E STATUS ---
+        'semana_anterior': semana_anterior.strftime('%Y-%m-%d'),
+        'proxima_semana': proxima_semana.strftime('%Y-%m-%d'),
+        'status_semana': status_semana, 
+        'disable_semana_anterior': disable_semana_anterior, # NOVO
+        'disable_proxima_semana': disable_proxima_semana, # NOVO
+        # -------------------------------------
     }
     
-    # 7. Renderiza o template
     return render(request, 'bedesk/detalhe_sala.html', context)
 
 @login_required
@@ -250,24 +313,7 @@ def cancelar_reserva_usuario(request, agendamento_id):
     return redirect('lista_reserva')
 
 
-@login_required
-def excluir_reserva_usuario(request, agendamento_id):
-    """
-    Permite ao usuário EXCLUIR uma reserva do seu histórico.
-    Isso SÓ funciona para reservas REJEITADAS ou PASSADAS.
-    """
-    # Busca a reserva E checa se pertence ao usuário logado
-    reserva = get_object_or_404(Agendamento, pk=agendamento_id, usuario=request.user)
-    
-    # Regra: Só pode excluir se NÃO estiver PENDENTE ou APROVADA (futura)
-    if reserva.status == 'REJEITADO' or (reserva.data_inicio.date() < date.today()):
-        reserva_id = reserva.id
-        reserva.delete()
-        messages.success(request, f"Reserva (ID: {reserva_id}) foi excluída do seu histórico.")
-    else:
-        messages.warning(request, "Você não pode excluir uma reserva ativa. Use 'Cancelar' primeiro.")
 
-    return redirect('lista_reserva') 
 
 def is_admin_or_staff(user):
     return user.is_staff or user.is_superuser
