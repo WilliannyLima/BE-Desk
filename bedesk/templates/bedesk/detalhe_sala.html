@@ -78,12 +78,17 @@
                                     {% if celula.agendamento %}
                                         <div class="d-flex flex-column justify-content-center align-items-center h-100">
                                             
-                                            <span class="text-danger fw-bold text-uppercase" 
-                                                  style="font-size: 0.9em;" 
+                                            <span class="fw-bold text-uppercase" 
+                                                  style="font-size: 0.9em; {% if celula.agendamento.status == 'PENDENTE' %}color:#b45309;{% else %}color:#b91c1c;{% endif %}" 
                                                   data-bs-toggle="tooltip" 
                                                   title="Motivo: {{ celula.agendamento.motivo }}">
                                                 {{ celula.agendamento.nome }}
                                             </span>
+                                            {% if celula.agendamento.status == 'PENDENTE' %}
+                                                <span class="badge bg-warning text-dark mt-1">Pendente</span>
+                                            {% else %}
+                                                <span class="badge bg-success mt-1">Aprovado</span>
+                                            {% endif %}
                                             
                                             <small class="text-muted fw-bold" style="font-size: 0.8em;">
                                                 ({{ celula.agendamento.usuario.first_name|default:celula.agendamento.usuario.username }})

@@ -8,6 +8,7 @@ urlpatterns = [
     
     path('agendamentos/', views.lista_agendamentos, name='lista_agendamentos'),
     path('agendamentos/criar/', views.criar_agendamento, name='criar_agendamento'),
+   
     path('agendamentos/<int:id>/editar/', views.editar_agendamento, name='editar_agendamento'),
     path('agendamentos/<int:id>/deletar/', views.deletar_agendamento, name='deletar_agendamento'),
 

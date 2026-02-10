@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 from django.contrib.auth.forms import UserCreationForm
 from datetime import datetime, timedelta, date
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
 
 def inicio(request):
     # Esta view agora só renderiza a página de boas-vindas
@@ -105,7 +109,7 @@ def detalhe_sala(request, nome_sala):
 
     agendamentos = Agendamento.objects.filter(
         sala=sala_obj,
-        status='APROVADO',
+        status__in=['APROVADO', 'PENDENTE'],
         data_inicio__date__range=[start_of_week, dias_semana_datas[-1]]
     ).select_related('usuario')
 
@@ -323,62 +327,36 @@ def is_admin_or_staff(user):
 # Em views.py
 
 @user_passes_test(is_admin_or_staff)
-def gerenciar_reservas(request):
-    
-    # 1. Reservas de SALAS (como antes)
-    reservas_pendentes = Agendamento.objects.filter(
-        status='PENDENTE'
-    ).order_by('data_inicio')
-    
-    reservas_aprovadas = Agendamento.objects.filter(
-        status='APROVADO'
-    ).order_by('-data_inicio', '-horario') 
 
-    # 2. NOVO: Reservas de RECURSOS
-    recursos_pendentes = ReservaRecurso.objects.filter(
-        status='PENDENTE'
-    ).order_by('data_prevista')
 
-    recursos_aprovados = ReservaRecurso.objects.filter(
-        status='APROVADO'
-    ).order_by('-data_prevista')
-
-    context = {
-        # Salas (existente)
-        'reservas_pendentes': reservas_pendentes,
-        'reservas_aprovadas': reservas_aprovadas,
-        
-        # Recursos (novo)
-        'recursos_pendentes': recursos_pendentes,
-        'recursos_aprovados': recursos_aprovados,
-
-        'titulo': 'Gerenciar Reservas e Recursos' 
-    }
-    return render(request, 'bedesk/gerenciar_reservas.html', context)
-
+#
 @user_passes_test(is_admin_or_staff)
+@require_POST
 def mudar_status_reserva(request, agendamento_id, novo_status):
-    reserva = get_object_or_404(Agendamento, pk=agendamento_id)
-      # O novo_status virá como 'APROVADO' ou 'REJEITADO' (em CAPS)
-    status_permitidos = ['APROVADO', 'REJEITADO'] # CORREÇÃO: Use 'APROVADO' ou 'REJEITADO' (em CAPS)
+
+    status_permitidos = ['APROVADO', 'REJEITADO']
 
     if novo_status not in status_permitidos:
-        messages.error(request, 'Status inválido.')
-        return redirect('listar_pendentes')
+        return JsonResponse({
+            'success': False,
+            'erro': 'Status inválido'
+        }, status=400)
 
-    # Altera o status
+    reserva = get_object_or_404(Agendamento, pk=agendamento_id)
+
     reserva.status = novo_status
     reserva.save()
 
-    # Mensagem de feedback
-    if novo_status == 'APROVADO':
-          messages.success(request, f'Reserva de {reserva.usuario.username} APROVADA com sucesso!')
-    else:
-          messages.warning(request, f'Reserva de {reserva.usuario.username} REJEITADA.')
-
- # Redireciona de volta para a lista (Nome da rota que lista as reservas pendentes)
+    # Se vier via AJAX, retorna JSON; senão, redireciona
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'id': reserva.id,
+            'novo_status': reserva.status,
+            'usuario': reserva.usuario.username
+        })
     return redirect('listar_pendentes')
-
+    
 def logar(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -472,29 +450,35 @@ def reservar_recurso(request, recurso_id):
     }
     return render(request, 'bedesk/reservar_recurso.html', context)
 
+
 @user_passes_test(is_admin_or_staff)
 def mudar_status_recurso(request, reserva_id, novo_status):
-    """
-    View para aprovar ou rejeitar uma RESERVA DE RECURSO.
-    """
     reserva = get_object_or_404(ReservaRecurso, pk=reserva_id)
+
     status_permitidos = ['APROVADO', 'REJEITADO']
 
     if novo_status not in status_permitidos:
         messages.error(request, 'Status inválido.')
-        return redirect('listar_pendentes') # Redireciona de volta para /gerenciar
+        return redirect('listar_pendentes')
 
     reserva.status = novo_status
     reserva.save()
 
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'id': reserva.id,
+            'novo_status': reserva.status,
+            'usuario': reserva.usuario.username
+        })
+
     if novo_status == 'APROVADO':
-        messages.success(request, f"Reserva de '{reserva.recurso.nome}' para {reserva.usuario.username} APROVADA.")
+        messages.success(request, f'Recurso de {reserva.usuario.username} APROVADO!')
     else:
-        messages.warning(request, f"Reserva de '{reserva.recurso.nome}' para {reserva.usuario.username} REJEITADA.")
+        messages.warning(request, f'Recurso de {reserva.usuario.username} REJEITADO.')
 
     return redirect('listar_pendentes')
 
-# Em /bedesk/views.py
 
 @login_required
 def user_profile(request):
@@ -563,3 +547,33 @@ def deletar_agendamento(request, id):
 def tela_ajax(request):
     return render(request, "bedesk/agendamentos_ajax.html")
 
+@login_required
+@user_passes_test(is_admin_or_staff)
+def gerenciar_reservas(request):
+
+    salas_pendentes = Agendamento.objects.filter(
+        status='PENDENTE',
+        sala__isnull=False
+    )
+
+    recursos_pendentes = ReservaRecurso.objects.filter(
+        status='PENDENTE'
+    )
+
+    salas_aprovadas = Agendamento.objects.filter(
+        status='APROVADO',
+        sala__isnull=False
+    )
+
+    recursos_aprovados = ReservaRecurso.objects.filter(
+        status='APROVADO'
+    )
+
+    context = {
+        'salas_pendentes': salas_pendentes,
+        'recursos_pendentes': recursos_pendentes,
+        'salas_aprovadas': salas_aprovadas,
+        'recursos_aprovados': recursos_aprovados,
+    }
+
+    return render(request, 'bedesk/gerenciar.html', context)

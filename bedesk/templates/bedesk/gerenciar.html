@@ -1,0 +1,213 @@
+{% extends 'bedesk/base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Gerenciar Reservas e Recursos</h2>
+
+    <!-- ========================= -->
+    <!-- RESERVAS PENDENTES SALAS -->
+    <!-- ========================= -->
+
+    <h5>Reservas de Salas Pendentes</h5>
+
+    {% if salas_pendentes %}
+        <div class="alert alert-info">
+            Existem reservas pendentes.
+        </div>
+
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Usuário</th>
+                    <th>Sala</th>
+                    <th>Data</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ag in salas_pendentes %}
+                <tr>
+                    <td>{{ ag.usuario }}</td>
+                    <td>{{ ag.sala.nome }}</td>
+                    <td>{{ ag.data }}</td>
+                    <td>
+                        <button class="btn btn-success btn-sm js-status"
+                                data-url="{% url 'aprovar_reserva' ag.id %}">
+                            Aprovar
+                        </button>
+                        <button class="btn btn-danger btn-sm js-status"
+                                data-url="{% url 'rejeitar_reserva' ag.id %}">
+                            Rejeitar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            Nenhuma reserva de sala pendente no momento.
+        </div>
+    {% endif %}
+
+    <hr>
+
+    <!-- ========================= -->
+    <!-- RECURSOS PENDENTES -->
+    <!-- ========================= -->
+
+    <h5>Pedidos de Recursos Pendentes</h5>
+
+    {% if recursos_pendentes %}
+        <div class="alert alert-info">
+            Existem pedidos pendentes.
+        </div>
+
+        <table class="table table-bordered">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Usuário</th>
+                    <th>Recurso</th>
+                    <th>Data Prevista</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ag in recursos_pendentes %}
+                <tr>
+                    <td>{{ ag.usuario }}</td>
+                    <td>{{ ag.recurso.nome }}</td>
+                    <td>{{ ag.data_prevista }}</td>
+                    <td>
+                        <button class="btn btn-success btn-sm js-status"
+                                data-url="{% url 'aprovar_recurso' ag.id %}">
+                            Aprovar
+                        </button>
+                        <button class="btn btn-danger btn-sm js-status"
+                                data-url="{% url 'rejeitar_recurso' ag.id %}">
+                            Rejeitar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            Nenhum pedido de recurso pendente no momento.
+        </div>
+    {% endif %}
+
+    <hr>
+
+    <!-- ========================= -->
+    <!-- ITENS APROVADOS -->
+    <!-- ========================= -->
+
+    <h5>Itens Aprovados (Agendados)</h5>
+
+    <h6 class="mt-3">Salas</h6>
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Usuário</th>
+                <th>Sala</th>
+                <th>Data</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ag in salas_aprovadas %}
+            <tr>
+                <td>{{ ag.usuario }}</td>
+                <td>{{ ag.sala.nome }}</td>
+                <td>{{ ag.data }}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm cancelar"
+                            data-id="{{ ag.id }}">
+                        Cancelar
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Nenhuma sala aprovada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h6 class="mt-4">Recursos</h6>
+    <table class="table table-bordered">
+        <thead class="table-secondary">
+            <tr>
+                <th>Usuário</th>
+                <th>Recurso</th>
+                <th>Data Prevista</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+                {% for ag in recursos_aprovados %}
+                <tr>
+                    <td>{{ ag.usuario }}</td>
+                    <td>{{ ag.recurso.nome }}</td>
+                    <td>{{ ag.data_prevista }}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm cancelar"
+                                data-id="{{ ag.id }}">
+                            Cancelar
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Nenhum recurso aprovado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+
+    async function handleStatusClick(event) {
+        const btn = event.target.closest('.js-status');
+        if (!btn) return;
+
+        const url = btn.getAttribute('data-url');
+        const csrftoken = getCookie('csrftoken');
+
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (!res.ok) throw new Error('Falha ao atualizar status');
+
+            const row = btn.closest('tr');
+            if (row) row.remove();
+        } catch (err) {
+            btn.disabled = false;
+            alert('Não foi possível atualizar o status. Tente novamente.');
+        }
+    }
+
+    document.addEventListener('click', handleStatusClick);
+</script>
+
+{% endblock %}
