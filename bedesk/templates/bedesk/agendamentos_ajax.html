@@ -1,0 +1,121 @@
+{% extends "bedesk/base.html" %}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>CRUD AJAX</title>
+</head>
+<body>
+
+<h2>Agendamentos</h2>
+
+<form id="form">
+    <input type="hidden" id="id">
+
+    Nome:
+    <input type="text" id="nome">
+
+    Motivo:
+    <input type="text" id="motivo">
+
+    <button type="submit">Salvar</button>
+</form>
+
+<hr>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Motivo</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+function carregar() {
+    $.get("/agendamentos/", function(dados) {
+
+        let tabela = "";
+
+        dados.forEach(a => {
+            tabela += `
+            <tr>
+                <td>${a.nome}</td>
+                <td>${a.motivo}</td>
+                <td>${a.status}</td>
+                <td>
+                    <button onclick="editar(${a.id}, '${a.nome}', '${a.motivo}')">Editar</button>
+                    <button onclick="excluir(${a.id})">Excluir</button>
+                </td>
+            </tr>
+            `;
+        });
+
+        $("#tabela").html(tabela);
+    });
+}
+
+carregar();
+
+
+$("#form").submit(function(e) {
+    e.preventDefault();
+
+    let id = $("#id").val();
+
+    let dados = {
+        nome: $("#nome").val(),
+        motivo: $("#motivo").val()
+    };
+
+    if(id) {
+
+        $.ajax({
+            url: `/agendamentos/${id}/editar/`,
+            method: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(dados),
+            success: carregar
+        });
+
+    } else {
+
+        $.ajax({
+            url: "/agendamentos/criar/",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(dados),
+            success: carregar
+        });
+    }
+
+    $("#form")[0].reset();
+});
+
+
+function editar(id, nome, motivo) {
+    $("#id").val(id);
+    $("#nome").val(nome);
+    $("#motivo").val(motivo);
+}
+
+
+function excluir(id) {
+    $.ajax({
+        url: `/agendamentos/${id}/deletar/`,
+        method: "DELETE",
+        success: carregar
+    });
+}
+
+</script>
+
+</body>
+</html>

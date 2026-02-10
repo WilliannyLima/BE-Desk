@@ -3,6 +3,14 @@ from . import views
 # Não precisamos mais do 'auth_views' aqui
 
 urlpatterns = [
+    path('crud/', views.tela_ajax, name='crud_ajax'),
+
+    
+    path('agendamentos/', views.lista_agendamentos, name='lista_agendamentos'),
+    path('agendamentos/criar/', views.criar_agendamento, name='criar_agendamento'),
+    path('agendamentos/<int:id>/editar/', views.editar_agendamento, name='editar_agendamento'),
+    path('agendamentos/<int:id>/deletar/', views.deletar_agendamento, name='deletar_agendamento'),
+
     path('', views.inicio, name='inicio'),
     path('locais/', views.lista_locais, name='lista_locais'),
     path('sala/<str:nome_sala>/', views.detalhe_sala, name='detalhe_sala'),

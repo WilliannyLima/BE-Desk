@@ -504,3 +504,62 @@ def user_profile(request):
     """
     profile, created = Profile.objects.get_or_create(user=request.user)
     return render(request, 'bedesk/user_profile.html')
+
+
+# ================================
+# CRUD AJAX - AGENDAMENTO
+# ================================
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+
+def lista_agendamentos(request):
+    dados = Agendamento.objects.all().values(
+        'id', 'nome', 'motivo', 'status'
+    )
+    return JsonResponse(list(dados), safe=False)
+
+
+@csrf_exempt
+def criar_agendamento(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        sala = Sala.objects.first()  # exemplo simples
+
+        Agendamento.objects.create(
+            nome=data.get("nome"),
+            motivo=data.get("motivo"),
+            sala=sala,
+            usuario=request.user
+        )
+
+        return JsonResponse({"status": "criado"})
+
+
+@csrf_exempt
+def editar_agendamento(request, id):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+
+        ag = get_object_or_404(Agendamento, id=id)
+        ag.nome = data.get("nome")
+        ag.motivo = data.get("motivo")
+        ag.save()
+
+        return JsonResponse({"status": "editado"})
+
+
+@csrf_exempt
+def deletar_agendamento(request, id):
+    if request.method == "DELETE":
+        ag = get_object_or_404(Agendamento, id=id)
+        ag.delete()
+
+        return JsonResponse({"status": "deletado"})
+    
+def tela_ajax(request):
+    return render(request, "bedesk/agendamentos_ajax.html")
+
