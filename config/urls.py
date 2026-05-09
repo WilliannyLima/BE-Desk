@@ -1,15 +1,14 @@
-# Em /config/urls.py
-
 from django.contrib import admin
-from django.urls import path, include # Verifique se 'include' está aqui
+from django.urls import include, path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    
-    # 1. Inclui TODAS as URLs de autenticação do Django (login, logout, reset, etc.)
-    # Isso vai ler seus templates na pasta templates/registration/
-    path('accounts/', include('django.contrib.auth.urls')), 
-    
-    # 2. Inclui TODAS as URLs do seu aplicativo (inicio, perfil, gerenciar, etc.)
-    path('', include('bedesk.urls')), 
+    path("admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
+    path("", include("core.urls")),
+    path("", include("usuarios.urls")),
+    path("", include("reservas.urls")),
+    path("", include("materiais.urls")),
+    path("", include("notificacoes.urls")),
+    path("", include("relatorios.urls")),
+    path("", include("integracao_suap.urls")),
 ]

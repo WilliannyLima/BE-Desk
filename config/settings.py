@@ -38,6 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core',
+    'usuarios',
+    'reservas',
+    'materiais',
+    'notificacoes',
+    'relatorios',
+    'integracao_suap',
     'bedesk',
     'widget_tweaks',
 ]
@@ -65,7 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'bedesk.context_processors.notificacoes_pendentes',
+                'notificacoes.context_processors.notificacoes_pendentes',
             ],
         },
     },
@@ -120,6 +127,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

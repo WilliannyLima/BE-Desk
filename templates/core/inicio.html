@@ -1,0 +1,37 @@
+﻿{% extends 'core/base.html' %}
+
+{% block title %}Bem-vindo ao BE-Desk{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    
+    <div class="p-5 mb-4 bg-light rounded-3 shadow-sm">
+        <div class="container-fluid py-5">
+            <h1 class="display-5 fw-bold">Bem-vindo ao BE-Desk</h1>
+            <p class="col-md-10 fs-4">
+                Este Ã© o sistema de gerenciamento de espaÃ§os e recursos.
+            </p>
+            <p>
+                Utilize a navegaÃ§Ã£o para consultar os horÃ¡rios do GinÃ¡sio, 
+                reservar salas ou solicitar materiais.
+            </p>
+        </div>
+    </div>
+
+    <div class="row text-center">
+        <div class="col-md-6">
+            <h3>NavegaÃ§Ã£o RÃ¡pida</h3>
+            <div class="d-grid gap-2">
+                <a href="{% url 'detalhe_sala' 'GinÃ¡sio' %}" class="btn btn-primary btn-lg">
+    Ver HorÃ¡rios do GinÃ¡sio
+</a>
+                
+                <a href="{% url 'lista_recursos' %}" class="btn btn-info btn-lg">
+                    Reservar Recursos
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
