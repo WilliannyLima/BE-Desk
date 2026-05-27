@@ -1,6 +1,6 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
 
-{% block title %}HorÃ¡rios - {{ sala.nome }}{% endblock %} 
+{% block title %}Horários - {{ sala.nome }}{% endblock %} 
 
 {% block content %}
 <div class="container-fluid mt-4">
@@ -8,23 +8,21 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         
         <a href="{% url 'detalhe_sala' nome_sala=sala.nome %}?foco={{ semana_anterior }}" 
-           class="btn btn-outline-secondary {% if disable_semana_anterior %}disabled{% endif %}"
-           {% if disable_semana_anterior %}aria-disabled="true" title="Limite de histÃ³rico: Somente a semana anterior Ã© visÃ­vel"{% endif %}>
+           class="btn btn-outline-secondary">
             <i class="fa-solid fa-chevron-left"></i> Semana Anterior
         </a>
 
         <a href="{% url 'detalhe_sala' nome_sala=sala.nome %}?foco={{ proxima_semana }}" 
-           class="btn btn-outline-primary {% if disable_proxima_semana %}disabled{% endif %}"
-           {% if disable_proxima_semana %}aria-disabled="true" title="Limite de futuro: Apenas a prÃ³xima semana Ã© visÃ­vel"{% endif %}>
-            PrÃ³xima Semana <i class="fa-solid fa-chevron-right"></i>
+           class="btn btn-outline-primary">
+            Próxima Semana <i class="fa-solid fa-chevron-right"></i>
         </a>
     </div>
-    <h2 class="text-center mb-1">HorÃ¡rios da Sala {{ sala.nome }}</h2>
+    <h2 class="text-center mb-1">Horários da Sala {{ sala.nome }}</h2>
     
     <h4 class="text-center text-muted mb-4">
         Semana de {{ faixa_datas_semana.inicio }} a {{ faixa_datas_semana.fim }}
         {% if status_semana == 'PASSADA' %}
-            <span class="badge bg-danger ms-2">HISTÃ“RICO</span>
+            <span class="badge bg-danger ms-2">HISTÓRICO</span>
         {% endif %}
     </h4>
     <div class="table-responsive">
@@ -32,7 +30,7 @@
             
             <thead class="table-dark">
                 <tr>
-                    <th style="width: 12%;">HorÃ¡rio</th>
+                    <th style="width: 12%;">Horário</th>
                     
                     {% for dia in dias_com_data %}
                         <th style="width: 17.6%;">
@@ -46,7 +44,7 @@
             <tbody>
                 {% for linha in tabela_horarios %}
                     
-                    {% comment %} TIPO 1: Linha Separadora (ManhÃ£/Tarde) {% endcomment %}
+                    {% comment %} TIPO 1: Linha Separadora (Manhã/Tarde) {% endcomment %}
                     {% if linha.tipo == 'separador' %}
                         <tr class="table-light">
                             <td colspan="6" class="text-center fw-bold fs-5">
@@ -58,14 +56,14 @@
                     {% elif linha.tipo == 'intervalo' %}
                         <tr class="table-secondary text-muted">
                             <td class="align-middle">
-                                {{ linha.inicio }} Ã s {{ linha.fim }}
+                                {{ linha.inicio }} às {{ linha.fim }}
                             </td>
                             <td colspan="5" class="align-middle fst-italic">
                                 {{ linha.nome }}
                             </td>
                         </tr>
 
-                    {% comment %} TIPO 3: Linha de HorÃ¡rio Normal {% endcomment %}
+                    {% comment %} TIPO 3: Linha de Horário Normal {% endcomment %}
                     {% elif linha.tipo == 'hora' %}
                         <tr>
                             <td class="align-middle fw-bold">
@@ -97,13 +95,6 @@
                                         </div>
 
                                     {% else %}
-                                        {% if status_semana == 'PASSADA' %}
-                                            <button class="btn btn-secondary btn-sm w-100" disabled>
-                                                <i class="fa-solid fa-lock fa-lg"></i>
-                                            </button>
-                                            <small class="text-muted" style="font-size: 0.75em;">Semana Encerrada</small>
-                                        
-                                        {% else %}
                                             <a href="{% url 'agendar_sala' %}?hora={{ linha.hora_para_link }}&data={{ celula.data|date:'Y-m-d' }}&sala={{ sala.nome }}" 
                                                class="btn btn-primary btn-sm w-100"
                                                data-bs-toggle="tooltip" 
@@ -112,7 +103,6 @@
                                                 <i class="fa-solid fa-plus fa-lg"></i>
                                                 
                                             </a>
-                                        {% endif %}
 
                                     {% endif %}
 
@@ -124,7 +114,7 @@
                 {% empty %}
                     <tr>
                         <td colspan="6" class="text-center text-muted">
-                            Nenhum horÃ¡rio definido na estrutura da view.
+                            Nenhum horário definido na estrutura da view.
                         </td>
                     </tr>
                 {% endfor %}

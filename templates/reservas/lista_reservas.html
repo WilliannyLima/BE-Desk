@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container mt-4">
 
-    <h2 class="mb-4">Minhas PrÃ³ximas Reservas</h2>
+    <h2 class="mb-4">Minhas Próximas Reservas</h2>
 
     {% if reservas_ativas %}
     <div class="table-responsive shadow-sm rounded">
@@ -13,9 +13,9 @@
             <thead class="table-dark">
                 <tr>
                     <th>Sala</th>
-                    <th>InÃ­cio</th>
-                    <th>TÃ­tulo</th> <th>Status</th>
-                    <th class="text-center">AÃ§Ã£o</th>
+                    <th>Início</th>
+                    <th>Título</th> <th>Status</th>
+                    <th class="text-center">Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,13 +42,13 @@
     </div>
     {% else %}
     <div class="alert alert-info" role="alert">
-        VocÃª nÃ£o possui reservas pendentes ou aprovadas para o futuro.
+        Você não possui reservas pendentes ou aprovadas para o futuro.
     </div>
     {% endif %}
 
     <hr class="my-5">
 
-    <h2 class="mb-4">Meu HistÃ³rico</h2>
+    <h2 class="mb-4">Meu Histórico</h2>
 
     {% if reservas_historico %}
     <div class="table-responsive shadow-sm rounded">
@@ -57,8 +57,8 @@
                 <tr>
                     <th>Sala</th>
                     <th>Data</th>
-                    <th>TÃ­tulo</th> <th>Status</th>
-                    <th class="text-center">AÃ§Ã£o</th>
+                    <th>Título</th> <th>Status</th>
+                    <th class="text-center">Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,7 +80,7 @@
     </div>
     {% else %}
     <div class="alert alert-light" role="alert">
-        Seu histÃ³rico de reservas estÃ¡ vazio.
+        Seu histórico de reservas está vazio.
     </div>
     {% endif %}
 

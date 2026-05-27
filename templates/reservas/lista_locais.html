@@ -8,7 +8,7 @@
         <div class="col-md-10">
             <h1 class="text-center mb-4">Reservar um Local</h1>
             <p class="text-center text-muted fs-5 mb-5">
-                Selecione o local que vocÃª deseja consultar ou reservar.
+                Selecione o local que você deseja consultar ou reservar.
             </p>
 
             <div class="row">
@@ -25,7 +25,7 @@
                         <div class="card-body d-flex flex-column">
                             <h3 class="card-title">{{ local.nome }}</h3>
                             <p class="card-text">
-                                Capacidade: {{ local.capacidade|default:"NÃ£o informada" }}
+                                Capacidade: {{ local.capacidade|default:"Não informada" }}
                             </p>
                             
                             {% if local.descricao %}
@@ -35,7 +35,7 @@
                             {% endif %}
                             
                             <a href="{% url 'detalhe_sala' local.nome %}" class="btn btn-primary mt-auto">
-                                Ver HorÃ¡rios
+                                Ver Horários
                             </a>
                         </div>
                     </div>

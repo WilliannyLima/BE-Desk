@@ -73,8 +73,6 @@ def detalhe_sala(request, nome_sala):
         "semana_anterior": (start_of_week - timedelta(days=7)).strftime("%Y-%m-%d"),
         "proxima_semana": (start_of_week + timedelta(days=7)).strftime("%Y-%m-%d"),
         "status_semana": "PASSADA" if start_of_week < start_of_current_week else "FUTURA",
-        "disable_semana_anterior": start_of_week <= start_of_current_week - timedelta(days=7),
-        "disable_proxima_semana": start_of_week >= start_of_current_week + timedelta(days=7),
     }
     return render(request, "reservas/detalhe_sala.html", context)
 

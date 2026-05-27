@@ -1,177 +1,594 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
 {% block content %}
 
-<div class="container mt-4">
+<style>
+/* Dashboard specific styles */
+.dashboard-container {
+    background-color: #0b0f19;
+    color: #e5e7eb;
+    padding: 20px 0;
+    border-radius: 12px;
+}
+.kpi-card {
+    background-color: #1e222d;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    height: 100%;
+}
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    border-color: rgba(212, 175, 55, 0.4); /* Gold border on hover */
+}
+.kpi-icon {
+    font-size: 2rem;
+    color: #ef4444; /* Red brand color */
+    background: rgba(239, 68, 68, 0.1);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+}
+.kpi-icon.gold { color: #d4af37; background: rgba(212, 175, 55, 0.1); }
+.kpi-icon.blue { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.kpi-icon.green { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+.kpi-icon.purple { color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
 
-    <h2 class="mb-4">Gerenciar Reservas e Recursos</h2>
+.kpi-details {
+    margin-top: 20px;
+}
+.kpi-details h3 {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+}
+.kpi-details span {
+    color: #9ca3af;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+.chart-card {
+    background-color: #1e222d;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    height: calc(100% - 24px);
+    transition: border-color 0.3s ease;
+}
+.chart-card:hover {
+    border-color: rgba(255,255,255,0.1);
+}
+.chart-card h5 {
+    color: #f3f4f6;
+    margin-bottom: 24px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.trend-up { color: #10b981; font-size: 0.85rem; font-weight: 600; background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 20px; }
+.trend-down { color: #ef4444; font-size: 0.85rem; font-weight: 600; background: rgba(239, 68, 68, 0.1); padding: 4px 10px; border-radius: 20px; }
 
-    <!-- ========================= -->
-    <!-- RESERVAS PENDENTES SALAS -->
-    <!-- ========================= -->
+/* Dashboard Header */
+.dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.dash-header h2 {
+    margin: 0;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.8rem;
+}
+.filter-select {
+    background-color: #11141A;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 10px 20px;
+    outline: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.filter-select:hover {
+    border-color: rgba(255,255,255,0.3);
+}
 
-    <h5>Reservas de Salas Pendentes</h5>
+/* Operational Tables overrides for Dark Theme */
+.table-dark {
+    --bs-table-bg: transparent;
+    --bs-table-color: #9ca3af;
+    --bs-table-border-color: rgba(255,255,255,0.05);
+}
+.table-dark th {
+    color: #fff;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+.table-dark td {
+    vertical-align: middle;
+}
+.action-btn { border-radius: 8px; padding: 6px 12px; font-weight: 600; font-size: 0.8rem; transition: transform 0.2s; }
+.action-btn:hover { transform: translateY(-2px); }
+</style>
 
-    {% if salas_pendentes %}
-        <div class="alert alert-info">
-            Existem reservas pendentes.
+<div class="container dashboard-container">
+    <!-- Header -->
+    <div class="dash-header">
+        <h2><i class="fa-solid fa-chart-pie" style="color: #ef4444;"></i> Dashboard Estatístico</h2>
+        <div class="d-flex align-items-center gap-4">
+            <span id="current-time" class="text-secondary fw-semibold d-none d-md-block"></span>
+            <select class="filter-select">
+                <option value="mes">Este Mês</option>
+                <option value="3meses">Últimos 3 Meses</option>
+                <option value="ano">Este Ano</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row g-4 mb-5">
+        <!-- KPI 1 -->
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div class="kpi-icon gold">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <span class="trend-up"><i class="fa-solid fa-arrow-up"></i> 15%</span>
+                </div>
+                <div class="kpi-details">
+                    <h3>{{ kpi_total_reservas }}</h3>
+                    <span>Total de Reservas</span>
+                </div>
+            </div>
+        </div>
+        <!-- KPI 2 -->
+        <div class="col-xl-2 col-md-6">
+            <div class="kpi-card">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div class="kpi-icon blue">
+                        <i class="fa-solid fa-door-open"></i>
+                    </div>
+                </div>
+                <div class="kpi-details">
+                    <h3>{{ kpi_locais_ativos }}</h3>
+                    <span>Locais Ativos</span>
+                </div>
+            </div>
+        </div>
+        <!-- KPI 3 -->
+        <div class="col-xl-3 col-md-4">
+            <div class="kpi-card">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div class="kpi-icon green">
+                        <i class="fa-solid fa-percent"></i>
+                    </div>
+                    <span class="trend-up"><i class="fa-solid fa-arrow-up"></i></span>
+                </div>
+                <div class="kpi-details">
+                    <h3>{{ kpi_taxa_ocupacao }}%</h3>
+                    <span>Taxa de Ocupação</span>
+                </div>
+            </div>
+        </div>
+        <!-- KPI 4 -->
+        <div class="col-xl-2 col-md-4">
+            <div class="kpi-card" style="border-color: rgba(239, 68, 68, 0.3);">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div class="kpi-icon">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    {% if kpi_pendencias > 0 %}
+                    <span class="trend-down"><i class="fa-solid fa-arrow-down"></i> {{ kpi_pendencias }}</span>
+                    {% endif %}
+                </div>
+                <div class="kpi-details">
+                    <h3>{{ kpi_pendencias }}</h3>
+                    <span>Pendências</span>
+                </div>
+            </div>
+        </div>
+        <!-- KPI 5 -->
+        <div class="col-xl-2 col-md-4">
+            <div class="kpi-card">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div class="kpi-icon purple">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                </div>
+                <div class="kpi-details">
+                    <h3>{{ kpi_materiais }}</h3>
+                    <span>Mats. Cadastrados</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-2 g-4">
+        <div class="col-lg-7">
+            <div class="chart-card">
+                <h5><i class="fa-solid fa-boxes-packing text-danger"></i> Materiais Mais Solicitados</h5>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="materialsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="chart-card">
+                <h5><i class="fa-solid fa-location-dot text-warning"></i> Locais Mais Utilizados</h5>
+                <div style="height: 280px; position: relative; display: flex; justify-content: center;">
+                    <canvas id="locationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-2 g-4">
+        <div class="col-12">
+            <div class="chart-card">
+                <h5><i class="fa-solid fa-chart-line text-primary"></i> Reservas por Mês (Últimos 6 meses)</h5>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="reservationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="row mb-5 g-4">
+        <div class="col-lg-7">
+            <div class="chart-card">
+                <h5><i class="fa-solid fa-calendar-week text-success"></i> Ocupação por Dia da Semana</h5>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="weekdayChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="chart-card">
+                <h5><i class="fa-solid fa-clipboard-list text-info"></i> Status das Reservas</h5>
+                <div style="height: 280px; position: relative; display: flex; justify-content: center;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- OPERACIONAL - MESCLANDO FUNCIONALIDADE ANTIGA -->
+    <!-- ============================================== -->
+    <hr style="border-color: rgba(255,255,255,0.1); margin: 50px 0;">
+    
+    <div class="dash-header mb-4">
+        <h2><i class="fa-solid fa-list-check" style="color: #d4af37;"></i> Gerenciamento Operacional</h2>
+    </div>
+
+    <div class="row g-4">
+        <!-- Salas Pendentes -->
+        <div class="col-lg-6">
+            <div class="chart-card h-auto">
+                <h5>Reservas de Salas Pendentes</h5>
+                {% if salas_pendentes %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Sala</th>
+                                    <th>Data</th>
+                                    <th class="text-end">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ag in salas_pendentes %}
+                                <tr>
+                                    <td class="text-white">{{ ag.usuario }}</td>
+                                    <td>{{ ag.sala.nome }}</td>
+                                    <td>{{ ag.data_inicio|date:"d/m/Y H:i" }}</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-success action-btn js-status me-1" data-url="{% url 'aprovar_reserva' ag.id %}">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-danger action-btn js-status" data-url="{% url 'rejeitar_reserva' ag.id %}">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center p-4 text-secondary">
+                        <i class="fa-solid fa-mug-hot fs-1 mb-3"></i>
+                        <p class="mb-0">Tudo limpo! Nenhuma reserva pendente.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
-        <table class="table table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>UsuÃ¡rio</th>
-                    <th>Sala</th>
-                    <th>Data</th>
-                    <th>AÃ§Ã£o</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ag in salas_pendentes %}
-                <tr>
-                    <td>{{ ag.usuario }}</td>
-                    <td>{{ ag.sala.nome }}</td>
-                    <td>{{ ag.data }}</td>
-                    <td>
-                        <button class="btn btn-success btn-sm js-status"
-                                data-url="{% url 'aprovar_reserva' ag.id %}">
-                            Aprovar
-                        </button>
-                        <button class="btn btn-danger btn-sm js-status"
-                                data-url="{% url 'rejeitar_reserva' ag.id %}">
-                            Rejeitar
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <div class="alert alert-info">
-            Nenhuma reserva de sala pendente no momento.
+        <!-- Recursos Pendentes -->
+        <div class="col-lg-6">
+            <div class="chart-card h-auto">
+                <h5>Pedidos de Recursos Pendentes</h5>
+                {% if recursos_pendentes %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Recurso</th>
+                                    <th>Data Prevista</th>
+                                    <th class="text-end">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ag in recursos_pendentes %}
+                                <tr>
+                                    <td class="text-white">{{ ag.usuario }}</td>
+                                    <td>{{ ag.recurso.nome }}</td>
+                                    <td>{{ ag.data_prevista|date:"d/m/Y H:i" }}</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-success action-btn js-status me-1" data-url="{% url 'aprovar_recurso' ag.id %}">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-danger action-btn js-status" data-url="{% url 'rejeitar_recurso' ag.id %}">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center p-4 text-secondary">
+                        <i class="fa-solid fa-boxes-stacked fs-1 mb-3"></i>
+                        <p class="mb-0">Nenhum recurso pendente no momento.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-    {% endif %}
-
-    <hr>
-
-    <!-- ========================= -->
-    <!-- RECURSOS PENDENTES -->
-    <!-- ========================= -->
-
-    <h5>Pedidos de Recursos Pendentes</h5>
-
-    {% if recursos_pendentes %}
-        <div class="alert alert-info">
-            Existem pedidos pendentes.
-        </div>
-
-        <table class="table table-bordered">
-            <thead class="table-secondary">
-                <tr>
-                    <th>UsuÃ¡rio</th>
-                    <th>Recurso</th>
-                    <th>Data Prevista</th>
-                    <th>AÃ§Ã£o</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ag in recursos_pendentes %}
-                <tr>
-                    <td>{{ ag.usuario }}</td>
-                    <td>{{ ag.recurso.nome }}</td>
-                    <td>{{ ag.data_prevista }}</td>
-                    <td>
-                        <button class="btn btn-success btn-sm js-status"
-                                data-url="{% url 'aprovar_recurso' ag.id %}">
-                            Aprovar
-                        </button>
-                        <button class="btn btn-danger btn-sm js-status"
-                                data-url="{% url 'rejeitar_recurso' ag.id %}">
-                            Rejeitar
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <div class="alert alert-info">
-            Nenhum pedido de recurso pendente no momento.
-        </div>
-    {% endif %}
-
-    <hr>
-
-    <!-- ========================= -->
-    <!-- ITENS APROVADOS -->
-    <!-- ========================= -->
-
-    <h5>Itens Aprovados (Agendados)</h5>
-
-    <h6 class="mt-3">Salas</h6>
-    <table class="table table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>UsuÃ¡rio</th>
-                <th>Sala</th>
-                <th>Data</th>
-                <th>AÃ§Ã£o</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for ag in salas_aprovadas %}
-            <tr>
-                <td>{{ ag.usuario }}</td>
-                <td>{{ ag.sala.nome }}</td>
-                <td>{{ ag.data }}</td>
-                <td>
-                    <button class="btn btn-warning btn-sm cancelar"
-                            data-id="{{ ag.id }}">
-                        Cancelar
-                    </button>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4">Nenhuma sala aprovada.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <h6 class="mt-4">Recursos</h6>
-    <table class="table table-bordered">
-        <thead class="table-secondary">
-            <tr>
-                <th>UsuÃ¡rio</th>
-                <th>Recurso</th>
-                <th>Data Prevista</th>
-                <th>AÃ§Ã£o</th>
-            </tr>
-        </thead>
-        <tbody>
-                {% for ag in recursos_aprovados %}
-                <tr>
-                    <td>{{ ag.usuario }}</td>
-                    <td>{{ ag.recurso.nome }}</td>
-                    <td>{{ ag.data_prevista }}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm cancelar"
-                                data-id="{{ ag.id }}">
-                            Cancelar
-                    </button>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4">Nenhum recurso aprovado.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
+    </div>
 </div>
 
+<!-- Add Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+    // Real-time clock for header
+    function updateTime() {
+        const now = new Date();
+        const formatted = now.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+        const el = document.getElementById('current-time');
+        if(el) el.innerText = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    }
+    updateTime();
+    setInterval(updateTime, 60000);
+
+    // Global Chart Configuration for Dark Theme
+    Chart.defaults.color = '#9ca3af';
+    Chart.defaults.font.family = "'Inter', 'Segoe UI', Roboto, sans-serif";
+    
+    // Brand Colors
+    const colorRed = '#ef4444';
+    const colorGold = '#d4af37';
+    const colorDarkRed = '#991b1b';
+    const colorLightGold = '#fde047';
+    const colorGray = '#4b5563';
+    const colorGreen = '#10b981';
+    const colorBlue = '#3b82f6';
+    
+    const tooltipStyle = {
+        backgroundColor: 'rgba(17, 20, 26, 0.9)',
+        titleColor: '#fff',
+        bodyColor: '#ccc',
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        padding: 12,
+        boxPadding: 4,
+        cornerRadius: 8,
+        displayColors: true,
+    };
+
+    // Dynamic data from Django
+    const matLabels = {{ mat_labels|safe }};
+    const matData = {{ mat_data|safe }};
+    
+    const locaisLabels = {{ locais_labels|safe }};
+    const locaisData = {{ locais_data|safe }};
+    
+    const statusLabels = {{ status_labels|safe }};
+    const statusData = {{ status_data|safe }};
+    
+    const mesesLabels = {{ meses_labels|safe }};
+    const mesesData = {{ meses_data|safe }};
+    
+    const diaLabels = {{ dia_labels|safe }};
+    const diaData = {{ dia_data|safe }};
+
+    // --- 1. Materials Chart (Bar) ---
+    const ctxMaterials = document.getElementById('materialsChart').getContext('2d');
+    new Chart(ctxMaterials, {
+        type: 'bar',
+        data: {
+            labels: matLabels,
+            datasets: [{
+                label: ' Solicitações',
+                data: matData,
+                backgroundColor: [colorRed, colorGold, colorDarkRed, colorLightGold, colorGray, '#374151'],
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: tooltipStyle
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false } },
+                x: { grid: { display: false, drawBorder: false } }
+            },
+            onClick: (e, elements) => { 
+                if(elements.length) {
+                    const label = e.chart.data.labels[elements[0].index];
+                    const value = e.chart.data.datasets[0].data[elements[0].index];
+                    alert(`Detalhes do Material:\n${label}: ${value} solicitações no período.`); 
+                }
+            }
+        }
+    });
+
+    // --- 2. Locations Chart (Doughnut) ---
+    const ctxLocations = document.getElementById('locationsChart').getContext('2d');
+    new Chart(ctxLocations, {
+        type: 'doughnut',
+        data: {
+            labels: locaisLabels,
+            datasets: [{
+                data: locaisData,
+                backgroundColor: [colorRed, colorGold, colorGreen, colorBlue],
+                borderWidth: 0,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: 10 },
+            plugins: {
+                legend: { position: 'right', labels: { color: '#e5e7eb', font: { size: 12 }, padding: 20 } },
+                tooltip: tooltipStyle
+            },
+            cutout: '75%',
+        }
+    });
+
+    // --- 3. Reservations Line Chart (Last 6 Months) ---
+    const ctxRes = document.getElementById('reservationsChart').getContext('2d');
+    
+    // Create gradient for the line chart fill
+    const gradientFill = ctxRes.createLinearGradient(0, 0, 0, 300);
+    gradientFill.addColorStop(0, 'rgba(212, 175, 55, 0.4)');
+    gradientFill.addColorStop(1, 'rgba(212, 175, 55, 0.0)');
+
+    new Chart(ctxRes, {
+        type: 'line',
+        data: {
+            labels: mesesLabels,
+            datasets: [{
+                label: ' Total de Reservas',
+                data: mesesData,
+                borderColor: colorGold,
+                backgroundColor: gradientFill,
+                borderWidth: 4,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#1e222d',
+                pointBorderColor: colorGold,
+                pointBorderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHoverBackgroundColor: colorGold
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: tooltipStyle
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false } },
+                x: { grid: { display: false, drawBorder: false } }
+            }
+        }
+    });
+
+    // --- 4. Weekday Occupation ---
+    const ctxWeek = document.getElementById('weekdayChart').getContext('2d');
+    new Chart(ctxWeek, {
+        type: 'bar',
+        data: {
+            labels: diaLabels,
+            datasets: [{
+                label: ' Reservas',
+                data: diaData,
+                backgroundColor: colorBlue,
+                borderRadius: 6,
+                barThickness: 'flex',
+                maxBarThickness: 40
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: tooltipStyle
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false } },
+                x: { grid: { display: false, drawBorder: false } }
+            }
+        }
+    });
+
+    // --- 5. Status Doughnut ---
+    const ctxStatus = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusData,
+                backgroundColor: [colorGreen, colorGold, colorRed],
+                borderWidth: 0,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: 10 },
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#e5e7eb', padding: 20 } },
+                tooltip: tooltipStyle
+            },
+            cutout: '70%',
+        }
+    });
+
+    // --- Operational Functionality JS ---
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -200,10 +617,15 @@
             if (!res.ok) throw new Error('Falha ao atualizar status');
 
             const row = btn.closest('tr');
-            if (row) row.remove();
+            if (row) {
+                // Smooth remove animation
+                row.style.transition = 'opacity 0.3s ease';
+                row.style.opacity = '0';
+                setTimeout(() => row.remove(), 300);
+            }
         } catch (err) {
             btn.disabled = false;
-            alert('NÃ£o foi possÃ­vel atualizar o status. Tente novamente.');
+            alert('Não foi possível atualizar o status. Tente novamente.');
         }
     }
 

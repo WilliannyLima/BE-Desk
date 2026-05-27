@@ -20,16 +20,16 @@
                 
 
                     <li class="list-group-item">
-                        <strong>Email:</strong> {{ user.email|default:"NÃ£o informado." }}
+                        <strong>Email:</strong> {{ user.email|default:"Não informado." }}
                     </li>
                     <li class="list-group-item">
                         <strong>Tipo de Conta:</strong> 
                         {% if user.is_superuser %}
-                            <span class="badge bg-danger">SuperusuÃ¡rio (Admin)</span>
+                            <span class="badge bg-danger">Superusuário (Admin)</span>
                         {% elif user.is_staff %}
                             <span class="badge" style="background-color: #a01c1c;">Gerente (Staff)</span>
                         {% else %}
-                            <span class="badge bg-secondary">UsuÃ¡rio PadrÃ£o</span>
+                            <span class="badge bg-secondary">Usuário Padrão</span>
                         {% endif %}
                     </li>
                 </ul>
