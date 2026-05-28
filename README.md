@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/badge/BE_Desk-Gestão_e_Reservas-007BFF?style=for-the-badge&logo=basketball" alt="BE-Desk Banner">
 </p>
 
-<h1 align="center"> BE-Desk</h1>
+<h1 align="center">🏀 BE-Desk 📋</h1>
 
 <p align="center">
   <strong>Organização e praticidade ao seu alcance.</strong><br>
