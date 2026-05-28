@@ -1,41 +1,177 @@
-﻿{% extends 'core/base_auth.html' %}
-{% load widget_tweaks %}
+{% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Login - BE-Desk{% endblock %}
+{% block title %}Entrar - BE-Desk{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block main_container_class %}bd-login-full flex-grow-1{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="card-title text-center mb-4">Entrar</h2>
-                
-                <form method="post" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <label for="id_username" class="form-label">E-mail ou Nome de Usuario</label>
-                        <input type="text" name="username" class="form-control" id="id_username" required>
-                    </div>
+<section class="login-page" aria-labelledby="login-title">
+  <div class="login-bg-depth" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
 
-                    
-                    <div class="mb-3">
-                        <label for="id_password" class="form-label">Senha</label>
-                        <input type="password" name="password" class="form-control" id="id_password" required>
-                    </div>
+  <div class="bd-login-shell">
+    <div class="bd-login-card">
+      <aside class="login-left" aria-label="Identidade BE-Desk">
+        <div class="login-brand-row">
+          <a href="{% url 'inicio' %}" class="brand-logo-link" aria-label="Voltar ao in&iacute;cio">
+            <span class="logo-glow" aria-hidden="true"></span>
+            <img src="{% static 'img/logo1.png' %}" alt="BE-Desk" class="brand-logo" />
+          </a>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg mt-3">Entrar</button>
-                    </div>
-                </form>
-
-                <div class="text-center mt-4">
-                    <p><a href="{% url 'password_reset' %}">Esqueceu sua senha?</a></p>
-                    <p class="text-muted">Não tem uma conta? <a href="{% url 'registrar_usuario' %}">Cadastre-se</a></p>
-                </div>
-            </div>
+          <div class="brand-copy">
+            <strong>BE-Desk</strong>
+            <span>IFRN &middot; Bloco E</span>
+          </div>
         </div>
+
+        <span class="badge-suap">
+          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          Login institucional IFRN
+        </span>
+
+        <div class="login-left-copy">
+          <h1>Plataforma oficial de reservas do Bloco E</h1>
+          <p>Gerencie espa&ccedil;os e materiais do IFRN com praticidade e seguran&ccedil;a.</p>
+        </div>
+
+        <div class="trust-stack" aria-label="Recursos de seguran&ccedil;a">
+          <span><i class="fa-solid fa-lock" aria-hidden="true"></i> Acesso seguro</span>
+          <span><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Ambiente institucional</span>
+        </div>
+      </aside>
+
+      <section class="login-right" aria-label="Formul&aacute;rio de login">
+        <div class="login-form-panel">
+          <div class="login-form-header">
+            <span class="form-kicker">Acesso seguro</span>
+            <h2 id="login-title">Entrar no sistema</h2>
+            <p>Use sua matr&iacute;cula e senha do SUAP para acessar sua conta.</p>
+          </div>
+
+          {% if form.errors %}
+          <div class="error-banner" role="alert">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <div>Matr&iacute;cula ou senha incorretos. Tente novamente.</div>
+          </div>
+          {% endif %}
+
+          <form method="post" action="{% url 'login' %}" id="loginForm" novalidate>
+            {% csrf_token %}
+
+            <div class="field">
+              <label for="id_username">Matr&iacute;cula</label>
+              <div class="input-shell">
+                <input type="text" name="username" id="id_username" class="input-modern" placeholder="Digite sua matr&iacute;cula" autocomplete="username" aria-describedby="usernameError" required />
+                <i class="fa-solid fa-user-graduate input-icon" aria-hidden="true"></i>
+              </div>
+              <p class="field-error" id="usernameError">Informe sua matr&iacute;cula para continuar.</p>
+            </div>
+
+            <div class="field">
+              <label for="id_password">Senha do SUAP</label>
+              <div class="input-shell">
+                <input type="password" name="password" id="id_password" class="input-modern" placeholder="Digite sua senha" autocomplete="current-password" aria-describedby="passwordError" required />
+                <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+                <button type="button" id="togglePassword" class="password-toggle" aria-label="Mostrar senha">
+                  <i class="fa-solid fa-eye" id="toggleIcon" aria-hidden="true"></i>
+                </button>
+              </div>
+              <p class="field-error" id="passwordError">Informe sua senha do SUAP.</p>
+            </div>
+
+            <button type="submit" class="cta-btn" id="submitBtn">
+              <span class="btn-text">Entrar com SUAP</span>
+              <span class="btn-spinner" aria-hidden="true"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+            </button>
+
+            <p class="small-note">
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              Autentica&ccedil;&atilde;o oficial integrada ao SUAP
+            </p>
+          </form>
+        </div>
+      </section>
     </div>
-</div>
+  </div>
+</section>
+{% endblock %}
+
+{% block footer %}
+<footer class="footer bd-simple-footer bd-login-footer">
+  <div class="bd-footer-shell tw-flex tw-flex-col md:tw-flex-row tw-items-start md:tw-items-center tw-justify-between tw-gap-2">
+    <div class="bd-login-footer-brand">
+      <a href="{% url 'inicio' %}" class="bd-footer-logo">BE-DESK</a>
+      <span>Reservas e recursos do IFRN Bloco E</span>
+    </div>
+
+    <small>&copy; {% now "Y" %} BE-Desk &middot; Login institucional seguro</small>
+  </div>
+</footer>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('togglePassword');
+    const pwd = document.getElementById('id_password');
+    const icon = document.getElementById('toggleIcon');
+    const form = document.getElementById('loginForm');
+    const submit = document.getElementById('submitBtn');
+    const inputs = form ? [...form.querySelectorAll('.input-modern')] : [];
+
+    const setFieldState = (input) => {
+      const field = input.closest('.field');
+      const hasError = !input.checkValidity();
+
+      input.setAttribute('aria-invalid', hasError ? 'true' : 'false');
+      field?.classList.toggle('has-error', hasError);
+
+      return !hasError;
+    };
+
+    if (toggle && pwd && icon) {
+      toggle.addEventListener('click', () => {
+        const type = pwd.getAttribute('type') === 'password' ? 'text' : 'password';
+        pwd.setAttribute('type', type);
+        toggle.setAttribute('aria-label', type === 'password' ? 'Mostrar senha' : 'Ocultar senha');
+        icon.classList.toggle('fa-eye-slash');
+        icon.classList.toggle('fa-eye');
+      });
+    }
+
+    inputs.forEach((input) => {
+      input.addEventListener('blur', () => setFieldState(input));
+      input.addEventListener('input', () => {
+        if (input.getAttribute('aria-invalid') === 'true') {
+          setFieldState(input);
+        }
+      });
+    });
+
+    if (form && submit) {
+      form.addEventListener('submit', (event) => {
+        const fieldStates = inputs.map(setFieldState);
+        const isValid = fieldStates.every(Boolean);
+
+        if (!isValid) {
+          event.preventDefault();
+          inputs.find((input) => !input.checkValidity())?.focus();
+          return;
+        }
+
+        submit.classList.add('is-loading');
+        submit.setAttribute('aria-busy', 'true');
+        submit.disabled = true;
+      });
+    }
+  });
+</script>
 {% endblock %}
