@@ -1,45 +1,79 @@
-﻿{% extends 'core/base.html' %}
-{% block title %}Meu Perfil{% endblock %}
-        
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h2 class="mb-4">Meu Perfil</h2>
-        
-        <div class="card shadow-sm">
-            <div class="card-header fs-5">
-                <strong>{{ user.get_full_name|default:user.username }}</strong>
-            </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    
-                    <li class="list-group-item">
-                        <strong>Nome Completo:</strong> 
-                        {{ user.get_full_name }}
-                    </li>
-                
+{% extends 'core/base.html' %}
+{% load static %}
 
-                    <li class="list-group-item">
-                        <strong>Email:</strong> {{ user.email|default:"Não informado." }}
-                    </li>
-                    <li class="list-group-item">
-                        <strong>Tipo de Conta:</strong> 
-                        {% if user.is_superuser %}
-                            <span class="badge bg-danger">Superusuário (Admin)</span>
-                        {% elif user.is_staff %}
-                            <span class="badge" style="background-color: #a01c1c;">Gerente (Staff)</span>
-                        {% else %}
-                            <span class="badge bg-secondary">Usuário Padrão</span>
-                        {% endif %}
-                    </li>
-                </ul>
-                
-                <div class="mt-4">
-                    <a href="{% url 'password_reset' %}" class="btn btn-outline-primary">Alterar Senha</a>
-                    </div>
+{% block title %}Perfil - BE-Desk{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<main class="container mx-auto p-6">
+  <section class="profile-page">
+  
+
+    <div class="profile-shell">
+      <div>
+        <div class="profile-card">
+          <div class="profile-meta">
+            <div class="profile-avatar">
+              {% if suap_data.foto %}
+                <img src="{{ suap_data.foto }}" alt="Avatar">
+              {% else %}
+                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Avatar">
+              {% endif %}
             </div>
+            <div style="flex:1">
+              <div class="profile-name">{{ suap_data.nome|default:user.get_full_name|default:user.username }}</div>
+              <div class="profile-sub">{{ suap_data.matricula|default:user.username }} • {{ suap_data.campus|default:'—' }}</div>
+              <div class="profile-badges">
+                <span class="badge">Institucional</span>
+                {% if suap_data.tipo_vinculo %}<span class="badge">{{ suap_data.tipo_vinculo }}</span>{% endif %}
+              </div>
+            </div>
+
+            <!-- ações removidas: página somente leitura -->
+          </div>
+
+          <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:12px 0">
+
+          <div class="info-grid">
+            <div class="info-row"><div class="info-label">Nome</div><div class="info-value">{{ suap_data.nome|default:user.get_full_name }}</div></div>
+            <div class="info-row"><div class="info-label">E-mail</div><div class="info-value">{{ suap_data.email|default:user.email|default:'—' }}</div></div>
+            <div class="info-row"><div class="info-label">Matrícula</div><div class="info-value">{{ suap_data.matricula|default:user.username }}</div></div>
+            <div class="info-row"><div class="info-label">Curso</div><div class="info-value">{{ suap_data.curso|default:'—' }}</div></div>
+            <div class="info-row"><div class="info-label">Campus</div><div class="info-value">{{ suap_data.campus|default:'—' }}</div></div>
+            <div class="info-row"><div class="info-label">Vínculo</div><div class="info-value">{{ suap_data.tipo_vinculo|default:'—' }}</div></div>
+          </div>
         </div>
 
+        <div class="profile-card" style="margin-top:1rem">
+          <h4 style="margin:0 0 10px 0;color:#cfe8ff;font-weight:800">Atividades Recentes</h4>
+          <div style="color:#9fb0cf">Nenhuma atividade registrada.</div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="profile-card">
+          <h4 style="margin:0 0 10px 0;color:#cfe8ff;font-weight:800">Estatísticas</h4>
+          <div class="stats-grid">
+            <div class="stat"><div class="num">0</div><div class="lbl">Reservas</div></div>
+            <div class="stat"><div class="num">0h</div><div class="lbl">Horas</div></div>
+            <div class="stat"><div class="num">0</div><div class="lbl">Recursos</div></div>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <h4 style="margin:0 0 10px 0;color:#cfe8ff;font-weight:800">Segurança</h4>
+          <div style="color:#9fb0cf">Autenticação: SUAP</div>
+        </div>
+      </aside>
     </div>
-</div>
+  
+</main>
+
 {% endblock %}
+
+{% block extra_scripts %}{% endblock %}
