@@ -1,37 +1,743 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
 
 {% block title %}Bem-vindo ao BE-Desk{% endblock %}
 
-{% block content %}
-<div class="container mt-5">
-    
-    <div class="p-5 mb-4 bg-light rounded-3 shadow-sm">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Bem-vindo ao BE-Desk</h1>
-            <p class="col-md-10 fs-4">
-                Este é o sistema de gerenciamento de espaços e recursos.
-            </p>
-            <p>
-                Utilize a navegação para consultar os horários do Ginásio, 
-                reservar salas ou solicitar materiais.
-            </p>
-        </div>
-    </div>
+{% block extra_head %}
+<style>
+    .bd-home {
+        position: relative;
+        width: 100vw;
+        min-height: calc(100vh - 220px);
+        margin-top: -7.5rem;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        padding: 0;
+    }
 
-    <div class="row text-center">
-        <div class="col-md-6">
-            <h3>Navegação Rápida</h3>
-            <div class="d-grid gap-2">
-                <a href="{% url 'detalhe_sala' 'Ginásio' %}" class="btn btn-primary btn-lg">
-    Ver Horários do Ginásio
-</a>
-                
-                <a href="{% url 'lista_recursos' %}" class="btn btn-info btn-lg">
-                    Reservar Recursos
+    .bd-home-hero {
+        position: relative;
+        overflow: hidden;
+        min-height: calc(100vh - 142px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3.25rem clamp(1.5rem, 6vw, 5rem) 4.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background:
+            linear-gradient(rgba(148, 163, 184, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(148, 163, 184, 0.035) 1px, transparent 1px),
+            #0b0e13;
+        background-size: 70px 60px, 70px 60px;
+        animation: bdGridDrift 18s linear infinite;
+    }
+
+    .bd-how {
+        --bd-how-shift: 0px;
+        padding: 5.5rem clamp(1.5rem, 6vw, 5rem);
+        background:
+            linear-gradient(rgba(11, 14, 19, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(11, 14, 19, 0.035) 1px, transparent 1px),
+            #f8fafc;
+        background-size: 70px 60px, 70px 60px;
+        background-position: 0 var(--bd-how-shift), var(--bd-how-shift) 0;
+        border-top: 1px solid rgba(11, 14, 19, 0.08);
+    }
+
+    .bd-how-inner {
+        width: min(100%, 1180px);
+        margin: 0 auto;
+    }
+
+    .bd-how-header {
+        max-width: 720px;
+        margin: 0 auto 2.75rem;
+        text-align: center;
+    }
+
+    .bd-how-title {
+        margin: 0;
+        color: #0b0e13 !important;
+        font-size: clamp(2.1rem, 4.8vw, 4rem);
+        font-weight: 950;
+        line-height: 1;
+        letter-spacing: 0;
+    }
+
+    .bd-how-title span {
+        color: #89be00 !important;
+    }
+
+    .bd-how-subtitle {
+        max-width: 620px;
+        margin: 1rem auto 0;
+        color: #5f6f89 !important;
+        font-size: 1.08rem;
+        line-height: 1.65;
+    }
+
+    .bd-how-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .bd-how-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 230px;
+        padding: 1.35rem;
+        border: 1px solid rgba(11, 14, 19, 0.1);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.76);
+        box-shadow: 0 18px 50px rgba(11, 14, 19, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        transition: opacity 0.7s ease, transform 0.7s ease, border-color 0.24s ease, background 0.24s ease, box-shadow 0.24s ease;
+    }
+
+    .bd-how-card:nth-child(1) {
+        transition-delay: 0.08s;
+    }
+
+    .bd-how-card:nth-child(2) {
+        transition-delay: 0.16s;
+    }
+
+    .bd-how-card:nth-child(3) {
+        transition-delay: 0.24s;
+    }
+
+    .bd-how-card:nth-child(4) {
+        transition-delay: 0.32s;
+    }
+
+    .bd-how-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(200, 255, 31, 0.18), transparent 42%);
+        opacity: 0;
+        transition: opacity 0.24s ease;
+        pointer-events: none;
+    }
+
+    .bd-how-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(137, 190, 0, 0.34);
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 22px 55px rgba(11, 14, 19, 0.12);
+    }
+
+    .bd-how-card:hover::before {
+        opacity: 1;
+    }
+
+    .bd-scroll-reveal {
+        opacity: 0;
+        transform: translateY(28px);
+    }
+
+    .bd-scroll-reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .bd-how-header.bd-scroll-reveal {
+        transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+
+    .bd-how-card.bd-scroll-reveal {
+        transform: translateY(34px) scale(0.98);
+    }
+
+    .bd-how-card.bd-scroll-reveal.is-visible {
+        transform: translateY(0) scale(1);
+    }
+
+    .bd-how-card.bd-scroll-reveal.is-visible:hover {
+        transform: translateY(-6px) scale(1);
+    }
+
+    .bd-how-icon {
+        position: relative;
+        z-index: 1;
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 1.15rem;
+        border: 1px solid rgba(137, 190, 0, 0.28);
+        border-radius: 14px;
+        background: rgba(200, 255, 31, 0.14);
+        color: #6f9900;
+        font-size: 1.25rem;
+    }
+
+    .bd-how-step {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        margin-bottom: 0.75rem;
+        color: #d71920 !important;
+        font-size: 0.76rem;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .bd-how-card-title {
+        position: relative;
+        z-index: 1;
+        margin: 0 0 0.65rem;
+        color: #0b0e13 !important;
+        font-size: 1.15rem;
+        font-weight: 850;
+    }
+
+    .bd-how-card-copy {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        color: #5f6f89 !important;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .bd-benefits {
+        padding: 5.75rem clamp(1.5rem, 6vw, 5rem);
+        background:
+            linear-gradient(rgba(148, 163, 184, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(148, 163, 184, 0.035) 1px, transparent 1px),
+            #0b0e13;
+        background-size: 70px 60px, 70px 60px;
+        border-top: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .bd-benefits-inner {
+        width: min(100%, 1180px);
+        margin: 0 auto;
+    }
+
+    .bd-benefits-header {
+        max-width: 720px;
+        margin: 0 auto 2.8rem;
+        text-align: center;
+        transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+
+    .bd-benefits-title {
+        margin: 0;
+        color: #fff;
+        font-size: clamp(2.2rem, 5vw, 4.2rem);
+        font-weight: 950;
+        line-height: 1;
+        letter-spacing: 0;
+    }
+
+    .bd-benefits-title span {
+        color: #c8ff1f;
+    }
+
+    .bd-benefits-subtitle {
+        max-width: 620px;
+        margin: 1rem auto 0;
+        color: #9fb0cf;
+        font-size: 1.08rem;
+        line-height: 1.65;
+    }
+
+    .bd-benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .bd-benefit-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 210px;
+        padding: 1.35rem;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.045);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: opacity 0.7s ease, transform 0.7s ease, border-color 0.24s ease, background 0.24s ease, box-shadow 0.24s ease;
+    }
+
+    .bd-benefit-card:nth-child(1) { transition-delay: 0.06s; }
+    .bd-benefit-card:nth-child(2) { transition-delay: 0.12s; }
+    .bd-benefit-card:nth-child(3) { transition-delay: 0.18s; }
+    .bd-benefit-card:nth-child(4) { transition-delay: 0.24s; }
+    .bd-benefit-card:nth-child(5) { transition-delay: 0.30s; }
+    .bd-benefit-card:nth-child(6) { transition-delay: 0.36s; }
+
+    .bd-benefit-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 18% 8%, rgba(200, 255, 31, 0.16), transparent 34%);
+        opacity: 0;
+        transition: opacity 0.24s ease;
+        pointer-events: none;
+    }
+
+    .bd-benefit-card::after {
+        content: "";
+        position: absolute;
+        left: 1.35rem;
+        right: 1.35rem;
+        bottom: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #c8ff1f, transparent);
+        opacity: 0;
+        transform: scaleX(0.35);
+        transition: opacity 0.24s ease, transform 0.24s ease;
+    }
+
+    .bd-benefit-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(200, 255, 31, 0.34);
+        background: rgba(255, 255, 255, 0.065);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .bd-benefit-card:hover::before,
+    .bd-benefit-card:hover::after {
+        opacity: 1;
+    }
+
+    .bd-benefit-card:hover::after {
+        transform: scaleX(1);
+    }
+
+    .bd-benefit-icon {
+        position: relative;
+        z-index: 1;
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 1.15rem;
+        border: 1px solid rgba(200, 255, 31, 0.25);
+        border-radius: 14px;
+        background: rgba(200, 255, 31, 0.1);
+        color: #c8ff1f;
+        font-size: 1.2rem;
+    }
+
+    .bd-benefit-title {
+        position: relative;
+        z-index: 1;
+        margin: 0 0 0.65rem;
+        color: #fff;
+        font-size: 1.12rem;
+        font-weight: 850;
+    }
+
+    .bd-benefit-copy {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        color: #9fb0cf;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .bd-benefit-card.bd-scroll-reveal {
+        transform: translateY(34px) scale(0.98);
+    }
+
+    .bd-benefit-card.bd-scroll-reveal.is-visible {
+        transform: translateY(0) scale(1);
+    }
+
+    .bd-benefit-card.bd-scroll-reveal.is-visible:hover {
+        transform: translateY(-6px) scale(1);
+    }
+
+    .bd-home-content {
+        position: relative;
+        z-index: 2;
+        width: min(100%, 920px);
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .bd-home-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.38rem 0.95rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(190, 255, 28, 0.22);
+        border-radius: 999px;
+        background: rgba(190, 255, 28, 0.08);
+        color: #c8ff1f;
+        font-weight: 800;
+        line-height: 1;
+        opacity: 0;
+        transform: translateY(12px);
+        animation: bdFadeUp 0.65s ease forwards;
+    }
+
+    .bd-home-status::before {
+        content: "";
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #c8ff1f 0 50%, #d71920 50% 100%);
+    }
+
+    .bd-home-title {
+        max-width: 900px;
+        margin: 0 auto;
+        color: #fff;
+        font-size: clamp(3rem, 6.8vw, 5.45rem);
+        font-weight: 950;
+        line-height: 0.94;
+        letter-spacing: 0;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: bdFadeUp 0.75s ease 0.12s forwards;
+    }
+
+    .bd-home-title span {
+        color: #c8ff1f;
+        display: block;
+    }
+
+    .bd-home-copy {
+        max-width: 720px;
+        margin: 1.6rem auto 2.35rem;
+        color: #9fb0cf;
+        font-size: 1.32rem;
+        line-height: 1.55;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: bdFadeUp 0.75s ease 0.24s forwards;
+    }
+
+    .bd-home-copy strong {
+        color: #fff;
+        font-weight: 800;
+    }
+
+    .bd-home-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: bdFadeUp 0.75s ease 0.36s forwards;
+    }
+
+    .bd-home-actions .bd-btn {
+        min-height: 52px;
+        padding-inline: 1.9rem;
+        font-size: 1.05rem;
+        border-radius: 8px;
+        font-weight: 850;
+        transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+    }
+
+    .bd-home-actions .bd-btn-primary {
+        background: #c8ff1f;
+        color: #05070a;
+        box-shadow: 0 0 26px rgba(200, 255, 31, 0.16);
+    }
+
+    .bd-home-actions .bd-btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 34px rgba(200, 255, 31, 0.2);
+    }
+
+    .bd-home-actions .bd-btn-outline {
+        border-color: rgba(215, 25, 32, 0.42);
+        background: rgba(8, 11, 17, 0.6);
+        color: #fff;
+    }
+
+    .bd-home-actions .bd-btn-outline:hover {
+        transform: translateY(-3px);
+        border-color: rgba(215, 25, 32, 0.72);
+        background: rgba(215, 25, 32, 0.1);
+    }
+
+    @keyframes bdFadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes bdGridDrift {
+        from {
+            background-position: 0 0, 0 0;
+        }
+
+        to {
+            background-position: 70px 60px, 70px 60px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .bd-home-hero,
+        .bd-home-status,
+        .bd-home-title,
+        .bd-home-copy,
+        .bd-home-actions {
+            animation: none;
+        }
+
+        .bd-home-status,
+        .bd-home-title,
+        .bd-home-copy,
+        .bd-home-actions {
+            opacity: 1;
+            transform: none;
+        }
+
+        .bd-scroll-reveal {
+            opacity: 1;
+            transform: none;
+            transition: none;
+        }
+
+        .bd-how-card.bd-scroll-reveal {
+            transform: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .bd-home {
+            margin-top: -6rem;
+        }
+
+        .bd-home-hero {
+            min-height: 620px;
+            padding: 3rem 1.4rem 4rem;
+        }
+
+        .bd-home-copy {
+            font-size: 1.05rem;
+        }
+
+        .bd-home-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .bd-home-actions .bd-btn {
+            width: 100%;
+        }
+
+        .bd-how {
+            padding: 4rem 1.25rem;
+        }
+
+        .bd-how-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .bd-how-card {
+            min-height: auto;
+        }
+
+        .bd-benefits {
+            padding: 4rem 1.25rem;
+        }
+
+        .bd-benefits-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .bd-benefit-card {
+            min-height: auto;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1100px) {
+        .bd-how-grid,
+        .bd-benefits-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="bd-home">
+    <div class="bd-home-hero">
+        <div class="bd-home-content">
+            <div class="bd-home-status">Sistema online e atualizado</div>
+
+            <h1 class="bd-home-title">
+                Gerenciamento
+                <span>de espaços</span>
+                e recursos.
+            </h1>
+
+            <p class="bd-home-copy">
+                Reserve <strong>salas</strong>, consulte <strong>horários do ginásio</strong> e solicite
+                <strong>materiais</strong> com facilidade - tudo em um só lugar para o IFRN Bloco E.
+            </p>
+
+            <div class="bd-home-actions">
+                <a href="{% url 'agendar_sala' %}" class="bd-btn bd-btn-primary">
+                    Fazer uma reserva <span aria-hidden="true">-&gt;</span>
+                </a>
+                <a href="{% url 'detalhe_sala' 'Ginásio' %}" class="bd-btn bd-btn-outline">
+                    Ver horários
                 </a>
             </div>
         </div>
     </div>
 
-</div>
+    <section class="bd-how" aria-labelledby="bd-how-title">
+        <div class="bd-how-inner">
+            <div class="bd-how-header bd-scroll-reveal">
+                <h2 class="bd-how-title" id="bd-how-title">Como funciona o <span>BE-Desk</span></h2>
+                <p class="bd-how-subtitle">
+                    Organize reservas, horários e recursos em poucos passos, com fluxo simples para alunos e servidores.
+                </p>
+            </div>
+
+            <div class="bd-how-grid">
+                <article class="bd-how-card bd-scroll-reveal">
+                    <div class="bd-how-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <span class="bd-how-step">Etapa 01</span>
+                    <h3 class="bd-how-card-title">Escolha o local</h3>
+                    <p class="bd-how-card-copy">Veja salas, ginásio e espaços disponíveis no Bloco E.</p>
+                </article>
+
+                <article class="bd-how-card bd-scroll-reveal">
+                    <div class="bd-how-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                    <span class="bd-how-step">Etapa 02</span>
+                    <h3 class="bd-how-card-title">Faça sua reserva</h3>
+                    <p class="bd-how-card-copy">Selecione data, horário e envie a solicitação de uso.</p>
+                </article>
+
+                <article class="bd-how-card bd-scroll-reveal">
+                    <div class="bd-how-icon"><i class="fa-solid fa-box-open"></i></div>
+                    <span class="bd-how-step">Etapa 03</span>
+                    <h3 class="bd-how-card-title">Solicite materiais</h3>
+                    <p class="bd-how-card-copy">Peça recursos de apoio junto ao espaço reservado.</p>
+                </article>
+
+                <article class="bd-how-card bd-scroll-reveal">
+                    <div class="bd-how-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <span class="bd-how-step">Etapa 04</span>
+                    <h3 class="bd-how-card-title">Aproveite o espaço</h3>
+                    <p class="bd-how-card-copy">Acompanhe a aprovação e utilize tudo com organização.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="bd-benefits" aria-labelledby="bd-benefits-title">
+        <div class="bd-benefits-inner">
+            <div class="bd-benefits-header bd-scroll-reveal">
+                <h2 class="bd-benefits-title" id="bd-benefits-title">Tudo em <span>um só lugar</span></h2>
+                <p class="bd-benefits-subtitle">
+                    Gerencie espaços e materiais do IFRN Bloco E com praticidade.
+                </p>
+            </div>
+
+            <div class="bd-benefits-grid">
+                <article class="bd-benefit-card bd-scroll-reveal">
+                    <div class="bd-benefit-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <h3 class="bd-benefit-title">Reservas rápidas</h3>
+                    <p class="bd-benefit-copy">Solicite espaços em poucos cliques, com fluxo simples e direto.</p>
+                </article>
+
+                <article class="bd-benefit-card bd-scroll-reveal">
+                    <div class="bd-benefit-icon"><i class="fa-solid fa-clock"></i></div>
+                    <h3 class="bd-benefit-title">Controle de horários</h3>
+                    <p class="bd-benefit-copy">Consulte disponibilidade e acompanhe os períodos ocupados.</p>
+                </article>
+
+                <article class="bd-benefit-card bd-scroll-reveal">
+                    <div class="bd-benefit-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <h3 class="bd-benefit-title">Solicitação de materiais</h3>
+                    <p class="bd-benefit-copy">Peça recursos de apoio junto das reservas de forma organizada.</p>
+                </article>
+
+                <article class="bd-benefit-card bd-scroll-reveal">
+                    <div class="bd-benefit-icon"><i class="fa-solid fa-building-columns"></i></div>
+                    <h3 class="bd-benefit-title">Organização do Bloco E</h3>
+                    <p class="bd-benefit-copy">Centralize demandas e reduza conflitos no uso dos ambientes.</p>
+                </article>
+
+                <article class="bd-benefit-card bd-scroll-reveal">
+                    <div class="bd-benefit-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <h3 class="bd-benefit-title">Histórico de reservas</h3>
+                    <p class="bd-benefit-copy">Mantenha registros acessíveis para consulta e acompanhamento.</p>
+                </article>
+
+                <article class="bd-benefit-card bd-scroll-reveal">
+                    <div class="bd-benefit-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3 class="bd-benefit-title">Interface moderna</h3>
+                    <p class="bd-benefit-copy">Use uma experiência limpa, responsiva e pensada para agilidade.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const revealItems = document.querySelectorAll(".bd-scroll-reveal");
+        const howSection = document.querySelector(".bd-how");
+
+        if (reduceMotion) {
+            revealItems.forEach((item) => item.classList.add("is-visible"));
+            return;
+        }
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("is-visible");
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.2,
+            rootMargin: "0px 0px -8% 0px",
+        });
+
+        revealItems.forEach((item) => revealObserver.observe(item));
+
+        if (!howSection) return;
+
+        let ticking = false;
+
+        const animateHowGrid = () => {
+            const rect = howSection.getBoundingClientRect();
+            const viewport = window.innerHeight || document.documentElement.clientHeight;
+
+            if (rect.top < viewport && rect.bottom > 0) {
+                const progress = (viewport - rect.top) / (viewport + rect.height);
+                const shift = Math.max(-28, Math.min(28, (progress - 0.5) * 56));
+                howSection.style.setProperty("--bd-how-shift", `${shift}px`);
+            }
+
+            ticking = false;
+        };
+
+        const onScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(animateHowGrid);
+                ticking = true;
+            }
+        };
+
+        animateHowGrid();
+        window.addEventListener("scroll", onScroll, { passive: true });
+    });
+</script>
 {% endblock %}
