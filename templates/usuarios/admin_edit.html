@@ -1,0 +1,17 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block content %}
+<main class="container p-6">
+  <h1>{{ title }}</h1>
+  <div style="max-width:720px">
+    <form method="post">{% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn btn-primary" type="submit">Salvar</button>
+      <a class="btn btn-ghost" href="{% url 'admin_dashboard' %}">Cancelar</a>
+    </form>
+  </div>
+</main>
+{% endblock %}

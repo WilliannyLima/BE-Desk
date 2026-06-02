@@ -420,6 +420,7 @@
         <a href="{% url 'lista_recursos' %}" class="pill-nav-item">Materiais</a>
         <a href="#" class="pill-nav-item">Feedback</a>
         {% if user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}" class="pill-nav-item">Admin</a>
         <a href="{% url 'listar_pendentes' %}" class="pill-nav-item">Dashboard</a>
         {% endif %}
       </div>
@@ -438,9 +439,19 @@
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
             <li><a class="dropdown-item" href="{% url 'user_profile' %}"><i class="fa-solid fa-id-badge me-2"></i> Meu
                 Perfil</a></li>
+            {% if user.is_staff %}
+            <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}"><i class="fa-solid fa-chart-line me-2"></i> Admin Dashboard</a></li>
+            <li><a class="dropdown-item" href="{% url 'criar_sala' %}"><i class="fa-solid fa-door-open me-2"></i> Criar Sala</a></li>
+            <li><a class="dropdown-item" href="{% url 'criar_recurso' %}"><i class="fa-solid fa-box-open me-2"></i> Criar Recurso</a></li>
+            <li><a class="dropdown-item" href="{% url 'gerenciar_permissoes' %}"><i class="fa-solid fa-user-shield me-2"></i> Permissões</a></li>
             <li>
               <hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.08);">
             </li>
+            {% else %}
+            <li>
+              <hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.08);">
+            </li>
+            {% endif %}
             <li>
               <form action="{% url 'logout' %}" method="post" class="m-0">
                 {% csrf_token %}
