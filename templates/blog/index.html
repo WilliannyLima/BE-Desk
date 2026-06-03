@@ -1,0 +1,130 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Blog - BE-Desk{% endblock %}
+
+{% block main_container_class %}bd-blog-main flex-grow-1{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}?v=20260602">
+{% endblock %}
+
+{% block content %}
+<section class="bd-blog-page" aria-labelledby="bd-blog-title">
+  <div class="bd-blog-shell">
+    <header class="bd-blog-hero">
+      <div class="bd-blog-hero-copy">
+        <span class="bd-blog-kicker">Central de novidades</span>
+        <h1 id="bd-blog-title">Blog BE-Desk</h1>
+        <p>Atualiza&ccedil;&otilde;es, orienta&ccedil;&otilde;es e conte&uacute;dos para acompanhar a rotina do Bloco E com mais clareza.</p>
+      </div>
+
+      <div class="bd-blog-actions">
+        <form method="get" class="bd-blog-search" role="search">
+          <i class="fa-solid fa-search" aria-hidden="true"></i>
+          <input type="search" name="q" placeholder="Buscar publica&ccedil;&otilde;es" value="{{ q }}" aria-label="Buscar publica&ccedil;&otilde;es">
+          <button type="submit" aria-label="Buscar">
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </form>
+
+        {% if user.is_staff %}
+        <a class="bd-blog-btn bd-blog-btn-primary" href="{% url 'blog_admin_create' %}">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Criar postagem
+        </a>
+        {% endif %}
+      </div>
+    </header>
+
+    {% if page_obj and page_obj.object_list %}
+      {% with page_obj.object_list.0 as featured %}
+      {% if featured %}
+      <article class="bd-blog-feature" aria-label="Publica&ccedil;&atilde;o em destaque">
+        <a class="bd-blog-feature-media" href="{{ featured.get_absolute_url }}" aria-label="Abrir {{ featured.title }}">
+          {% if featured.cover %}
+            <img src="{{ featured.cover.url }}" alt="{{ featured.title }}">
+          {% else %}
+            <div class="bd-blog-cover-placeholder">
+              <span>BE</span>
+            </div>
+          {% endif %}
+        </a>
+
+        <div class="bd-blog-feature-content">
+          <span class="bd-blog-pill">Destaque</span>
+          <h2><a href="{{ featured.get_absolute_url }}">{{ featured.title }}</a></h2>
+          <div class="bd-blog-meta">
+            <span>{{ featured.author.get_full_name|default:featured.author.username }}</span>
+            <span>{{ featured.published_at|date:"d M Y" }}</span>
+          </div>
+          <p>{{ featured.summary|truncatechars:320 }}</p>
+          <a href="{{ featured.get_absolute_url }}" class="bd-blog-btn bd-blog-btn-secondary">
+            Ler publica&ccedil;&atilde;o
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+      </article>
+      {% endif %}
+      {% endwith %}
+
+      <div class="bd-blog-section-heading">
+        <div>
+          <span class="bd-blog-kicker">Publica&ccedil;&otilde;es</span>
+          <h2>Mais recentes</h2>
+        </div>
+        <span class="bd-blog-count">{{ page_obj.paginator.count }} itens</span>
+      </div>
+
+      <div class="bd-blog-grid">
+        {% for post in page_obj.object_list|slice:"1:999" %}
+        <article class="bd-blog-card">
+          <a class="bd-blog-card-cover" href="{{ post.get_absolute_url }}" aria-label="Abrir {{ post.title }}">
+            {% if post.cover %}
+              <img src="{{ post.cover.url }}" alt="{{ post.title }}">
+            {% else %}
+              <div class="bd-blog-cover-placeholder">
+                <span>BE</span>
+              </div>
+            {% endif %}
+          </a>
+
+          <div class="bd-blog-card-body">
+            <div class="bd-blog-meta">
+              <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+              <span>{{ post.published_at|date:"d M Y" }}</span>
+            </div>
+            <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+            <p>{{ post.summary|truncatechars:170 }}</p>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      {% if page_obj.has_previous or page_obj.has_next %}
+      <nav class="bd-blog-pagination" aria-label="Paginas do blog">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          Anterior
+        </a>
+        {% endif %}
+        <span>P&aacute;gina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">
+          Pr&oacute;xima
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+        {% endif %}
+      </nav>
+      {% endif %}
+    {% else %}
+      <div class="bd-blog-empty">
+        <i class="fa-solid fa-newspaper" aria-hidden="true"></i>
+        <h2>Nenhuma publica&ccedil;&atilde;o encontrada.</h2>
+        <p>Ajuste a busca ou volte mais tarde para conferir novas atualiza&ccedil;&otilde;es.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

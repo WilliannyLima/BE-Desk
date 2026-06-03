@@ -134,103 +134,69 @@
 .action-btn:hover { transform: translateY(-2px); }
 </style>
 
-<div class="container dashboard-container">
+<section class="profile-page">
+  <div class="profile-banner"></div>
+  <div class="container dashboard-container card-surface">
     <!-- Header -->
-    <div class="dash-header">
-        <h2><i class="fa-solid fa-chart-pie" style="color: #ef4444;"></i> Dashboard Estatístico</h2>
-        <div class="d-flex align-items-center gap-4">
+    <div class="dashboard-hero">
+        <div>
+            <div class="title"><i class="fa-solid fa-chart-pie" style="color: var(--bd-accent);"></i> Dashboard Estatístico</div>
+            <div style="color:var(--bd-muted); margin-top:6px">Visão geral de reservas, recursos e pendências.</div>
+        </div>
+        <div class="dashboard-actions">
             <span id="current-time" class="text-secondary fw-semibold d-none d-md-block"></span>
             <select class="filter-select">
                 <option value="mes">Este Mês</option>
                 <option value="3meses">Últimos 3 Meses</option>
                 <option value="ano">Este Ano</option>
             </select>
+            <a class="btn btn-primary" href="{% url 'criar_sala' %}">Criar Sala</a>
         </div>
     </div>
 
     <!-- KPIs -->
-    <div class="row g-4 mb-5">
-        <!-- KPI 1 -->
-        <div class="col-xl-3 col-md-6">
-            <div class="kpi-card">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                    <div class="kpi-icon gold">
-                        <i class="fa-solid fa-calendar-check"></i>
-                    </div>
-                    <span class="trend-up"><i class="fa-solid fa-arrow-up"></i> 15%</span>
-                </div>
-                <div class="kpi-details">
-                    <h3>{{ kpi_total_reservas }}</h3>
-                    <span>Total de Reservas</span>
-                </div>
+    <div class="dashboard-kpis">
+        <div class="kpi-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div class="kpi-value">{{ kpi_total_reservas }}</div>
+                <div class="kpi-icon gold"><i class="fa-solid fa-calendar-check"></i></div>
             </div>
+            <div style="margin-top:10px"><div class="kpi-label">Total de Reservas</div></div>
         </div>
-        <!-- KPI 2 -->
-        <div class="col-xl-2 col-md-6">
-            <div class="kpi-card">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                    <div class="kpi-icon blue">
-                        <i class="fa-solid fa-door-open"></i>
-                    </div>
-                </div>
-                <div class="kpi-details">
-                    <h3>{{ kpi_locais_ativos }}</h3>
-                    <span>Locais Ativos</span>
-                </div>
+        <div class="kpi-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div class="kpi-value">{{ kpi_locais_ativos }}</div>
+                <div class="kpi-icon blue"><i class="fa-solid fa-door-open"></i></div>
             </div>
+            <div style="margin-top:10px"><div class="kpi-label">Locais Ativos</div></div>
         </div>
-        <!-- KPI 3 -->
-        <div class="col-xl-3 col-md-4">
-            <div class="kpi-card">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                    <div class="kpi-icon green">
-                        <i class="fa-solid fa-percent"></i>
-                    </div>
-                    <span class="trend-up"><i class="fa-solid fa-arrow-up"></i></span>
-                </div>
-                <div class="kpi-details">
-                    <h3>{{ kpi_taxa_ocupacao }}%</h3>
-                    <span>Taxa de Ocupação</span>
-                </div>
+        <div class="kpi-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div class="kpi-value">{{ kpi_taxa_ocupacao }}%</div>
+                <div class="kpi-icon green"><i class="fa-solid fa-percent"></i></div>
             </div>
+            <div style="margin-top:10px"><div class="kpi-label">Taxa de Ocupação</div></div>
         </div>
-        <!-- KPI 4 -->
-        <div class="col-xl-2 col-md-4">
-            <div class="kpi-card" style="border-color: rgba(239, 68, 68, 0.3);">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                    <div class="kpi-icon">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                    </div>
-                    {% if kpi_pendencias > 0 %}
-                    <span class="trend-down"><i class="fa-solid fa-arrow-down"></i> {{ kpi_pendencias }}</span>
-                    {% endif %}
-                </div>
-                <div class="kpi-details">
-                    <h3>{{ kpi_pendencias }}</h3>
-                    <span>Pendências</span>
-                </div>
+        <div class="kpi-card" style="border-color: rgba(239, 68, 68, 0.3);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div class="kpi-value">{{ kpi_pendencias }}</div>
+                <div class="kpi-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
             </div>
+            <div style="margin-top:10px"><div class="kpi-label">Pendências</div></div>
         </div>
-        <!-- KPI 5 -->
-        <div class="col-xl-2 col-md-4">
-            <div class="kpi-card">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                    <div class="kpi-icon purple">
-                        <i class="fa-solid fa-boxes-stacked"></i>
-                    </div>
-                </div>
-                <div class="kpi-details">
-                    <h3>{{ kpi_materiais }}</h3>
-                    <span>Mats. Cadastrados</span>
-                </div>
+        <div class="kpi-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div class="kpi-value">{{ kpi_materiais }}</div>
+                <div class="kpi-icon purple"><i class="fa-solid fa-boxes-stacked"></i></div>
             </div>
+            <div style="margin-top:10px"><div class="kpi-label">Materiais Cadastrados</div></div>
         </div>
     </div>
 
     <!-- Charts Row 1 -->
     <div class="row mb-2 g-4">
         <div class="col-lg-7">
-            <div class="chart-card">
+            <div class="chart-card card-surface">
                 <h5><i class="fa-solid fa-boxes-packing text-danger"></i> Materiais Mais Solicitados</h5>
                 <div style="height: 280px; position: relative;">
                     <canvas id="materialsChart"></canvas>
@@ -238,7 +204,7 @@
             </div>
         </div>
         <div class="col-lg-5">
-            <div class="chart-card">
+            <div class="chart-card card-surface">
                 <h5><i class="fa-solid fa-location-dot text-warning"></i> Locais Mais Utilizados</h5>
                 <div style="height: 280px; position: relative; display: flex; justify-content: center;">
                     <canvas id="locationsChart"></canvas>
@@ -250,7 +216,7 @@
     <!-- Charts Row 2 -->
     <div class="row mb-2 g-4">
         <div class="col-12">
-            <div class="chart-card">
+            <div class="chart-card card-surface">
                 <h5><i class="fa-solid fa-chart-line text-primary"></i> Reservas por Mês (Últimos 6 meses)</h5>
                 <div style="height: 300px; position: relative;">
                     <canvas id="reservationsChart"></canvas>
@@ -262,7 +228,7 @@
     <!-- Charts Row 3 -->
     <div class="row mb-5 g-4">
         <div class="col-lg-7">
-            <div class="chart-card">
+            <div class="chart-card card-surface">
                 <h5><i class="fa-solid fa-calendar-week text-success"></i> Ocupação por Dia da Semana</h5>
                 <div style="height: 280px; position: relative;">
                     <canvas id="weekdayChart"></canvas>
@@ -291,7 +257,7 @@
     <div class="row g-4">
         <!-- Salas Pendentes -->
         <div class="col-lg-6">
-            <div class="chart-card h-auto">
+            <div class="chart-card h-auto card-surface">
                 <h5>Reservas de Salas Pendentes</h5>
                 {% if salas_pendentes %}
                     <div class="table-responsive">
@@ -334,7 +300,7 @@
 
         <!-- Recursos Pendentes -->
         <div class="col-lg-6">
-            <div class="chart-card h-auto">
+            <div class="chart-card h-auto card-surface">
                 <h5>Pedidos de Recursos Pendentes</h5>
                 {% if recursos_pendentes %}
                     <div class="table-responsive">
@@ -375,7 +341,8 @@
             </div>
         </div>
     </div>
-</div>
+  </div>
+</section>
 
 <!-- Add Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

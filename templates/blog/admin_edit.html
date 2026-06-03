@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Blog{% endblock %}
+
+{% block content %}
+<main class="container p-6">
+  <h1>{{ title }}</h1>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="mb-3">
+      <label class="form-label">{{ form.title.label }}</label>
+      {{ form.title }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ form.slug.label }}</label>
+      {{ form.slug }}
+      <div class="form-text">{{ form.slug.help_text }}</div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ form.summary.label }}</label>
+      {{ form.summary }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ form.content.label }}</label>
+      {{ form.content }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ form.cover.label }}</label>
+      {{ form.cover }}
+    </div>
+    <div class="mb-3 form-check">
+      {{ form.is_published }} <label class="form-check-label">{{ form.is_published.label }}</label>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ form.published_at.label }}</label>
+      {{ form.published_at }}
+      <div class="form-text">{{ form.published_at.help_text }}</div>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Salvar</button>
+    <a class="btn btn-ghost" href="{% url 'blog_admin' %}">Cancelar</a>
+  </form>
+</main>
+{% endblock %}

@@ -453,52 +453,43 @@
 {% endblock %}
 
 {% block content %}
-<section class="bd-admin" aria-labelledby="bd-admin-title">
+<section class="bd-admin profile-page" aria-labelledby="bd-admin-title">
+  <div class="profile-banner"></div>
   <div class="bd-admin-shell">
-    <div class="bd-admin-hero">
-      <div>
-        <div class="bd-admin-status">Painel administrativo online</div>
-        <h1 class="bd-admin-title" id="bd-admin-title">
-          Controle do BE-Desk,
-          <span>em um lugar.</span>
-        </h1>
-        <p class="bd-admin-copy">
-          Gerencie salas, recursos e permiss&otilde;es com a mesma experi&ecirc;ncia visual da p&aacute;gina inicial.
-        </p>
+    <div class="admin-hero">
+      <div class="hero-left">
+        <div class="hero-kicker">Painel administrativo online</div>
+        <h1 class="hero-title">Controle do BE-Desk, <span style="color:var(--bd-accent); display:block">em um lugar.</span></h1>
+        <p class="hero-sub">Gerencie salas, recursos e permissões com a mesma experiência visual da página inicial.</p>
       </div>
-
-      <div class="bd-admin-actions" aria-label="Acoes administrativas">
-        <a class="bd-admin-btn bd-admin-btn-primary" href="{% url 'criar_sala' %}">
-          Criar sala <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-        </a>
-        <a class="bd-admin-btn bd-admin-btn-secondary" href="{% url 'criar_recurso' %}">
-          Criar recurso
-        </a>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{% url 'criar_sala' %}">Criar sala</a>
+        <a class="btn btn-ghost" href="{% url 'criar_recurso' %}">Criar recurso</a>
+        <a class="btn btn-ghost" href="{% url 'blog_admin' %}">Gerenciar Blog</a>
+        <a class="btn btn-ghost" href="{% url 'blog_admin_create' %}">Criar Postagem</a>
       </div>
     </div>
-
-    <div class="bd-admin-stats" aria-label="Resumo administrativo">
-      <article class="bd-admin-stat">
-        <span>Salas</span>
-        <strong>{{ salas|length }}</strong>
-        <p>Ambientes cadastrados para solicita&ccedil;&atilde;o e consulta de disponibilidade.</p>
-      </article>
-
-      <article class="bd-admin-stat">
-        <span>Recursos</span>
-        <strong>{{ recursos|length }}</strong>
-        <p>Materiais dispon&iacute;veis para apoiar reservas e atividades do Bloco E.</p>
-      </article>
-
-      <article class="bd-admin-stat">
-        <span>Acesso</span>
-        <strong>Staff</strong>
-        <p>Permiss&otilde;es administrativas protegidas para usu&aacute;rios autorizados.</p>
-      </article>
+    
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="label">SALAS</div>
+        <div class="value">{{ salas|length }}</div>
+        <div class="desc">Ambientes cadastrados para solicitações e consulta de disponibilidade.</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">RECURSOS</div>
+        <div class="value">{{ recursos|length }}</div>
+        <div class="desc">Materiais disponíveis para apoiar reservas e atividades do Bloco E.</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">ACESSO</div>
+        <div class="value">Staff</div>
+        <div class="desc">Permissões administrativas protegidas para usuários autorizados.</div>
+      </div>
     </div>
 
     <div class="bd-admin-grid">
-      <section class="bd-admin-panel" aria-labelledby="bd-admin-salas-title">
+      <section class="bd-admin-panel card-surface" aria-labelledby="bd-admin-salas-title">
         <div class="bd-admin-panel-header">
           <div>
             <span class="bd-admin-panel-kicker">Ambientes</span>
@@ -535,7 +526,7 @@
         </div>
       </section>
 
-      <section class="bd-admin-panel" aria-labelledby="bd-admin-recursos-title">
+      <section class="bd-admin-panel card-surface" aria-labelledby="bd-admin-recursos-title">
         <div class="bd-admin-panel-header">
           <div>
             <span class="bd-admin-panel-kicker">Materiais</span>
@@ -572,6 +563,44 @@
         </div>
       </section>
     </div>
+
+    <section class="bd-admin-panel card-surface" aria-labelledby="bd-admin-posts-title" style="margin-top:1rem">
+      <div class="bd-admin-panel-header">
+        <div>
+          <span class="bd-admin-panel-kicker">Blog</span>
+          <h2 id="bd-admin-posts-title">Publicações recentes</h2>
+        </div>
+        <div class="bd-admin-icon" aria-hidden="true">
+          <i class="fa-solid fa-newspaper"></i>
+        </div>
+      </div>
+
+      <ul class="bd-admin-list">
+        {% for p in recent_posts %}
+          <li>
+            <div class="bd-admin-item-main">
+              <strong>{{ p.title }}</strong>
+              <small>{{ p.author.get_full_name|default:p.author.username }} • {{ p.created_at|date:'d/m/Y' }}</small>
+            </div>
+            <div style="display:flex;gap:0.5rem">
+              <a class="bd-admin-btn bd-admin-btn-secondary" href="{% url 'blog_admin_edit' p.pk %}">Editar</a>
+              <a class="bd-admin-btn bd-admin-btn-secondary" href="{% url 'blog_admin_delete' p.pk %}">Excluir</a>
+            </div>
+          </li>
+        {% empty %}
+          <li class="bd-admin-empty">
+            <div class="bd-admin-item-main">
+              <strong>Nenhuma publicação.</strong>
+              <small>Crie a primeira publicação para aparecer no blog.</small>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="bd-admin-panel-footer">
+        <a class="bd-admin-btn bd-admin-btn-secondary" href="{% url 'blog_admin' %}">Abrir painel do Blog</a>
+      </div>
+    </section>
 
     <section class="bd-admin-access" aria-label="Gerenciamento de permissoes">
       <div>

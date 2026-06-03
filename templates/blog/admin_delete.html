@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Excluir - Blog{% endblock %}
+
+{% block content %}
+<main class="container p-6">
+  <h1>Excluir Publicação</h1>
+  <p>Tem certeza que deseja excluir "{{ post.title }}"?</p>
+  <form method="post">{% csrf_token %}
+    <button class="btn btn-danger" type="submit">Excluir</button>
+    <a class="btn btn-ghost" href="{% url 'blog_admin' %}">Cancelar</a>
+  </form>
+</main>
+{% endblock %}

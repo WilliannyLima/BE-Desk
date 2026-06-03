@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Admin Blog - BE-Desk{% endblock %}
+
+{% block content %}
+<main class="container p-6">
+  <h1>Gerenciar Publicações</h1>
+  <a class="btn btn-primary" href="{% url 'blog_admin_create' %}">Nova Publicação</a>
+  <table class="table" style="margin-top:1rem">
+    <thead><tr><th>Título</th><th>Autor</th><th>Publicado</th><th></th></tr></thead>
+    <tbody>
+      {% for p in posts %}
+      <tr>
+        <td>{{ p.title }}</td>
+        <td>{{ p.author.get_full_name|default:p.author.username }}</td>
+        <td>{% if p.is_published %}Sim ({{ p.published_at|date:'d/m/Y H:i' }}){% else %}Não{% endif %}</td>
+        <td>
+          <a class="btn btn-ghost" href="{% url 'blog_admin_edit' p.pk %}">Editar</a>
+          <a class="btn btn-ghost" href="{% url 'blog_admin_delete' p.pk %}">Excluir</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4">Nenhuma publicação cadastrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</main>
+{% endblock %}

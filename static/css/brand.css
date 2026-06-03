@@ -1,0 +1,157 @@
+/* BE-Desk Brand Identity - colors, typography, small UI tokens */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+:root{
+  --bd-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --bd-bg: #071014; /* deep background */
+  --bd-surface: #0f1720; /* cards */
+  --bd-accent: #c8ff1f; /* lime accent */
+  --bd-accent-2: #b5e853;
+  --bd-muted: #9fb0cf;
+  --bd-text: #e2eaf2;
+  --bd-radius: 12px;
+}
+
+html,body{
+  font-family: var(--bd-font-family);
+  background: linear-gradient(180deg, var(--bd-bg) 0%, #07121a 100%);
+  color: var(--bd-text);
+}
+
+a{ color: var(--bd-accent); }
+
+.btn-primary{ background: var(--bd-accent); color: #071014; border-radius:10px; padding:0.5rem 0.8rem; text-decoration:none }
+.btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--bd-text); padding:0.45rem 0.7rem; border-radius:8px }
+
+.container{ max-width:1180px; margin:0 auto }
+
+/* Card surface */
+.card-surface{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:var(--bd-radius); padding:1rem; border:1px solid rgba(255,255,255,0.04); }
+
+/* Dashboard specific styles */
+.dashboard-hero{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.2rem }
+.dashboard-hero .title { font-size:1.6rem; font-weight:800; color:var(--bd-text) }
+.dashboard-actions { display:flex; gap:0.6rem; align-items:center }
+.dashboard-kpis{ display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1rem }
+.kpi-card{ padding:1rem; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
+.kpi-card .kpi-value{ font-size:1.8rem; font-weight:900; color:var(--bd-text) }
+.kpi-card .kpi-label{ color:var(--bd-muted); font-weight:700; font-size:0.85rem }
+.chart-card{ padding:1rem; border-radius:12px; }
+
+/* responsive tweaks */
+@media (max-width:720px){
+  .dashboard-hero{ flex-direction:column; align-items:flex-start }
+}
+
+/* Admin hero large heading */
+.admin-hero { display:grid; grid-template-columns: 1fr 360px; gap: 1.25rem; align-items:start; margin-bottom:1.75rem }
+.admin-hero .hero-left { }
+.admin-hero .hero-kicker { display:inline-block; padding:6px 12px; border-radius:999px; background:rgba(200,255,31,0.06); color:var(--bd-accent); font-weight:800; font-size:0.85rem; margin-bottom:12px }
+.admin-hero .hero-title { font-size: clamp(2.6rem, 6vw, 4.2rem); line-height:0.95; font-weight:900; color:var(--bd-text); margin:0 0 12px }
+.admin-hero .hero-sub { color:var(--bd-muted); max-width:640px; margin-bottom:18px }
+.admin-hero .hero-actions { display:flex; flex-direction:column; gap:0.6rem; align-items:flex-end }
+.admin-hero .hero-actions .btn { min-width:180px }
+
+/* Stat cards row */
+.stat-cards { display:grid; grid-template-columns: repeat(3,1fr); gap:0.9rem; margin-bottom:1.25rem }
+.stat-card { padding:1rem; border-radius:14px; background:linear-gradient(180deg, rgba(200,255,31,0.02), rgba(0,0,0,0.05)); border:1px solid rgba(255,255,255,0.03); }
+.stat-card .label { color:var(--bd-accent); font-weight:800; font-size:0.85rem }
+.stat-card .value { font-size:1.8rem; font-weight:900; color:var(--bd-text); margin-top:8px }
+.stat-card .desc { color:var(--bd-muted); margin-top:8px }
+
+@media (max-width:980px){
+  .admin-hero { grid-template-columns: 1fr; }
+  .stat-cards { grid-template-columns: repeat(1,1fr); }
+  .admin-hero .hero-actions { align-items:stretch }
+}
+
+/* Headings */
+h1,h2,h3{ color:var(--bd-text); font-weight:700 }
+
+/* Blog specific small tweaks */
+.blog-card h3 a{ color: var(--bd-text); text-decoration:none }
+.blog-card p{ color: var(--bd-muted) }
+
+/* Accessibility: focus */
+a:focus, button:focus, input:focus, textarea:focus{ outline:3px solid rgba(200,255,31,0.12); outline-offset:2px }
+
+/* Favicon placeholder area if needed */
+.brand-logo { display:inline-flex; align-items:center; gap:0.5rem }
+.brand-logo img{ height:36px }
+
+/* Hover / motion system */
+@media (prefers-reduced-motion: no-preference) {
+  .btn-primary, .btn-ghost, .bd-admin-btn, .bd-admin-btn-secondary, .bd-admin-btn-primary {
+    transition: transform 200ms ease, box-shadow 220ms ease, background 160ms ease, border-color 160ms ease;
+    will-change: transform, box-shadow;
+  }
+
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(181,232,83,0.18); }
+  .btn-ghost:hover { transform: translateY(-2px); border-color: rgba(200,255,31,0.18); box-shadow: 0 8px 22px rgba(0,0,0,0.28); }
+
+  .card-surface { transition: transform 220ms ease, box-shadow 220ms ease, border-color 160ms ease; }
+  .card-surface:hover { transform: translateY(-6px); box-shadow: 0 18px 48px rgba(2,6,10,0.6); border-color: rgba(200,255,31,0.06); }
+
+  .blog-card { transition: transform 220ms ease, box-shadow 220ms ease; }
+  .blog-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+
+  .profile-avatar { transition: transform 260ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms ease; }
+  .profile-avatar:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 18px 42px rgba(0,0,0,0.6), 0 0 20px rgba(200,255,31,0.06); }
+
+  .pill-nav-item { transition: color 180ms ease, transform 180ms ease; }
+  .pill-nav-item:hover { transform: translateY(-3px); color: #fff; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary, .btn-ghost, .bd-admin-btn, .card-surface, .blog-card, .profile-avatar, .pill-nav-item { transition: none !important; }
+}
+
+/* Disable any animation/transition specifically for the top menu logo */
+.pill-brand, .pill-brand img, .brand-logo {
+  transition: none !important;
+}
+.pill-brand:hover {
+  transform: none !important;
+  filter: none !important;
+}
+/* also disable any active/focus animation when clicking the logo */
+.pill-brand:active, .pill-brand:focus, .pill-brand:focus-visible {
+  transform: none !important;
+  filter: none !important;
+  transition: none !important;
+  outline: none !important;
+}
+
+/* Keep small carousel dots hidden, but show the nav indicator underline for active menu */
+.nav-dots, .carousel-indicators {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Animated underline indicator under active nav link */
+.nav-indicator {
+  position: absolute;
+  bottom: 8px;
+  height: 3px;
+  background: var(--bd-accent);
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(200,255,31,0.12);
+  transition: left 300ms cubic-bezier(.2,.9,.2,1), width 300ms cubic-bezier(.2,.9,.2,1), opacity 200ms ease;
+  will-change: left, width;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-indicator { transition: none !important; }
+}
+
+/* Remove extra top spacing between navbar and page content */
+main.bd-main, main.bd-main.bd-page-enter, .bd-main {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Ensure floating navbar doesn't push content down excessively */
+.floating-navbar-wrapper { margin-bottom: 0 !important; top: 8px !important; }

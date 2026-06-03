@@ -16,6 +16,7 @@
   <!-- Tailwind should be built into static/css/bedesk-theme.css for production. Removed CDN usage. -->
 
   <link rel="stylesheet" href="{% static 'css/bedesk-theme.css' %}">
+  <link rel="stylesheet" href="{% static 'css/brand.css' %}">
 
   <style>
     .bd-simple-footer {
@@ -418,6 +419,7 @@
         <a href="{% url 'lista_reserva' %}" class="pill-nav-item">Reservas</a>
         <a href="#" class="pill-nav-item">Benefícios</a>
         <a href="{% url 'lista_recursos' %}" class="pill-nav-item">Materiais</a>
+        <a href="{% url 'blog_index' %}" class="pill-nav-item">Blog</a>
         <a href="#" class="pill-nav-item">Feedback</a>
         {% if user.is_staff %}
         <a href="{% url 'admin_dashboard' %}" class="pill-nav-item">Admin</a>

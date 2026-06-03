@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'relatorios',
     'integracao_suap',
     'bedesk',
+    'blog',
     'widget_tweaks',
 ]
 MIDDLEWARE = [
@@ -142,3 +143,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Media files (uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
