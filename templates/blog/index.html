@@ -6,30 +6,60 @@
 {% block main_container_class %}bd-blog-main flex-grow-1{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/blog.css' %}?v=20260602">
+<link rel="stylesheet" href="{% static 'css/blog.css' %}?v=20260608">
+<meta name="description" content="Blog do BE-Desk — atualizações, orientações e conteúdos para acompanhar a rotina do Bloco E com mais clareza.">
 {% endblock %}
 
 {% block content %}
 <section class="bd-blog-page" aria-labelledby="bd-blog-title">
+  <a href="#bd-blog-content" class="bd-blog-skip-link">Ir para publicações</a>
+
+  <!-- Loading overlay (shown during search form submission) -->
+  <div class="bd-blog-loading-overlay" id="bd-loading" aria-hidden="true">
+    <div class="bd-blog-spinner" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
   <div class="bd-blog-shell">
     <header class="bd-blog-hero">
       <div class="bd-blog-hero-copy">
         <span class="bd-blog-kicker">Central de novidades</span>
         <h1 id="bd-blog-title">Blog BE-Desk</h1>
-        <p>Atualiza&ccedil;&otilde;es, orienta&ccedil;&otilde;es e conte&uacute;dos para acompanhar a rotina do Bloco E com mais clareza.</p>
+        <p>Atualiza&ccedil;&otilde;es, orienta&ccedil;&otilde;es e conte&uacute;dos para acompanhar a rotina do Bloco E
+          com mais clareza.</p>
+
+        {% if q %}
+        <div class="bd-blog-search-feedback" aria-live="polite">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          {% if page_obj and page_obj.paginator.count %}
+            {{ page_obj.paginator.count }} resultado{{ page_obj.paginator.count|pluralize }} para &ldquo;{{ q }}&rdquo;
+          {% else %}
+            Nenhum resultado para &ldquo;{{ q }}&rdquo;
+          {% endif %}
+          <a href="{% url 'blog_index' %}" class="bd-blog-search-clear" aria-label="Limpar busca" title="Limpar busca">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </a>
+        </div>
+        {% endif %}
       </div>
 
       <div class="bd-blog-actions">
-        <form method="get" class="bd-blog-search" role="search">
+        <form method="get" class="bd-blog-search" role="search" id="bd-search-form" aria-label="Buscar publicações">
           <i class="fa-solid fa-search" aria-hidden="true"></i>
-          <input type="search" name="q" placeholder="Buscar publica&ccedil;&otilde;es" value="{{ q }}" aria-label="Buscar publica&ccedil;&otilde;es">
+          <input type="search" name="q" placeholder="Buscar publica&ccedil;&otilde;es" value="{{ q }}"
+            aria-label="Buscar publica&ccedil;&otilde;es" id="bd-search-input">
           <button type="submit" aria-label="Buscar">
             <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </button>
         </form>
 
         {% if user.is_staff %}
-        <a class="bd-blog-btn bd-blog-btn-primary" href="{% url 'blog_admin_create' %}">
+        <a class="bd-blog-btn bd-blog-btn-secondary" href="{% url 'blog_admin_my_posts' %}" aria-label="Ver minhas postagens">
+          <i class="fa-solid fa-list" aria-hidden="true"></i>
+          Minhas postagens
+        </a>
+        <a class="bd-blog-btn bd-blog-btn-primary" href="{% url 'blog_admin_create' %}" aria-label="Criar nova postagem">
           <i class="fa-solid fa-plus" aria-hidden="true"></i>
           Criar postagem
         </a>
@@ -37,17 +67,18 @@
       </div>
     </header>
 
-    {% if page_obj and page_obj.object_list %}
+    <div id="bd-blog-content">
+      {% if page_obj and page_obj.object_list %}
       {% with page_obj.object_list.0 as featured %}
       {% if featured %}
-      <article class="bd-blog-feature" aria-label="Publica&ccedil;&atilde;o em destaque">
+      <article class="bd-blog-feature bd-blog-fade-in" aria-label="Publica&ccedil;&atilde;o em destaque">
         <a class="bd-blog-feature-media" href="{{ featured.get_absolute_url }}" aria-label="Abrir {{ featured.title }}">
           {% if featured.cover %}
-            <img src="{{ featured.cover.url }}" alt="{{ featured.title }}">
+          <img src="{{ featured.cover.url }}" alt="{{ featured.title }}" loading="lazy">
           {% else %}
-            <div class="bd-blog-cover-placeholder">
-              <span>BE</span>
-            </div>
+          <div class="bd-blog-cover-placeholder">
+            <span>BE</span>
+          </div>
           {% endif %}
         </a>
 
@@ -68,6 +99,8 @@
       {% endif %}
       {% endwith %}
 
+      {% with remaining=page_obj.object_list|slice:"1:999" %}
+      {% if remaining %}
       <div class="bd-blog-section-heading">
         <div>
           <span class="bd-blog-kicker">Publica&ccedil;&otilde;es</span>
@@ -76,16 +109,16 @@
         <span class="bd-blog-count">{{ page_obj.paginator.count }} itens</span>
       </div>
 
-      <div class="bd-blog-grid">
-        {% for post in page_obj.object_list|slice:"1:999" %}
-        <article class="bd-blog-card">
+      <div class="bd-blog-grid" role="list" aria-label="Lista de publicações">
+        {% for post in remaining %}
+        <article class="bd-blog-card bd-blog-fade-in" role="listitem">
           <a class="bd-blog-card-cover" href="{{ post.get_absolute_url }}" aria-label="Abrir {{ post.title }}">
             {% if post.cover %}
-              <img src="{{ post.cover.url }}" alt="{{ post.title }}">
+            <img src="{{ post.cover.url }}" alt="{{ post.title }}" loading="lazy">
             {% else %}
-              <div class="bd-blog-cover-placeholder">
-                <span>BE</span>
-              </div>
+            <div class="bd-blog-cover-placeholder">
+              <span>BE</span>
+            </div>
             {% endif %}
           </a>
 
@@ -100,31 +133,75 @@
         </article>
         {% endfor %}
       </div>
+      {% endif %}
+      {% endwith %}
 
       {% if page_obj.has_previous or page_obj.has_next %}
-      <nav class="bd-blog-pagination" aria-label="Paginas do blog">
+      <nav class="bd-blog-pagination" aria-label="Páginas do blog">
         {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">
+        <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" aria-label="Página anterior">
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
           Anterior
         </a>
         {% endif %}
         <span>P&aacute;gina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
         {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">
+        <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" aria-label="Próxima página">
           Pr&oacute;xima
           <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         </a>
         {% endif %}
       </nav>
       {% endif %}
-    {% else %}
+
+      {% else %}
+      <!-- Empty state: differentiate between search and no posts -->
+      {% if q %}
       <div class="bd-blog-empty">
-        <i class="fa-solid fa-newspaper" aria-hidden="true"></i>
-        <h2>Nenhuma publica&ccedil;&atilde;o encontrada.</h2>
-        <p>Ajuste a busca ou volte mais tarde para conferir novas atualiza&ccedil;&otilde;es.</p>
+        <div class="bd-blog-empty-icon">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        </div>
+        <h2>Nenhum resultado encontrado</h2>
+        <p>N&atilde;o encontramos publica&ccedil;&otilde;es para &ldquo;{{ q }}&rdquo;. Tente buscar com outros termos.</p>
+        <a href="{% url 'blog_index' %}" class="bd-blog-btn bd-blog-btn-secondary">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          Limpar busca
+        </a>
       </div>
-    {% endif %}
+      {% else %}
+      <div class="bd-blog-empty">
+        <div class="bd-blog-empty-icon">
+          <i class="fa-solid fa-newspaper" aria-hidden="true"></i>
+        </div>
+        <h2>Nenhuma publica&ccedil;&atilde;o cadastrada</h2>
+        <p>Ajuste a busca ou volte mais tarde para conferir novas atualiza&ccedil;&otilde;es.</p>
+        {% if user.is_staff %}
+        <a href="{% url 'blog_admin_create' %}" class="bd-blog-btn bd-blog-btn-primary">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Criar primeira postagem
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+      {% endif %}
+    </div>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Show loading overlay on search submit
+  const form = document.getElementById('bd-search-form');
+  const overlay = document.getElementById('bd-loading');
+
+  if (form && overlay) {
+    form.addEventListener('submit', () => {
+      overlay.classList.add('active');
+      overlay.setAttribute('aria-hidden', 'false');
+    });
+  }
+});
+</script>
 {% endblock %}

@@ -1,45 +1,206 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}{{ title }} - Blog{% endblock %}
+{% block title %}{{ title }} - Blog BE-Desk{% endblock %}
+
+{% block main_container_class %}bd-blog-main flex-grow-1{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}?v=20260608">
+{% endblock %}
 
 {% block content %}
-<main class="container p-6">
-  <h1>{{ title }}</h1>
-  <form method="post" enctype="multipart/form-data">{% csrf_token %}
-    {{ form.non_field_errors }}
-    <div class="mb-3">
-      <label class="form-label">{{ form.title.label }}</label>
-      {{ form.title }}
-    </div>
-    <div class="mb-3">
-      <label class="form-label">{{ form.slug.label }}</label>
-      {{ form.slug }}
-      <div class="form-text">{{ form.slug.help_text }}</div>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">{{ form.summary.label }}</label>
-      {{ form.summary }}
-    </div>
-    <div class="mb-3">
-      <label class="form-label">{{ form.content.label }}</label>
-      {{ form.content }}
-    </div>
-    <div class="mb-3">
-      <label class="form-label">{{ form.cover.label }}</label>
-      {{ form.cover }}
-    </div>
-    <div class="mb-3 form-check">
-      {{ form.is_published }} <label class="form-check-label">{{ form.is_published.label }}</label>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">{{ form.published_at.label }}</label>
-      {{ form.published_at }}
-      <div class="form-text">{{ form.published_at.help_text }}</div>
-    </div>
+<section class="bd-blog-page bd-blog-form-page" aria-labelledby="bd-form-title">
+  <a href="#bd-form-main" class="bd-blog-skip-link">Ir para o formulário</a>
 
-    <button class="btn btn-primary" type="submit">Salvar</button>
-    <a class="btn btn-ghost" href="{% url 'blog_admin' %}">Cancelar</a>
-  </form>
-</main>
+  <div class="bd-blog-shell bd-blog-form-shell">
+    <a href="{% url 'blog_admin' %}" class="bd-blog-back" aria-label="Voltar para lista de publicações">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Gerenciar publicações
+    </a>
+
+    <header class="bd-blog-form-header">
+      <span class="bd-blog-kicker">{{ title }}</span>
+      <h1 id="bd-form-title">{% if form.instance.pk %}Editar publicação{% else %}Nova publicação{% endif %}</h1>
+      <p>Preencha os campos abaixo para {% if form.instance.pk %}atualizar{% else %}criar{% endif %} sua publicação no blog.</p>
+    </header>
+
+    <form id="bd-form-main" method="post" enctype="multipart/form-data" class="bd-blog-form" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="bd-blog-form-errors" role="alert">
+        <ul>
+          {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Title -->
+      <div class="bd-blog-field {% if form.title.errors %}has-error{% endif %}">
+        <label for="id_title">Título <span class="bd-required" aria-hidden="true">*</span></label>
+        <input type="text" name="title" id="id_title"
+               value="{{ form.title.value|default_if_none:'' }}"
+               placeholder="Digite o título da publicação"
+               required
+               aria-required="true"
+               aria-describedby="{% if form.title.errors %}title-error{% endif %}">
+        {% if form.title.errors %}
+        <div class="bd-blog-field-error" id="title-error" role="alert">
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+          {{ form.title.errors.0 }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Slug is generated automatically from the title and not editable here -->
+
+      <!-- Summary -->
+      <div class="bd-blog-field {% if form.summary.errors %}has-error{% endif %}">
+        <label for="id_summary">Resumo</label>
+        <textarea name="summary" id="id_summary" rows="3"
+                  placeholder="Digite um resumo curto (visível na lista)"
+                  style="min-height:5rem"
+                  aria-describedby="{% if form.summary.errors %}summary-error{% endif %}">{{ form.summary.value|default_if_none:'' }}</textarea>
+        {% if form.summary.errors %}
+        <div class="bd-blog-field-error" id="summary-error" role="alert">
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+          {{ form.summary.errors.0 }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Content -->
+      <div class="bd-blog-field {% if form.content.errors %}has-error{% endif %}">
+        <label for="id_content">Conteúdo <span class="bd-required" aria-hidden="true">*</span></label>
+        <textarea name="content" id="id_content" rows="12"
+                  placeholder="Escreva o conteúdo da publicação aqui..."
+                  required
+                  aria-required="true"
+                  aria-describedby="{% if form.content.errors %}content-error{% endif %}">{{ form.content.value|default_if_none:'' }}</textarea>
+        {% if form.content.errors %}
+        <div class="bd-blog-field-error" id="content-error" role="alert">
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+          {{ form.content.errors.0 }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Cover Image -->
+      <div class="bd-blog-field">
+        <label>Imagem de capa</label>
+
+        {% if form.instance.cover %}
+        <div class="bd-blog-current-cover">
+          <img src="{{ form.instance.cover.url }}" alt="Capa atual">
+          <span>Capa atual — selecione uma nova imagem para substituir</span>
+        </div>
+        {% endif %}
+
+        <div class="bd-blog-dropzone" id="bd-dropzone" role="button" tabindex="0"
+             aria-label="Clique ou arraste uma imagem para enviar">
+          <input type="file" name="cover" id="id_cover" accept="image/*"
+                 aria-label="Selecionar imagem de capa">
+          <div id="bd-dropzone-default">
+            <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+            <div class="bd-blog-dropzone-text">
+              <strong>Arraste a imagem ou clique para selecionar</strong>
+              <small>PNG, JPG ou WebP (máximo 5 MB)</small>
+            </div>
+          </div>
+          <div class="bd-blog-dropzone-preview" id="bd-dropzone-preview" style="display:none">
+            <img id="bd-preview-img" src="" alt="Preview da capa">
+            <div class="bd-blog-dropzone-overlay">
+              <i class="fa-solid fa-pen" aria-hidden="true"></i>
+              Alterar imagem
+            </div>
+          </div>
+        </div>
+
+        {% if form.cover.errors %}
+        <div class="bd-blog-field-error" role="alert">
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+          {{ form.cover.errors.0 }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Publication is controlled by action buttons: Salvar (rascunho) or Publicar -->
+
+      <!-- Actions -->
+      <div class="bd-blog-form-actions">
+        <button type="submit" name="action" value="save" class="bd-blog-btn bd-blog-btn-secondary">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          {% if form.instance.pk %}Salvar rascunho{% else %}Salvar rascunho{% endif %}
+        </button>
+        <button type="submit" name="action" value="publish" class="bd-blog-btn bd-blog-btn-primary">
+          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+          Publicar
+        </button>
+        <a href="{% url 'blog_admin' %}" class="bd-blog-btn bd-blog-btn-secondary">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Slug generation moved to server-side. No client-side slug editing.
+  const titleInput = document.getElementById('id_title');
+
+  // Image preview (file input + drag-and-drop)
+  const dropzone = document.getElementById('bd-dropzone');
+  const fileInput = document.getElementById('id_cover');
+  const previewContainer = document.getElementById('bd-dropzone-preview');
+  const previewImg = document.getElementById('bd-preview-img');
+  const defaultContent = document.getElementById('bd-dropzone-default');
+
+  function showPreview(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImg.src = e.target.result;
+      previewContainer.style.display = '';
+      defaultContent.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) showPreview(fileInput.files[0]);
+  });
+
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('dragover');
+  });
+
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('dragover');
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+      fileInput.files = e.dataTransfer.files;
+      showPreview(e.dataTransfer.files[0]);
+    }
+  });
+
+  // Keyboard accessibility for dropzone
+  dropzone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+});
+</script>
 {% endblock %}

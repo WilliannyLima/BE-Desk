@@ -33,7 +33,26 @@ def blog_detail(request, slug):
 @user_passes_test(is_editor)
 def admin_list(request):
     posts = Post.objects.all().order_by('-created_at')
-    return render(request, 'blog/admin_list.html', {'posts': posts})
+    return render(request, 'blog/admin_list.html', {
+        'posts': posts,
+        'title': 'Gerenciar Publicações',
+        'kicker': 'Painel',
+        'empty_message': 'Nenhuma publicação cadastrada',
+        'empty_sub_message': 'Comece criando sua primeira publicação para o blog do Bloco E.'
+    })
+
+
+@login_required
+@user_passes_test(is_editor)
+def admin_my_posts(request):
+    posts = Post.objects.filter(author=request.user).order_by('-created_at')
+    return render(request, 'blog/admin_list.html', {
+        'posts': posts,
+        'title': 'Minhas Publicações',
+        'kicker': 'Autor',
+        'empty_message': 'Você ainda não possui publicações',
+        'empty_sub_message': 'Comece criando sua primeira publicação no blog.'
+    })
 
 
 @login_required
@@ -44,6 +63,27 @@ def admin_create(request):
         if form.is_valid():
             p = form.save(commit=False)
             p.author = request.user
+            # Determine publication action. Prefer explicit action button, fall back
+            # to legacy 'is_published' POST param for backward compatibility with tests.
+            action = request.POST.get('action')
+            is_published_post = request.POST.get('is_published')
+            publish = False
+            if action == 'publish':
+                publish = True
+            elif action == 'save':
+                publish = False
+            else:
+                # legacy behavior: truthy is_published -> publish
+                if is_published_post in ['1', 'true', 'True', 'on', True]:
+                    publish = True
+
+            p.is_published = bool(publish)
+
+            # Respect explicit slug from POST if provided (tests rely on this)
+            slug_from_post = request.POST.get('slug')
+            if slug_from_post:
+                p.slug = slug_from_post
+
             if p.is_published and not p.published_at:
                 p.published_at = timezone.now()
             p.save()
@@ -57,13 +97,30 @@ def admin_create(request):
 @user_passes_test(is_editor)
 def admin_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    # only author or staff can edit
-    if not (request.user == post.author or request.user.is_superuser):
+    # only the author may edit their post
+    if request.user != post.author:
         return redirect('blog_admin')
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             p = form.save(commit=False)
+            action = request.POST.get('action')
+            is_published_post = request.POST.get('is_published')
+            publish = False
+            if action == 'publish':
+                publish = True
+            elif action == 'save':
+                publish = False
+            else:
+                if is_published_post in ['1', 'true', 'True', 'on', True]:
+                    publish = True
+
+            p.is_published = bool(publish)
+
+            slug_from_post = request.POST.get('slug')
+            if slug_from_post:
+                p.slug = slug_from_post
+
             if p.is_published and not p.published_at:
                 p.published_at = timezone.now()
             p.save()
@@ -77,7 +134,8 @@ def admin_edit(request, pk):
 @user_passes_test(is_editor)
 def admin_delete(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    if not (request.user == post.author or request.user.is_superuser):
+    # only the author may delete their post
+    if request.user != post.author:
         return redirect('blog_admin')
     if request.method == 'POST':
         post.delete()

@@ -1,29 +1,125 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Admin Blog - BE-Desk{% endblock %}
+{% block title %}{{ title }} - Blog BE-Desk{% endblock %}
+
+{% block main_container_class %}bd-blog-main flex-grow-1{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}?v=20260608">
+{% endblock %}
 
 {% block content %}
-<main class="container p-6">
-  <h1>Gerenciar Publicações</h1>
-  <a class="btn btn-primary" href="{% url 'blog_admin_create' %}">Nova Publicação</a>
-  <table class="table" style="margin-top:1rem">
-    <thead><tr><th>Título</th><th>Autor</th><th>Publicado</th><th></th></tr></thead>
-    <tbody>
+<section class="bd-blog-page bd-blog-form-page" aria-labelledby="bd-admin-title">
+  <a href="#bd-admin-content" class="bd-blog-skip-link">Ir para publicações</a>
+
+  <div class="bd-blog-shell" id="bd-admin-content">
+    <a href="{% url 'blog_index' %}" class="bd-blog-back" aria-label="Voltar ao blog público">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Voltar ao blog
+    </a>
+
+    <div class="bd-blog-admin-header">
+      <div>
+        <span class="bd-blog-kicker">{{ kicker|default:'Painel' }}</span>
+        <h1 id="bd-admin-title">{{ title|default:'Gerenciar Publicações' }}</h1>
+      </div>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <a class="bd-blog-btn bd-blog-btn-secondary" href="{% url 'blog_admin' %}" aria-label="Ver todas as publicações">
+          <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+          Todas
+        </a>
+        <a class="bd-blog-btn bd-blog-btn-secondary" href="{% url 'blog_admin_my_posts' %}" aria-label="Ver minhas publicações">
+          <i class="fa-solid fa-list" aria-hidden="true"></i>
+          Minhas
+        </a>
+        <a class="bd-blog-btn bd-blog-btn-primary" href="{% url 'blog_admin_create' %}" aria-label="Criar nova publicação">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Nova publicação
+        </a>
+      </div>
+    </div>
+
+    {% if posts %}
+    <div class="bd-blog-section-heading">
+      <div>
+        <span class="bd-blog-kicker">Todas</span>
+        <h2>Publicações cadastradas</h2>
+      </div>
+      <span class="bd-blog-count">{{ posts|length }} itens</span>
+    </div>
+
+    <div class="bd-blog-admin-grid" role="list" aria-label="Lista de publicações">
       {% for p in posts %}
-      <tr>
-        <td>{{ p.title }}</td>
-        <td>{{ p.author.get_full_name|default:p.author.username }}</td>
-        <td>{% if p.is_published %}Sim ({{ p.published_at|date:'d/m/Y H:i' }}){% else %}Não{% endif %}</td>
-        <td>
-          <a class="btn btn-ghost" href="{% url 'blog_admin_edit' p.pk %}">Editar</a>
-          <a class="btn btn-ghost" href="{% url 'blog_admin_delete' p.pk %}">Excluir</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="4">Nenhuma publicação cadastrada.</td></tr>
+      <article class="bd-blog-admin-card bd-blog-fade-in" role="listitem">
+        <div class="bd-blog-admin-card-thumb">
+          {% if p.cover %}
+          <img src="{{ p.cover.url }}" alt="{{ p.title }}">
+          {% else %}
+          <div class="bd-blog-cover-placeholder">
+            <span>BE</span>
+          </div>
+          {% endif %}
+        </div>
+        <div class="bd-blog-admin-card-body">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+            {% if p.is_published %}
+            <span class="bd-blog-status-badge published">Publicado</span>
+            {% else %}
+            <span class="bd-blog-status-badge draft">Rascunho</span>
+            {% endif %}
+          </div>
+          <h3 title="{{ p.title }}">{{ p.title }}</h3>
+          <div class="bd-blog-meta">
+            <span>{{ p.author.get_full_name|default:p.author.username }}</span>
+            {% if p.published_at %}
+            <span>{{ p.published_at|date:'d/m/Y H:i' }}</span>
+            {% else %}
+            <span>{{ p.created_at|date:'d/m/Y H:i' }}</span>
+            {% endif %}
+          </div>
+          <div class="bd-blog-admin-card-actions">
+            {% if user == p.author %}
+            <a href="{% url 'blog_admin_edit' p.pk %}" class="bd-admin-edit" aria-label="Editar {{ p.title }}">
+              <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+              Editar
+            </a>
+            {% if p.is_published %}
+            <a href="{{ p.get_absolute_url }}" class="bd-admin-view" aria-label="Ver {{ p.title }} no blog">
+              <i class="fa-solid fa-eye" aria-hidden="true"></i>
+              Ver
+            </a>
+            {% endif %}
+            <a href="{% url 'blog_admin_delete' p.pk %}" class="bd-admin-delete" aria-label="Excluir {{ p.title }}">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+              Excluir
+            </a>
+            {% else %}
+              {% if p.is_published %}
+              <a href="{{ p.get_absolute_url }}" class="bd-admin-view" aria-label="Ver {{ p.title }} no blog">
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                Ver
+              </a>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </article>
       {% endfor %}
-    </tbody>
-  </table>
-</main>
+    </div>
+    {% else %}
+    <div class="bd-blog-empty">
+      <div class="bd-blog-empty-icon">
+        <i class="fa-solid fa-file-pen" aria-hidden="true"></i>
+      </div>
+      <h2>{{ empty_message|default:'Nenhuma publicação cadastrada' }}</h2>
+      <p>{{ empty_sub_message|default:'Comece criando sua primeira publicação para o blog do Bloco E.' }}</p>
+      <a class="bd-blog-btn bd-blog-btn-primary" href="{% url 'blog_admin_create' %}">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        Criar primeira publicação
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
 {% endblock %}

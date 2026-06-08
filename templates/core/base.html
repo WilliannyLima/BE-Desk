@@ -429,6 +429,11 @@
 
       <!-- Right Actions -->
       <div class="pill-nav-actions">
+        <!-- Mobile Menu Toggle Button -->
+        <button class="btn btn-link d-lg-none text-white p-0 me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+          <i class="fa-solid fa-bars fs-4"></i>
+        </button>
+
         {% if user.is_authenticated %}
         <div class="dropdown pill-profile-dropdown">
           <button class="dropdown-toggle d-flex align-items-center gap-2" type="button" id="profileDropdown"
@@ -464,10 +469,38 @@
           </ul>
         </div>
         {% else %}
-        <a href="{% url 'login' %}" class="pill-cta-btn">Entrar <i class="fa-solid fa-arrow-right"></i></a>
+        <a href="{% url 'login' %}" class="pill-cta-btn d-none d-sm-flex">Entrar <i class="fa-solid fa-arrow-right"></i></a>
         {% endif %}
       </div>
     </nav>
+  </div>
+
+  <!-- Mobile Offcanvas Menu -->
+  <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+    <div class="offcanvas-header border-bottom border-secondary">
+      <h5 class="offcanvas-title" id="mobileMenuLabel">Menu BE-Desk</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="d-flex flex-column gap-3 mt-2">
+        <a href="{% url 'inicio' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-house me-3 text-secondary"></i>Inicio</a>
+        <a href="{% url 'lista_locais' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-map-location-dot me-3 text-secondary"></i>Locais</a>
+        <a href="{% url 'lista_reserva' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-calendar-check me-3 text-secondary"></i>Reservas</a>
+        <a href="#" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-gift me-3 text-secondary"></i>Benefícios</a>
+        <a href="{% url 'lista_recursos' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-box-open me-3 text-secondary"></i>Materiais</a>
+        <a href="{% url 'blog_index' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-newspaper me-3 text-secondary"></i>Blog</a>
+        <a href="#" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-comment-dots me-3 text-secondary"></i>Feedback</a>
+        {% if user.is_staff %}
+        <hr class="border-secondary my-1">
+        <a href="{% url 'admin_dashboard' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-chart-line me-3 text-secondary"></i>Admin</a>
+        <a href="{% url 'listar_pendentes' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-clipboard-list me-3 text-secondary"></i>Dashboard</a>
+        {% endif %}
+        {% if not user.is_authenticated %}
+        <hr class="border-secondary my-2">
+        <a href="{% url 'login' %}" class="pill-cta-btn justify-content-center">Entrar <i class="fa-solid fa-arrow-right ms-2"></i></a>
+        {% endif %}
+      </div>
+    </div>
   </div>
   {% endblock %}
 
