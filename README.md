@@ -108,9 +108,4 @@ Abra o navegador e acesse:
 http://127.0.0.1:8000/
 ```
 
----
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Status-Pronto_para_Desenvolvimento-success?style=for-the-badge" alt="Status">
-</p>
-```
