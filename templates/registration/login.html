@@ -63,40 +63,17 @@
           </div>
           {% endif %}
 
-          <form method="post" action="{% url 'login' %}" id="loginForm" novalidate>
-            {% csrf_token %}
-
-            <div class="field">
-              <label for="id_username">Matr&iacute;cula</label>
-              <div class="input-shell">
-                <input type="text" name="username" id="id_username" class="input-modern" placeholder="Digite sua matr&iacute;cula" autocomplete="username" aria-describedby="usernameError" required />
-                <i class="fa-solid fa-user-graduate input-icon" aria-hidden="true"></i>
-              </div>
-              <p class="field-error" id="usernameError">Informe sua matr&iacute;cula para continuar.</p>
-            </div>
-
-            <div class="field">
-              <label for="id_password">Senha do SUAP</label>
-              <div class="input-shell">
-                <input type="password" name="password" id="id_password" class="input-modern" placeholder="Digite sua senha" autocomplete="current-password" aria-describedby="passwordError" required />
-                <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
-                <button type="button" id="togglePassword" class="password-toggle" aria-label="Mostrar senha">
-                  <i class="fa-solid fa-eye" id="toggleIcon" aria-hidden="true"></i>
-                </button>
-              </div>
-              <p class="field-error" id="passwordError">Informe sua senha do SUAP.</p>
-            </div>
-
-            <button type="submit" class="cta-btn" id="submitBtn">
+          <div class="oauth-login-action tw-mt-6 tw-text-center">
+            <a href="{% url 'suap_login_oauth' %}" class="cta-btn tw-w-full tw-block tw-text-center tw-no-underline">
               <span class="btn-text">Entrar com SUAP</span>
-              <span class="btn-spinner" aria-hidden="true"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
-            </button>
+              <span class="btn-spinner" aria-hidden="true"><i class="fa-solid fa-right-to-bracket"></i></span>
+            </a>
 
-            <p class="small-note">
+            <p class="small-note tw-mt-4">
               <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-              Autentica&ccedil;&atilde;o oficial integrada ao SUAP
+              Autentica&ccedil;&atilde;o oficial integrada via OAuth2 do SUAP
             </p>
-          </form>
+          </div>
         </div>
       </section>
     </div>
@@ -120,56 +97,11 @@
 {% block extra_scripts %}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const toggle = document.getElementById('togglePassword');
-    const pwd = document.getElementById('id_password');
-    const icon = document.getElementById('toggleIcon');
-    const form = document.getElementById('loginForm');
-    const submit = document.getElementById('submitBtn');
-    const inputs = form ? [...form.querySelectorAll('.input-modern')] : [];
-
-    const setFieldState = (input) => {
-      const field = input.closest('.field');
-      const hasError = !input.checkValidity();
-
-      input.setAttribute('aria-invalid', hasError ? 'true' : 'false');
-      field?.classList.toggle('has-error', hasError);
-
-      return !hasError;
-    };
-
-    if (toggle && pwd && icon) {
-      toggle.addEventListener('click', () => {
-        const type = pwd.getAttribute('type') === 'password' ? 'text' : 'password';
-        pwd.setAttribute('type', type);
-        toggle.setAttribute('aria-label', type === 'password' ? 'Mostrar senha' : 'Ocultar senha');
-        icon.classList.toggle('fa-eye-slash');
-        icon.classList.toggle('fa-eye');
-      });
-    }
-
-    inputs.forEach((input) => {
-      input.addEventListener('blur', () => setFieldState(input));
-      input.addEventListener('input', () => {
-        if (input.getAttribute('aria-invalid') === 'true') {
-          setFieldState(input);
-        }
-      });
-    });
-
-    if (form && submit) {
-      form.addEventListener('submit', (event) => {
-        const fieldStates = inputs.map(setFieldState);
-        const isValid = fieldStates.every(Boolean);
-
-        if (!isValid) {
-          event.preventDefault();
-          inputs.find((input) => !input.checkValidity())?.focus();
-          return;
-        }
-
+    const submit = document.querySelector('.oauth-login-action a');
+    if (submit) {
+      submit.addEventListener('click', () => {
         submit.classList.add('is-loading');
-        submit.setAttribute('aria-busy', 'true');
-        submit.disabled = true;
+        submit.style.pointerEvents = 'none';
       });
     }
   });

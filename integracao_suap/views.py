@@ -4,6 +4,22 @@ from integracao_suap.services import pegar_dados_aluno
 from integracao_suap.services import refresh_token_suap
 from integracao_suap.services import autenticar_suap
 from django.conf import settings
+import urllib.parse
+from django.shortcuts import redirect
+from django.contrib.auth import login, get_user_model
+from django.contrib import messages
+from bedesk.models import Profile
+from integracao_suap.services import obter_token_oauth2, API_BASE
+
+
+def suap_login(request):
+    url = (
+        f"{settings.SUAP_BASE_URL}/o/authorize/"
+        f"?response_type=code"
+        f"&client_id={settings.SUAP_OAUTH_CLIENT_ID}"
+        f"&redirect_uri={settings.SUAP_OAUTH_REDIRECT_URI}"
+    )
+    return redirect(url)
 
 
 @login_required
@@ -50,3 +66,90 @@ def rh_eu(request):
         return JsonResponse({'ok': False, 'error': 'suap_error'}, status=502)
 
     return JsonResponse({'ok': True, 'data': dados})
+
+
+def suap_login_oauth(request):
+    """Redireciona o usuário para a página de autorização do SUAP."""
+    client_id = settings.SUAP_OAUTH_CLIENT_ID
+    redirect_uri = settings.SUAP_OAUTH_REDIRECT_URI
+    authorize_url = f"{API_BASE}/o/authorize/"
+    
+    params = {
+        'client_id': client_id,
+        'response_type': 'code',
+        'redirect_uri': redirect_uri,
+    }
+    url = f"{authorize_url}?{urllib.parse.urlencode(params)}"
+    return redirect(url)
+
+
+def suap_callback(request):
+    """Recebe o código do SUAP, troca por token e autentica o usuário."""
+    code = request.GET.get('code')
+    error = request.GET.get('error')
+
+    if error:
+        messages.error(request, f"Erro na autorização: {error}")
+        return redirect('login')
+    
+    if not code:
+        messages.error(request, "Código de autorização não recebido.")
+        return redirect('login')
+
+    tokens, err = obter_token_oauth2(code, settings.SUAP_OAUTH_REDIRECT_URI)
+    
+    if not tokens or err:
+        messages.error(request, "Falha ao obter token do SUAP.")
+        return redirect('login')
+
+    access = tokens.get('access_token') or tokens.get('access')
+    if not access:
+        messages.error(request, "Token de acesso inválido.")
+        return redirect('login')
+
+    # Busca os dados do usuário
+    dados = pegar_dados_aluno(access)
+    
+    if not dados:
+        messages.error(request, "Não foi possível carregar os dados do usuário do SUAP.")
+        return redirect('login')
+
+    User = get_user_model()
+    username = dados.get('matricula')
+    if not username:
+        messages.error(request, "Matrícula não encontrada nos dados do SUAP.")
+        return redirect('login')
+
+    email = dados.get('email') or ''
+    nome = dados.get('nome') or username
+
+    user, created = User.objects.get_or_create(username=username, defaults={'email': email, 'first_name': nome})
+    if not created:
+        changed = False
+        if email and user.email != email:
+            user.email = email
+            changed = True
+        if nome and user.first_name != nome:
+            user.first_name = nome
+            changed = True
+        if changed:
+            user.save()
+
+    profile, _ = Profile.objects.get_or_create(user=user)
+    if dados.get('matricula'):
+        profile.matricula = dados.get('matricula')
+        profile.save()
+
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, user)
+    
+    # Salvar token na sessão
+    try:
+        request.session['suap_tokens'] = tokens
+        request.session['suap_access'] = access
+        request.session.save()
+    except Exception:
+        pass
+        
+    messages.success(request, f"Bem-vindo {user.username}!")
+    return redirect('inicio')

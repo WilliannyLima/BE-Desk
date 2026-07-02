@@ -7,6 +7,26 @@ API_BASE = getattr(settings, 'SUAP_API_URL', 'https://suap.ifrn.edu.br').rstrip(
 _AUTH_ENDPOINT = None
 
 
+def obter_token_oauth2(code, redirect_uri, timeout=10):
+    """Troca o código de autorização pelo token OAuth2."""
+    url = f"{API_BASE}/o/token/"
+    data = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': redirect_uri,
+        'client_id': settings.client_id,
+        'client_secret': settings.client_secret,
+    }
+    try:
+        res = requests.post(url, data=data, timeout=timeout)
+        if res.status_code == 200:
+            return res.json(), None
+        else:
+            return None, {'status': res.status_code, 'text': res.text[:2000]}
+    except requests.RequestException as e:
+        logging.getLogger(__name__).debug('Erro de conexão no token OAuth2: %s', e)
+        return None, {'exception': str(e)}
+
 def autenticar_suap(matricula, password, timeout=8):
     """Autentica no SUAP tentando automaticamente endpoints compatíveis (v2 -> v1).
 

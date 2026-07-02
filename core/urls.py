@@ -31,4 +31,5 @@ urlpatterns = [
         {"novo_status": "REJEITADO"},
         name="rejeitar_recurso",
     ),
+    
 ]
