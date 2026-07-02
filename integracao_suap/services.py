@@ -14,8 +14,8 @@ def obter_token_oauth2(code, redirect_uri, timeout=10):
         'grant_type': 'authorization_code',
         'code': code,
         'redirect_uri': redirect_uri,
-        'client_id': settings.client_id,
-        'client_secret': settings.client_secret,
+        'client_id': settings.SUAP_OAUTH_CLIENT_ID,
+        'client_secret': settings.SUAP_OAUTH_CLIENT_SECRET,
     }
     try:
         res = requests.post(url, data=data, timeout=timeout)
