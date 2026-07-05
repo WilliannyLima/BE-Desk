@@ -5,19 +5,255 @@
 {% block content %}
 <div class="container-fluid mt-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <style>
+        /* --- Controles SaaS (Navegação de Semanas) --- */
+        .saas-controls-wrapper {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            padding: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .saas-nav-btn {
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 50px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+        }
+        .saas-nav-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .saas-nav-btn.active-date {
+            background: #1e222d;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f3f4f6;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .saas-nav-btn.active-date:hover {
+            background: #2a2f3d;
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+        .text-primary-saas {
+            color: #b5e853;
+        }
+        .saas-nav-btn.saas-primary-btn {
+            background: #b5e853;
+            color: #11141A;
+            box-shadow: 0 0 15px rgba(181, 232, 83, 0.15);
+        }
+        .saas-nav-btn.saas-primary-btn:hover {
+            background: #9ecc44;
+            color: #11141A;
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(181, 232, 83, 0.3);
+        }
 
-        <a href="{% url 'detalhe_sala' nome_sala=sala.nome %}?foco={{ semana_anterior }}"
-            class="btn btn-outline-secondary">
-            <i class="fa-solid fa-chevron-left"></i> Semana Anterior
-        </a>
+        /* Trick to make the entire hidden input clickable in webkit browsers */
+        .hidden-date-input::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
 
-        <a href="{% url 'detalhe_sala' nome_sala=sala.nome %}?foco={{ proxima_semana }}"
-            class="btn btn-outline-primary">
-            Próxima Semana <i class="fa-solid fa-chevron-right"></i>
-        </a>
+        /* --- Estilos da Tabela (Dark / BE-Desk Theme) --- */
+        .schedule-table-container {
+            background: #11141A;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 6px;
+        }
+        .schedule-table th {
+            background: rgba(255, 255, 255, 0.03);
+            color: #9ca3af;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 1rem 0.5rem;
+            border-radius: 0.5rem;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .schedule-table td {
+            background: rgba(255, 255, 255, 0.015);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            vertical-align: middle;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+        .schedule-table tbody tr:hover td {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .schedule-table .cell-time {
+            background: rgba(255, 255, 255, 0.02);
+            color: #b5e853;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            min-width: auto;
+        }
+        .schedule-table .row-separator td {
+            background: rgba(181, 232, 83, 0.05);
+            color: #b5e853;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 1rem;
+            border: 1px solid rgba(181, 232, 83, 0.1);
+        }
+        .schedule-table .row-interval td {
+            background-color: rgba(255, 255, 255, 0.01);
+            color: #6b7280;
+            font-size: 0.9rem;
+            border: none;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);
+        }
+        .btn-add-schedule {
+            background-color: transparent;
+            color: rgba(255, 255, 255, 0.15);
+            border: 2px dashed rgba(255, 255, 255, 0.12);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 60px;
+            width: 100%;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .btn-add-schedule:hover {
+            background-color: rgba(181, 232, 83, 0.08);
+            color: #b5e853;
+            border-color: rgba(181, 232, 83, 0.4);
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(181, 232, 83, 0.15);
+        }
+        .schedule-card {
+            background-color: #1e222d;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.5rem;
+            padding: 0.65rem;
+            height: 100%;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+        }
+        .schedule-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .schedule-card.status-pendente {
+            border-left: 4px solid #f59e0b;
+        }
+        .schedule-card.status-aprovado {
+            border-left: 4px solid #b5e853;
+        }
+        .badge-status {
+            font-size: 0.65rem;
+            padding: 0.25em 0.5em;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-pendente {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .badge-aprovado {
+            background: rgba(181, 232, 83, 0.15);
+            color: #b5e853;
+            border: 1px solid rgba(181, 232, 83, 0.3);
+        }
+        .schedule-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #f3f4f6;
+            line-height: 1.2;
+            margin-bottom: 0.35rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .schedule-author {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+    </style>
+
+    <div class="d-flex justify-content-center mb-4 mt-2">
+        <div class="saas-controls-wrapper flex-wrap justify-content-center">
+            <a href="{% url 'detalhe_sala' nome_sala=sala.nome %}?foco={{ semana_anterior }}"
+                class="saas-nav-btn">
+                <i class="fa-solid fa-chevron-left me-1"></i> Anterior
+            </a>
+
+            <label class="position-relative mb-0" style="cursor: pointer;" title="Escolher data">
+                <div class="saas-nav-btn active-date gap-2">
+                    <i class="fa-regular fa-calendar-days text-primary-saas"></i>
+                    <span style="letter-spacing: 0.3px;">{{ faixa_datas_semana.inicio }} - {{ faixa_datas_semana.fim }}</span>
+                    <i class="fa-solid fa-chevron-down ms-1 text-muted" style="font-size: 0.75em;"></i>
+                </div>
+                <input
+                    type="date"
+                    class="position-absolute top-0 start-0 w-100 h-100 opacity-0 hidden-date-input"
+                    style="cursor: pointer; z-index: 10;"
+                    onclick="try { this.showPicker(); } catch(e) {}"
+                    onchange="if(this.value) window.location.href='?foco=' + this.value"
+                />
+            </label>
+
+            <a href="{% url 'detalhe_sala' nome_sala=sala.nome %}"
+                class="saas-nav-btn">
+                Hoje
+            </a>
+
+            <a href="{% url 'detalhe_sala' nome_sala=sala.nome %}?foco={{ proxima_semana }}"
+                class="saas-nav-btn saas-primary-btn">
+                Próxima <i class="fa-solid fa-chevron-right ms-1"></i>
+            </a>
+        </div>
     </div>
-    <h2 class="text-center mb-1">Horários da Sala {{ sala.nome }}</h2>
+    <h2 class="text-center mb-1 text-white">Horários da Sala {{ sala.nome }}</h2>
 
     <h4 class="text-center text-muted mb-4">
         Semana de {{ faixa_datas_semana.inicio }} a {{ faixa_datas_semana.fim }}
@@ -25,99 +261,86 @@
         <span class="badge bg-danger ms-2">HISTÓRICO</span>
         {% endif %}
     </h4>
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover shadow-sm text-center">
+    <div class="schedule-table-container">
+        <div class="table-responsive">
+            <table class="schedule-table text-center">
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">Horário</th>
+                        {% for dia in dias_com_data %}
+                        <th style="width: 17.6%;">
+                            {{ dia.nome_dia }} <br>
+                            <span class="text-secondary fw-medium" style="font-size: 0.8em;">{{ dia.data_formatada }}</span>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
 
-            <thead class="table-dark">
-                <tr>
-                    <th style="width: 12%;">Horário</th>
+                <tbody>
+                    {% for linha in tabela_horarios %}
 
-                    {% for dia in dias_com_data %}
-                    <th style="width: 17.6%;">
-                        {{ dia.nome_dia }} <br>
-                        <small class="text-light opacity-75 fw-normal">{{ dia.data_formatada }}</small>
-                    </th>
-                    {% endfor %}
-                </tr>
-            </thead>
+                    {% if linha.tipo == 'separador' %}
+                    <tr class="row-separator">
+                        <td colspan="6">
+                            {{ linha.nome }}
+                        </td>
+                    </tr>
 
-            <tbody>
-                {% for linha in tabela_horarios %}
+                    {% elif linha.tipo == 'intervalo' %}
+                    <tr class="row-interval">
+                        <td class="cell-time">
+                            {{ linha.inicio }} - {{ linha.fim }}
+                        </td>
+                        <td colspan="5" class="fst-italic text-center">
+                            {{ linha.nome }}
+                        </td>
+                    </tr>
 
-                {% comment %} TIPO 1: Linha Separadora (Manhã/Tarde) {% endcomment %}
-                {% if linha.tipo == 'separador' %}
-                <tr class="table-light">
-                    <td colspan="6" class="text-center fw-bold fs-5">
-                        {{ linha.nome }}
-                    </td>
-                </tr>
+                    {% elif linha.tipo == 'hora' %}
+                    <tr>
+                        <td class="cell-time">
+                            {{ linha.horario_str }}
+                        </td>
 
-                {% comment %} TIPO 2: Linha de Intervalo {% endcomment %}
-                {% elif linha.tipo == 'intervalo' %}
-                <tr class="table-secondary text-muted">
-                    <td class="align-middle">
-                        {{ linha.inicio }} às {{ linha.fim }}
-                    </td>
-                    <td colspan="5" class="align-middle fst-italic">
-                        {{ linha.nome }}
-                    </td>
-                </tr>
-
-                {% comment %} TIPO 3: Linha de Horário Normal {% endcomment %}
-                {% elif linha.tipo == 'hora' %}
-                <tr>
-                    <td class="align-middle fw-bold">
-                        {{ linha.horario_str }}
-                    </td>
-
-                    {% for celula in linha.celulas %}
-                    <td class="align-middle">
-
-                        {% if celula.agendamento %}
-                        <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                            <span
-                                class="fw-bold text-uppercase {% if celula.agendamento.status == 'PENDENTE' %}text-warning{% else %}text-danger{% endif %}"
-                                style="font-size: 0.9em;" data-bs-toggle="tooltip"
-                                title="Motivo: {{ celula.agendamento.motivo }}">
-                                {{ celula.agendamento.nome }}
-                            </span>
-                            {% if celula.agendamento.status == 'PENDENTE' %}
-                            <span class="badge bg-warning text-dark mt-1">Pendente</span>
+                        {% for celula in linha.celulas %}
+                        <td>
+                            {% if celula.agendamento %}
+                            <div class="schedule-card {% if celula.agendamento.status == 'PENDENTE' %}status-pendente{% else %}status-aprovado{% endif %}" data-bs-toggle="tooltip" title="Motivo: {{ celula.agendamento.motivo }}">
+                                <div class="schedule-title">
+                                    {{ celula.agendamento.nome }}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-auto pt-1">
+                                    <span class="schedule-author">
+                                        {{ celula.agendamento.usuario.first_name|default:celula.agendamento.usuario.username }}
+                                    </span>
+                                    {% if celula.agendamento.status == 'PENDENTE' %}
+                                    <span class="badge-status badge-pendente">Pendente</span>
+                                    {% else %}
+                                    <span class="badge-status badge-aprovado">Aprovado</span>
+                                    {% endif %}
+                                </div>
+                            </div>
                             {% else %}
-                            <span class="badge bg-success mt-1">Aprovado</span>
+                            <a href="{% url 'agendar_sala' %}?hora={{ linha.hora_para_link }}&data={{ celula.data|date:'Y-m-d' }}&sala={{ sala.nome }}" class="btn-add-schedule" data-bs-toggle="tooltip" title="Clique para agendar">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
                             {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endif %}
 
-                            <small class="text-muted fw-bold" style="font-size: 0.8em;">
-                                ({{ celula.agendamento.usuario.first_name|default:celula.agendamento.usuario.username
-                                }})
-                            </small>
-
-                        </div>
-
-                        {% else %}
-                        <a href="{% url 'agendar_sala' %}?hora={{ linha.hora_para_link }}&data={{ celula.data|date:'Y-m-d' }}&sala={{ sala.nome }}"
-                            class="btn btn-primary btn-sm w-100" data-bs-toggle="tooltip" title="Clique para agendar">
-
-                            <i class="fa-solid fa-plus fa-lg"></i>
-
-                        </a>
-
-                        {% endif %}
-
-                    </td>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted p-5">
+                            <i class="fa-regular fa-calendar-xmark mb-2" style="font-size: 2rem;"></i><br>
+                            Nenhum horário definido na estrutura.
+                        </td>
+                    </tr>
                     {% endfor %}
-                </tr>
-                {% endif %}
-
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted">
-                        Nenhum horário definido na estrutura da view.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
