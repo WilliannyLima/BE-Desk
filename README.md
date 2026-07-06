@@ -35,7 +35,6 @@ As principais ferramentas usadas no desenvolvimento do sistema:
 - [**SQLite**](https://www.sqlite.org/index.html) - Banco de dados (ambiente de desenvolvimento).
 - [**Docker / Nginx**](https://www.docker.com/) - Containerização e servidor para deploys robustos e seguros.
 
-````html
 ---
 
 <h2 align="center">🚀 Como Executar o Projeto</h2>
