@@ -857,40 +857,6 @@
         will-change: transform;
     }
 
-    .bd-kinetic-word {
-        width: 100vw;
-        margin-left: calc(50% - 50vw);
-        margin-right: calc(50% - 50vw);
-        overflow: hidden;
-        border-block: 1px solid rgba(210, 225, 235, 0.07);
-        background: rgba(255, 255, 255, 0.018);
-    }
-
-    .bd-kinetic-track {
-        display: flex;
-        width: max-content;
-        transform: translate3d(calc(var(--home-scroll) * -22vw + var(--stripe-shift)), 0, 0);
-        transition: transform 0.08s linear;
-        will-change: transform;
-    }
-
-    .bd-kinetic-track span {
-        display: inline-flex;
-        padding: 0.55rem 1rem;
-        color: rgba(255, 255, 255, 0.075);
-        font-size: clamp(3.5rem, 12vw, 10rem);
-        font-weight: 920;
-        line-height: 0.9;
-        letter-spacing: 0;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-
-    .bd-kinetic-track strong {
-        color: rgba(200, 255, 31, 0.22);
-        font-weight: inherit;
-    }
-
     .bd-stat-card {
         min-height: 8.2rem;
         padding: 1rem;
@@ -1205,7 +1171,6 @@
         }
 
         .bd-scroll-rail,
-        .bd-kinetic-word,
         .bd-section-progress,
         .bd-speed-lines {
             display: none;
@@ -1482,14 +1447,7 @@
             </div>
         </div>
 
-        <div class="bd-kinetic-word" aria-hidden="true">
-            <div class="bd-kinetic-track">
-                <span>Reservas <strong>BE-Desk</strong> Bloco E</span>
-                <span>Reservas <strong>BE-Desk</strong> Bloco E</span>
-                <span>Reservas <strong>BE-Desk</strong> Bloco E</span>
-            </div>
-        </div>
-
+        
         <div class="bd-section-progress" aria-hidden="true">
             <div class="bd-section-progress-inner">
                 <span class="is-active"></span>
