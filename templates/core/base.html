@@ -1401,7 +1401,10 @@
           <div class="bd-notif-dropdown" id="notifDropdown">
             <div class="bd-notif-dd-header">
               <span>Notificações</span>
-              <a href="{% url 'notificacoes_todas_lidas' %}" id="notifMarkAll">Marcar todas lidas</a>
+              <div style="display:flex;gap:0.75rem;align-items:center">
+                <a href="{% url 'notificacoes_lista' %}">Ver todas</a>
+                <a href="{% url 'notificacoes_todas_lidas' %}" id="notifMarkAll">Limpar todas</a>
+              </div>
             </div>
             <div id="notifList">
               <div class="bd-notif-dd-empty"><i class="fa-solid fa-bell-slash"></i>Carregando...</div>
@@ -1713,10 +1716,29 @@
         } catch(e) { /* ignore */ }
       }
 
+      async function clearAllNotifs() {
+        try {
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+            || document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+          await fetch('/notificacoes/todas-lidas/', {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          listEl.innerHTML = '<div class="bd-notif-dd-empty"><i class="fa-solid fa-bell-slash"></i>Nenhuma notificação</div>';
+          const badge = document.getElementById('notifBadge');
+          if (badge) badge.style.display = 'none';
+        } catch(e) { /* ignore */ }
+      }
+
       bellBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         const isOpen = dropdown.classList.toggle('open');
         if (isOpen) loadNotifs();
+      });
+
+      document.getElementById('notifMarkAll')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        clearAllNotifs();
       });
 
       document.addEventListener('click', function(e) {

@@ -186,9 +186,9 @@
         {% endif %}
       </div>
       {% if notificacoes %}
-      <a href="{% url 'notificacoes_todas_lidas' %}" class="bd-notif-mark-all">
-        <i class="fa-solid fa-check-double" aria-hidden="true"></i>
-        Marcar todas como lidas
+      <a href="{% url 'notificacoes_todas_lidas' %}" class="bd-notif-mark-all" id="notifClearAll">
+        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+        Limpar todas
       </a>
       {% endif %}
     </div>
@@ -218,4 +218,31 @@
     {% endif %}
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('notifClearAll');
+  if (!btn) return;
+
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    fetch(btn.getAttribute('href'), {
+      method: 'GET',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).then(function() {
+      var list = document.querySelector('.bd-notif-list');
+      if (list) {
+        list.outerHTML = '<div class="bd-notif-empty">'
+          + '<i class="fa-solid fa-bell-slash" aria-hidden="true"></i>'
+          + '<h2>Nenhuma notificação</h2>'
+          + '<p>Quando houver novidades, elas aparecerão aqui.</p>'
+          + '</div>';
+      }
+      btn.remove();
+    });
+  });
+});
+</script>
 {% endblock %}
