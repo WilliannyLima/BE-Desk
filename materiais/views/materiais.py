@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from bedesk.models import Recurso
 from materiais.forms import ReservaRecursoForm
+from notificacoes.services.notificar import notificar_recurso_criado
 
 
 def lista_recursos(request):
@@ -23,6 +24,7 @@ def reservar_recurso(request, recurso_id):
             nova_reserva.recurso = recurso
             nova_reserva.status = "PENDENTE"
             nova_reserva.save()
+            notificar_recurso_criado(nova_reserva)
 
             messages.success(
                 request,

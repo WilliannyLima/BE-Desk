@@ -1239,6 +1239,115 @@
       background: rgba(255, 255, 255, 0.06);
       color: #fff;
     }
+
+    /* Notification Bell */
+    .bd-notif-bell {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: #9ca3af;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .bd-notif-bell:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .bd-notif-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .bd-notif-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: -8px;
+      width: 360px;
+      max-height: 420px;
+      overflow-y: auto;
+      background: #1a1f2e;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      z-index: 1100;
+      display: none;
+      padding: 0.5rem;
+    }
+    .bd-notif-dropdown.open { display: block; }
+    .bd-notif-dd-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.6rem 0.4rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 0.35rem;
+    }
+    .bd-notif-dd-header span { font-size: 0.82rem; font-weight: 700; color: #e2eaf2; }
+    .bd-notif-dd-header a {
+      font-size: 0.7rem; font-weight: 600; color: #9ca3af;
+      text-decoration: none; transition: color 0.15s;
+    }
+    .bd-notif-dd-header a:hover { color: #b5e853; }
+    .bd-notif-dd-item {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      padding: 0.55rem 0.6rem; border-radius: 10px;
+      text-decoration: none; color: inherit;
+      transition: background 0.15s;
+    }
+    .bd-notif-dd-item:hover { background: rgba(255,255,255,0.04); }
+    .bd-notif-dd-item.unread { background: rgba(181,232,83,0.04); }
+    .bd-notif-dd-icon {
+      flex-shrink: 0; display: flex; align-items: center;
+      justify-content: center; width: 30px; height: 30px;
+      border-radius: 8px; font-size: 0.72rem; color: #fff;
+    }
+    .bd-notif-dd-body { flex: 1; min-width: 0; }
+    .bd-notif-dd-title { font-size: 0.78rem; font-weight: 600; color: #e2eaf2; }
+    .bd-notif-dd-msg {
+      font-size: 0.7rem; color: #9ca3af; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .bd-notif-dd-time { font-size: 0.6rem; color: #6b7280; white-space: nowrap; margin-top: 0.1rem; }
+    .bd-notif-dd-empty {
+      text-align: center; padding: 2rem 1rem; color: #6b7280; font-size: 0.82rem;
+    }
+    .bd-notif-dd-empty i { display: block; font-size: 1.5rem; color: rgba(255,255,255,0.1); margin-bottom: 0.5rem; }
+
+    [data-theme="light"] .bd-notif-bell { color: #475569; }
+    [data-theme="light"] .bd-notif-bell:hover { background: rgba(15,23,42,0.05); color: #0f172a; }
+    [data-theme="light"] .bd-notif-dropdown {
+      background: #ffffff;
+      border-color: rgba(15,23,42,0.1);
+      box-shadow: 0 20px 50px rgba(15,23,42,0.14);
+    }
+    [data-theme="light"] .bd-notif-dd-header { border-color: rgba(15,23,42,0.06); }
+    [data-theme="light"] .bd-notif-dd-header span { color: #0f172a; }
+    [data-theme="light"] .bd-notif-dd-item:hover { background: #f8fafc; }
+    [data-theme="light"] .bd-notif-dd-item.unread { background: rgba(4,120,87,0.04); }
+    [data-theme="light"] .bd-notif-dd-title { color: #0f172a; }
+    [data-theme="light"] .bd-notif-dd-msg { color: #64748b; }
+
+    @media (max-width: 576px) {
+      .bd-notif-dropdown { width: 300px; right: -40px; }
+    }
   </style>
 
   <div class="floating-navbar-wrapper">
@@ -1281,6 +1390,25 @@
         </button>
 
         {% if user.is_authenticated %}
+        <!-- Notification Bell -->
+        <div class="bd-notif-bell-wrapper" style="position:relative">
+          <button class="bd-notif-bell" id="notifBellBtn" title="Notificações" aria-label="Notificações">
+            <i class="fa-solid fa-bell"></i>
+            {% if notificacoes_nao_lidas > 0 %}
+            <span class="bd-notif-badge" id="notifBadge">{{ notificacoes_nao_lidas }}</span>
+            {% endif %}
+          </button>
+          <div class="bd-notif-dropdown" id="notifDropdown">
+            <div class="bd-notif-dd-header">
+              <span>Notificações</span>
+              <a href="{% url 'notificacoes_todas_lidas' %}" id="notifMarkAll">Marcar todas lidas</a>
+            </div>
+            <div id="notifList">
+              <div class="bd-notif-dd-empty"><i class="fa-solid fa-bell-slash"></i>Carregando...</div>
+            </div>
+          </div>
+        </div>
+
         <div class="dropdown pill-profile-dropdown">
           <button class="dropdown-toggle d-flex align-items-center gap-2" type="button" id="profileDropdown"
             data-bs-toggle="dropdown" aria-expanded="false">
@@ -1340,6 +1468,10 @@
         <hr class="border-secondary my-1">
         <a href="{% url 'admin_dashboard' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-chart-line me-3 text-secondary"></i>Admin</a>
         <a href="{% url 'listar_pendentes' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-clipboard-list me-3 text-secondary"></i>Dashboard</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <hr class="border-secondary my-1">
+        <a href="{% url 'notificacoes_lista' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-bell me-3 text-secondary"></i>Notificações {% if notificacoes_nao_lidas > 0 %}<span class="badge bg-danger ms-2">{{ notificacoes_nao_lidas }}</span>{% endif %}</a>
         {% endif %}
         {% if not user.is_authenticated %}
         <hr class="border-secondary my-2">
@@ -1508,6 +1640,89 @@
       btn.addEventListener('click', function() {
         const current = html.getAttribute('data-theme');
         applyTheme(current === 'light' ? 'dark' : 'light');
+      });
+    })();
+
+    // ── Notification Bell Dropdown ──
+    (function() {
+      const bellBtn  = document.getElementById('notifBellBtn');
+      const dropdown = document.getElementById('notifDropdown');
+      const listEl   = document.getElementById('notifList');
+      if (!bellBtn || !dropdown || !listEl) return;
+
+      const icons  = {
+        RESERVA_CRIADA:     { icon: 'fa-calendar-plus',  bg: '#2563eb' },
+        RESERVA_APROVADA:   { icon: 'fa-calendar-check', bg: '#16a34a' },
+        RESERVA_REJEITADA:  { icon: 'fa-calendar-xmark', bg: '#dc2626' },
+        RESERVA_CANCELADA:  { icon: 'fa-calendar-minus', bg: '#f59e0b' },
+        RECURSO_CRIADO:     { icon: 'fa-box',            bg: '#7c3aed' },
+        RECURSO_APROVADO:   { icon: 'fa-box-check',      bg: '#16a34a' },
+        RECURSO_REJEITADO:  { icon: 'fa-box-xmark',      bg: '#dc2626' },
+        LEMBRETE:           { icon: 'fa-clock',          bg: '#0ea5e9' },
+        ADMIN_NOVA_SOLICITACAO: { icon: 'fa-user-plus',  bg: '#f59e0b' },
+        CONFLITO_HORARIO:   { icon: 'fa-clock-rotate-left', bg: '#dc2626' },
+        SISTEMA:            { icon: 'fa-circle-info',    bg: '#6b7280' },
+      };
+
+      function timeSince(dateStr) {
+        const now = new Date();
+        const d   = new Date(dateStr);
+        const sec = Math.floor((now - d) / 1000);
+        if (sec < 60)    return 'agora';
+        if (sec < 3600)  return Math.floor(sec / 60) + 'min';
+        if (sec < 86400) return Math.floor(sec / 3600) + 'h';
+        return Math.floor(sec / 86400) + 'd';
+      }
+
+      function renderNotifs(items) {
+        if (!items.length) {
+          listEl.innerHTML = '<div class="bd-notif-dd-empty"><i class="fa-solid fa-bell-slash"></i>Nenhuma notificação</div>';
+          return;
+        }
+        listEl.innerHTML = items.map(n => {
+          const info = icons[n.tipo] || icons.info;
+          const href = n.link || '#';
+          return '<a class="bd-notif-dd-item' + (n.lida ? '' : ' unread') + '" href="' + href + '">'
+            + '<div class="bd-notif-dd-icon" style="background:' + info.bg + '"><i class="fa-solid ' + info.icon + '"></i></div>'
+            + '<div class="bd-notif-dd-body">'
+            + '<div class="bd-notif-dd-title">' + n.titulo + '</div>'
+            + '<div class="bd-notif-dd-msg">' + n.mensagem + '</div>'
+            + '<div class="bd-notif-dd-time">' + timeSince(n.criada_em) + '</div>'
+            + '</div></a>';
+        }).join('');
+      }
+
+      async function loadNotifs() {
+        try {
+          const res  = await fetch('/notificacoes/api/');
+          const data = await res.json();
+          renderNotifs(data.notifications || []);
+          const badge = document.getElementById('notifBadge');
+          if (data.unread > 0) {
+            if (badge) { badge.textContent = data.unread; badge.style.display = 'flex'; }
+            else {
+              const b = document.createElement('span');
+              b.className = 'bd-notif-badge';
+              b.id = 'notifBadge';
+              b.textContent = data.unread;
+              bellBtn.appendChild(b);
+            }
+          } else if (badge) {
+            badge.style.display = 'none';
+          }
+        } catch(e) { /* ignore */ }
+      }
+
+      bellBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.toggle('open');
+        if (isOpen) loadNotifs();
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
+          dropdown.classList.remove('open');
+        }
       });
     })();
   </script>

@@ -5,6 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from bedesk.models import Agendamento, Sala
+from notificacoes.services.notificar import (
+    notificar_reserva_criada,
+    notificar_reserva_cancelada,
+)
 from reservas.forms import AgendarForm
 
 
@@ -24,6 +28,7 @@ def agendar_sala(request):
             nova_reserva.usuario = request.user
             nova_reserva.status = "PENDENTE"
             nova_reserva.save()
+            notificar_reserva_criada(nova_reserva)
             return redirect("reserva_sucesso")
     else:
         form = AgendarForm(initial=initial_data)
@@ -62,6 +67,7 @@ def cancelar_reserva_usuario(request, agendamento_id):
     if reserva.status in ["PENDENTE", "APROVADO"]:
         reserva.status = "REJEITADO"
         reserva.save()
+        notificar_reserva_cancelada(reserva)
         messages.success(request, "Reserva foi cancelada com sucesso.")
     else:
         messages.warning(request, "Esta reserva não pode ser cancelada.")

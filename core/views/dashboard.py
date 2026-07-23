@@ -9,6 +9,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from bedesk.models import Agendamento, Recurso, ReservaRecurso, Sala
+from notificacoes.services.notificar import (
+    notificar_reserva_aprovada,
+    notificar_reserva_rejeitada,
+    notificar_recurso_aprovado,
+    notificar_recurso_rejeitado,
+)
 from usuarios.permissions import is_admin_or_staff
 
 STATUS_GERENCIAVEIS = ["APROVADO", "REJEITADO"]
@@ -140,6 +146,11 @@ def mudar_status_reserva(request, agendamento_id, novo_status):
     reserva.status = novo_status
     reserva.save()
 
+    if novo_status == 'APROVADO':
+        notificar_reserva_aprovada(reserva)
+    elif novo_status == 'REJEITADO':
+        notificar_reserva_rejeitada(reserva)
+
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JsonResponse(
             {
@@ -163,6 +174,11 @@ def mudar_status_recurso(request, reserva_id, novo_status):
 
     reserva.status = novo_status
     reserva.save()
+
+    if novo_status == 'APROVADO':
+        notificar_recurso_aprovado(reserva)
+    elif novo_status == 'REJEITADO':
+        notificar_recurso_rejeitado(reserva)
 
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JsonResponse(
