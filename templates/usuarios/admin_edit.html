@@ -3,15 +3,142 @@
 
 {% block title %}{{ title }} - Admin{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admin-form.css' %}">
+{% endblock %}
+
 {% block content %}
-<main class="container p-6">
-  <h1>{{ title }}</h1>
-  <div style="max-width:720px">
-    <form method="post">{% csrf_token %}
-      {{ form.as_p }}
-      <button class="btn btn-primary" type="submit">Salvar</button>
-      <a class="btn btn-ghost" href="{% url 'admin_dashboard' %}">Cancelar</a>
+<section class="bd-adminform-page">
+  <div class="bd-adminform-shell">
+
+    <a href="{% url 'admin_dashboard' %}" class="bd-adminform-back">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Painel administrativo
+    </a>
+
+    <header class="bd-adminform-header">
+      <span class="bd-adminform-kicker">Painel administrativo</span>
+      <h1>{{ title }}</h1>
+      <p>Preencha os campos abaixo e salve para concluir.</p>
+    </header>
+
+    <form method="post" enctype="multipart/form-data" class="bd-adminform" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="bd-adminform-errors" role="alert">
+        <ul>
+          {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% for field in form %}
+      <div class="bd-adminform-field {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">
+          {{ field.label }}{% if field.field.required %}<span class="bd-adminform-required" aria-hidden="true">*</span>{% endif %}
+        </label>
+
+        {% if field.field.widget.input_type == 'file' %}
+          {% if field.value %}
+          <div class="bd-adminform-current" style="margin-bottom:0.7rem">
+            <img src="{{ field.value.url }}" alt="Imagem atual" style="max-width:160px;border-radius:10px;display:block">
+          </div>
+          {% endif %}
+
+          <div class="bd-adminform-dropzone" data-dropzone role="button" tabindex="0"
+               aria-label="Clique ou arraste uma imagem para enviar">
+            {{ field }}
+            <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+            <div class="bd-adminform-dropzone-text">
+              <strong>Arraste a imagem ou clique para selecionar</strong>
+              <small>PNG, JPG ou WebP</small>
+            </div>
+            <div class="bd-adminform-dropzone-preview" data-preview hidden>
+              <img src="" alt="Pré-visualização da imagem" data-preview-img>
+              <div class="bd-adminform-dropzone-overlay">
+                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                Alterar imagem
+              </div>
+            </div>
+          </div>
+        {% else %}
+          {{ field }}
+        {% endif %}
+
+        {% if field.help_text %}
+        <small class="bd-adminform-help">{{ field.help_text }}</small>
+        {% endif %}
+
+        {% if field.errors %}
+        <div class="bd-adminform-field-error" role="alert">
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+          {{ field.errors.0 }}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="bd-adminform-actions">
+        <button class="bd-adminform-btn bd-adminform-btn-primary" type="submit">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          Salvar
+        </button>
+        <a class="bd-adminform-btn bd-adminform-btn-secondary" href="{% url 'admin_dashboard' %}">Cancelar</a>
+      </div>
     </form>
   </div>
-</main>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-dropzone]').forEach((zone) => {
+    const input = zone.querySelector('input[type="file"]');
+    const preview = zone.querySelector('[data-preview]');
+    const previewImg = zone.querySelector('[data-preview-img]');
+    if (!input || !preview || !previewImg) return;
+
+    const showPreview = (file) => {
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        preview.hidden = false;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    input.addEventListener('change', () => {
+      if (input.files.length) showPreview(input.files[0]);
+    });
+
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      zone.classList.add('dragover');
+    });
+
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        input.files = e.dataTransfer.files;
+        showPreview(e.dataTransfer.files[0]);
+      }
+    });
+
+    zone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        input.click();
+      }
+    });
+  });
+});
+</script>
 {% endblock %}

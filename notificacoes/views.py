@@ -57,7 +57,7 @@ def marcar_como_lida(request, notificacao_id):
 
 @login_required
 def marcar_todas_lidas(request):
-    Notificacao.objects.filter(destinatario=request.user).delete()
+    Notificacao.objects.filter(destinatario=request.user, lida=False).update(lida=True)
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({'success': True})

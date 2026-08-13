@@ -286,6 +286,12 @@
     }
     [data-theme="light"] .bd-schedule-mini strong { color: #0f172a !important; }
     [data-theme="light"] .bd-schedule-mini i { background: #047857 !important; box-shadow: 0 0 14px rgba(4,120,87,0.3) !important; }
+    [data-theme="light"] .bd-window-badge { color: #334155 !important; }
+    [data-theme="light"] .bd-home-trust-row span {
+      background: rgba(15,23,42,0.035) !important;
+      border-color: rgba(15,23,42,0.1) !important;
+      color: #334155 !important;
+    }
     [data-theme="light"] .bd-home-btn-secondary {
       border-color: rgba(15,23,42,0.14) !important;
       background: rgba(255,255,255,0.72) !important;
@@ -1030,7 +1036,7 @@
   {% endblock %}
 </head>
 
-<body class="d-flex flex-column min-vh-100 bd-app">
+<body class="d-flex flex-column min-vh-100 bd-app {% block body_class %}{% endblock %}">
 
   {% block nav %}
   <style>
@@ -1367,7 +1373,6 @@
         <a href="{% url 'lista_locais' %}" class="pill-nav-item">Locais</a>
         <a href="{% url 'lista_reserva' %}" class="pill-nav-item">Reservas</a>
         <a href="#" class="pill-nav-item">Benefícios</a>
-        <!-- <a href="{% url 'lista_recursos' %}" class="pill-nav-item">Materiais</a> -->
         <a href="{% url 'blog_index' %}" class="pill-nav-item">Blog</a>
         <a href="#" class="pill-nav-item">Feedback</a>
         {% if user.is_staff %}
@@ -1426,7 +1431,6 @@
             {% if user.is_staff %}
             <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}"><i class="fa-solid fa-chart-line me-2"></i> Admin Dashboard</a></li>
             <li><a class="dropdown-item" href="{% url 'criar_sala' %}"><i class="fa-solid fa-door-open me-2"></i> Criar Sala</a></li>
-            <li><a class="dropdown-item" href="{% url 'criar_recurso' %}"><i class="fa-solid fa-box-open me-2"></i> Criar Recurso</a></li>
             <li><a class="dropdown-item" href="{% url 'gerenciar_permissoes' %}"><i class="fa-solid fa-user-shield me-2"></i> Permissões</a></li>
             <li>
               <hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.08);">
@@ -1464,7 +1468,6 @@
         <a href="{% url 'lista_locais' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-map-location-dot me-3 text-secondary"></i>Locais</a>
         <a href="{% url 'lista_reserva' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-calendar-check me-3 text-secondary"></i>Reservas</a>
         <a href="#" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-gift me-3 text-secondary"></i>Benefícios</a>
-        <a href="{% url 'lista_recursos' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-box-open me-3 text-secondary"></i>Materiais</a>
         <a href="{% url 'blog_index' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-newspaper me-3 text-secondary"></i>Blog</a>
         <a href="#" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-comment-dots me-3 text-secondary"></i>Feedback</a>
         {% if user.is_staff %}
@@ -1516,7 +1519,8 @@
           <a href="{% url 'inicio' %}">Início</a>
           <a href="{% url 'lista_locais' %}">Locais</a>
           <a href="{% url 'lista_reserva' %}">Reservas</a>
-          <a href="{% url 'lista_recursos' %}">Materiais</a>
+          <a href="{% url 'blog_index' %}">Blog</a>
+          {% if user.is_authenticated %}<a href="{% url 'user_profile' %}">Perfil</a>{% endif %}
         </nav>
 
         <div class="bd-footer-status">
@@ -1526,7 +1530,7 @@
       </div>
 
       <div class="bd-footer-bottom-line">
-        <small>&copy; 2025 BE-Desk &middot; IFRN Bloco E</small>
+        <small>&copy; {% now "Y" %} BE-Desk &middot; IFRN Bloco E</small>
         <span>Organização, agilidade e controle em um só lugar.</span>
       </div>
     </div>
@@ -1658,9 +1662,6 @@
         RESERVA_APROVADA:   { icon: 'fa-calendar-check', bg: '#16a34a' },
         RESERVA_REJEITADA:  { icon: 'fa-calendar-xmark', bg: '#dc2626' },
         RESERVA_CANCELADA:  { icon: 'fa-calendar-minus', bg: '#f59e0b' },
-        RECURSO_CRIADO:     { icon: 'fa-box',            bg: '#7c3aed' },
-        RECURSO_APROVADO:   { icon: 'fa-box-check',      bg: '#16a34a' },
-        RECURSO_REJEITADO:  { icon: 'fa-box-xmark',      bg: '#dc2626' },
         LEMBRETE:           { icon: 'fa-clock',          bg: '#0ea5e9' },
         ADMIN_NOVA_SOLICITACAO: { icon: 'fa-user-plus',  bg: '#f59e0b' },
         CONFLITO_HORARIO:   { icon: 'fa-clock-rotate-left', bg: '#dc2626' },
