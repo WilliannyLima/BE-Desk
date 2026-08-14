@@ -1,0 +1,68 @@
+﻿{% extends 'core/base.html' %} 
+{% load widget_tweaks %}
+
+{% block title %}Agendar Sala{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4 text-center">Nova Reserva</h1>
+
+            {% if hora_predefinida and data_predefinida and sala_predefinida %}
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">Resumo da Reserva</h4>
+                    <p class="mb-1"><strong>Sala:</strong> {{ sala_predefinida }}</p>
+                    <p class="mb-1"><strong>Data:</strong> {{ data_predefinida|date:"d/m/Y" }}</p>
+                    <p class="mb-0"><strong>Horário:</strong> {{ hora_predefinida }}</S</p>
+                </div>
+            {% endif %}
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ form.non_field_errors|join:", " }}
+                    </div>
+                {% endif %}
+
+                
+                {% for field in form %}
+                    {% if field.name == 'horario' or field.name == 'sala' or field.name == 'data_inicio' %}
+                        
+                        {% if hora_predefinida and field.name == 'horario' %}
+                            {{ field.as_hidden }}
+                        {% elif sala_predefinida and field.name == 'sala' %}
+                            {{ field.as_hidden }}
+                        {% elif data_predefinida and field.name == 'data_inicio' %}
+                            {{ field.as_hidden }}
+                        
+                        {% else %}
+                            <div class="mb-3">
+                                {{ field.label_tag }}
+                                {{ field|add_class:"form-control" }}
+                                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                                {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            </div>
+                        {% endif %}
+
+                    {% else %}
+                        <div class="mb-3">
+                            {{ field.label_tag }}
+                            {{ field|add_class:"form-control" }}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                            {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg mt-3">Confirmar Reserva</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

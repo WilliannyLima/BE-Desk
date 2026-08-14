@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Perfil - BE-Desk{% endblock %}
+
+{% block body_class %}profile-page-body{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <section class="profile-page profile-page-user">
+
+    <div class="profile-shell">
+      <div>
+        <div class="profile-card">
+          <div class="profile-meta">
+            <div class="profile-avatar">
+              {% if suap_data.foto %}
+                <img src="{{ suap_data.foto }}" alt="Avatar">
+              {% else %}
+                <img src="{% static 'img/avatar-placeholder.png' %}" alt="Avatar">
+              {% endif %}
+            </div>
+            <div style="flex:1">
+              <div class="profile-name">{{ suap_data.nome|default:user.get_full_name|default:user.username }}</div>
+              <div class="profile-sub">{{ suap_data.matricula|default:user.username }} • {{ suap_data.campus|default:'—' }}</div>
+              <div class="profile-badges">
+                <span class="badge">Institucional</span>
+                {% if suap_data.tipo_vinculo %}<span class="badge">{{ suap_data.tipo_vinculo }}</span>{% endif %}
+              </div>
+            </div>
+
+            <!-- ações removidas: página somente leitura -->
+          </div>
+
+          <hr class="profile-divider">
+
+          <div class="info-grid">
+            <div class="info-row"><div class="info-label">Nome</div><div class="info-value">{{ suap_data.nome|default:user.get_full_name }}</div></div>
+            <div class="info-row"><div class="info-label">E-mail</div><div class="info-value">{{ suap_data.email|default:user.email|default:'—' }}</div></div>
+            <div class="info-row"><div class="info-label">Matrícula</div><div class="info-value">{{ suap_data.matricula|default:user.username }}</div></div>
+            <div class="info-row"><div class="info-label">Curso</div><div class="info-value">{{ suap_data.curso|default:'—' }}</div></div>
+            <div class="info-row"><div class="info-label">Campus</div><div class="info-value">{{ suap_data.campus|default:'—' }}</div></div>
+            <div class="info-row"><div class="info-label">Vínculo</div><div class="info-value">{{ suap_data.tipo_vinculo|default:'—' }}</div></div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="profile-card">
+          <h4 class="profile-card-title">Estatísticas</h4>
+          <div class="stats-grid">
+            <div class="stat"><div class="num">0</div><div class="lbl">Reservas</div></div>
+            <div class="stat"><div class="num">0h</div><div class="lbl">Horas</div></div>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <h4 class="profile-card-title">Segurança</h4>
+          <div class="profile-card-empty"><span class="security-dot" aria-hidden="true"></span>Autenticação: SUAP</div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="profile-card profile-activities">
+      <h4 class="profile-card-title">Atividades Recentes</h4>
+      <div class="profile-card-empty profile-empty-state">
+        <i class="fa-regular fa-clock" aria-hidden="true"></i>
+        Nenhuma atividade registrada.
+      </div>
+    </div>
+  </section>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}{% endblock %}

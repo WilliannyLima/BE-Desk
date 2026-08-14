@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Excluir publicação - Blog BE-Desk{% endblock %}
+
+{% block main_container_class %}bd-blog-main flex-grow-1{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}?v=20260813">
+{% endblock %}
+
+{% block content %}
+<section class="bd-blog-page bd-blog-form-page" aria-labelledby="bd-delete-title">
+  <div class="bd-blog-shell bd-blog-form-shell">
+    <a href="{% url 'blog_admin' %}" class="bd-blog-back" aria-label="Voltar para lista de publicações">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Gerenciar publicações
+    </a>
+
+    <div class="bd-blog-delete-box" role="alertdialog" aria-labelledby="bd-delete-title" aria-describedby="bd-delete-desc">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <h2 id="bd-delete-title">Excluir publicação</h2>
+      <p id="bd-delete-desc">Esta ação é irreversível. Deseja realmente excluir a publicação?</p>
+      <span class="bd-blog-delete-title">&ldquo;{{ post.title }}&rdquo;</span>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="bd-blog-delete-actions">
+          <button type="submit" class="bd-blog-btn bd-blog-btn-danger" aria-label="Confirmar exclusão de {{ post.title }}">
+            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+            Excluir permanentemente
+          </button>
+          <a href="{% url 'blog_admin' %}" class="bd-blog-btn bd-blog-btn-secondary" aria-label="Cancelar e voltar">
+            Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

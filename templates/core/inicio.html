@@ -1,0 +1,1667 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Bem-vindo ao BE-Desk{% endblock %}
+
+{% block main_container_class %}bd-home-main flex-grow-1{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --home-bg: #070d10;
+        --home-panel: rgba(13, 22, 27, 0.72);
+        --home-panel-strong: rgba(17, 27, 34, 0.86);
+        --home-line: rgba(182, 199, 214, 0.13);
+        --home-text: #f7f9f3;
+        --home-muted: #9fb0c2;
+        --home-lime: #c8ff1f;
+        --home-lime-soft: #b5e853;
+        --home-red: #d71920;
+        --home-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .bd-home {
+        position: relative;
+        width: 100vw;
+        margin-top: -5.5rem;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 16% 5%, rgba(200, 255, 31, 0.11), transparent 28rem),
+            radial-gradient(circle at 86% 12%, rgba(75, 125, 145, 0.16), transparent 30rem),
+            radial-gradient(circle at 50% 100%, rgba(16, 33, 39, 0.92), transparent 38rem),
+            var(--home-bg);
+        color: var(--home-text);
+        --home-scroll: 0;
+        --hero-progress: 0;
+        --grid-shift: 0px;
+        --preview-y: 0px;
+        --preview-rotate: 0deg;
+        --stripe-shift: 0px;
+    }
+
+    .bd-scroll-rail {
+        position: fixed;
+        right: 1rem;
+        top: 50%;
+        z-index: 20;
+        width: 3px;
+        height: min(26vh, 220px);
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .bd-scroll-rail span {
+        display: block;
+        width: 100%;
+        height: calc(var(--home-scroll) * 100%);
+        border-radius: inherit;
+        background: linear-gradient(180deg, var(--home-lime), rgba(200, 255, 31, 0.16));
+        box-shadow: 0 0 18px rgba(200, 255, 31, 0.38);
+    }
+
+    .bd-home-main {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .floating-navbar-wrapper {
+        top: 0.9rem;
+        margin-bottom: 0;
+        padding-inline: 1rem;
+    }
+
+    .custom-pill-navbar {
+        min-height: 3.55rem;
+        max-width: 1320px;
+        padding: 0.38rem 0.58rem 0.38rem 0.9rem;
+        border-color: rgba(210, 225, 235, 0.13);
+        background: linear-gradient(180deg, rgba(20, 25, 32, 0.78), rgba(12, 17, 22, 0.72));
+        box-shadow: 0 18px 70px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+        backdrop-filter: blur(22px) saturate(155%);
+        -webkit-backdrop-filter: blur(22px) saturate(155%);
+    }
+
+    .pill-brand img {
+        height: 34px;
+    }
+
+    .pill-nav-links {
+        padding: 0.18rem;
+        border: 1px solid rgba(255, 255, 255, 0.045);
+        background: rgba(255, 255, 255, 0.035);
+    }
+
+    .pill-nav-item {
+        padding: 0.45rem 0.9rem;
+        color: rgba(226, 232, 240, 0.72);
+        font-size: 0.82rem;
+        line-height: 1.1;
+        transition: color 0.2s var(--home-ease), background 0.2s var(--home-ease), transform 0.2s var(--home-ease);
+    }
+
+    .pill-nav-item:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.045);
+        transform: translateY(-1px);
+    }
+
+    .pill-cta-btn {
+        min-height: 2.55rem;
+        padding: 0 1.15rem;
+        background: linear-gradient(135deg, var(--home-lime), var(--home-lime-soft));
+        box-shadow: 0 10px 28px rgba(181, 232, 83, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.44);
+    }
+
+    .pill-cta-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 36px rgba(181, 232, 83, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.48);
+    }
+
+    .bd-home::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.36;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.024) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.024) 1px, transparent 1px),
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.13) 1px, transparent 0);
+        background-size: 92px 92px, 92px 92px, 3px 3px;
+        background-position:
+            0 var(--grid-shift),
+            var(--grid-shift) 0,
+            0 0;
+        mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.72) 45%, transparent 100%);
+    }
+
+    .bd-home::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 50% 0%, transparent 0, transparent 32rem, rgba(0, 0, 0, 0.2) 58rem),
+            linear-gradient(180deg, transparent, rgba(7, 13, 16, 0.88));
+    }
+
+    .bd-speed-lines {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+        opacity: 0.42;
+    }
+
+    .bd-speed-lines span {
+        position: absolute;
+        right: -18vw;
+        width: min(48vw, 680px);
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(200, 255, 31, 0.32), transparent);
+        transform: translate3d(calc(var(--home-scroll) * -32vw), 0, 0) rotate(-12deg);
+        filter: blur(0.2px);
+    }
+
+    .bd-speed-lines span:nth-child(1) {
+        top: 18%;
+    }
+
+    .bd-speed-lines span:nth-child(2) {
+        top: 37%;
+        width: min(36vw, 520px);
+        opacity: 0.58;
+        transform: translate3d(calc(var(--home-scroll) * -46vw), 0, 0) rotate(-12deg);
+    }
+
+    .bd-speed-lines span:nth-child(3) {
+        top: 71%;
+        width: min(56vw, 760px);
+        opacity: 0.46;
+        transform: translate3d(calc(var(--home-scroll) * -24vw), 0, 0) rotate(-12deg);
+    }
+
+    .bd-home > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .bd-home-shell {
+        width: min(calc(100% - 2rem), 1180px);
+        margin: 0 auto;
+    }
+
+    /* Hide the centered pagination/progress dots under the hero (requested) */
+    .bd-section-progress {
+        display: none !important;
+        position: sticky;
+        top: 4.9rem;
+        z-index: 5;
+        justify-content: center;
+        margin: -1.4rem 0 1.1rem;
+        pointer-events: none;
+    }
+
+    .bd-section-progress-inner {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.34rem 0.48rem;
+        border: 1px solid rgba(210, 225, 235, 0.12);
+        border-radius: 999px;
+        background: rgba(8, 14, 18, 0.62);
+        box-shadow: 0 12px 38px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px) saturate(145%);
+        -webkit-backdrop-filter: blur(16px) saturate(145%);
+    }
+
+    .bd-section-progress-inner span {
+        width: 0.48rem;
+        height: 0.48rem;
+        border-radius: 999px;
+        background: rgba(226, 234, 242, 0.24);
+        transform: scale(0.9);
+        transition: background 0.22s var(--home-ease), transform 0.22s var(--home-ease), box-shadow 0.22s var(--home-ease);
+    }
+
+    .bd-section-progress-inner span.is-active {
+        background: var(--home-lime);
+        box-shadow: 0 0 18px rgba(200, 255, 31, 0.5);
+        transform: scale(1.25);
+    }
+
+    .bd-home-hero {
+        min-height: calc(100vh - 88px);
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+        gap: clamp(2rem, 5vw, 4.5rem);
+        align-items: center;
+        padding: 8.4rem 0 4.5rem;
+    }
+
+    .bd-home-copy-wrap {
+        max-width: 660px;
+        transform: translate3d(0, calc(var(--hero-progress) * -20px), 0);
+        transition: transform 0.08s linear;
+    }
+
+    .bd-home-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        min-height: 2.15rem;
+        padding: 0 0.8rem;
+        margin-bottom: 1.35rem;
+        border: 1px solid rgba(200, 255, 31, 0.18);
+        border-radius: 999px;
+        background: rgba(200, 255, 31, 0.055);
+        color: var(--home-lime);
+        font-size: 0.78rem;
+        font-weight: 780;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
+        opacity: 0;
+        transform: translateY(12px);
+        animation: bdHomeFadeUp 0.68s var(--home-ease) forwards;
+    }
+
+    .bd-home-status::before {
+        content: "";
+        width: 0.46rem;
+        height: 0.46rem;
+        border-radius: 999px;
+        background: var(--home-lime);
+        box-shadow: 0 0 18px rgba(200, 255, 31, 0.68);
+    }
+
+    .bd-home-title {
+        max-width: 680px;
+        margin: 0;
+        color: #fff;
+        font-size: clamp(3.25rem, 7vw, 6.25rem);
+        font-weight: 880;
+        line-height: 0.9;
+        letter-spacing: 0;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: bdHomeFadeUp 0.78s var(--home-ease) 0.08s forwards;
+    }
+
+    .bd-home-title span {
+        display: block;
+        color: var(--home-lime);
+        text-shadow: 0 0 34px rgba(200, 255, 31, 0.14);
+    }
+
+    .bd-home-copy {
+        max-width: 620px;
+        margin: 1.55rem 0 2rem;
+        color: rgba(226, 234, 242, 0.76);
+        font-size: clamp(1.02rem, 1.8vw, 1.24rem);
+        line-height: 1.65;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: bdHomeFadeUp 0.78s var(--home-ease) 0.18s forwards;
+    }
+
+    .bd-home-copy strong {
+        color: #fff;
+        font-weight: 760;
+    }
+
+    .bd-home-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: bdHomeFadeUp 0.78s var(--home-ease) 0.28s forwards;
+    }
+
+    .bd-home-btn {
+        position: relative;
+        min-height: 3.4rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        padding: 0 1.25rem;
+        border-radius: 14px;
+        font-weight: 820;
+        text-decoration: none;
+        overflow: hidden;
+        transition: transform 0.22s var(--home-ease), border-color 0.22s var(--home-ease), box-shadow 0.22s var(--home-ease), background 0.22s var(--home-ease);
+    }
+
+    .bd-home-btn-primary {
+        border: 0;
+        background: linear-gradient(135deg, var(--home-lime), var(--home-lime-soft) 58%, #dbff63);
+        color: #071006;
+        box-shadow: 0 18px 46px rgba(181, 232, 83, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.48);
+    }
+
+    .bd-home-btn-primary::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent);
+        transform: translateX(-120%);
+        transition: transform 0.68s var(--home-ease);
+    }
+
+    .bd-home-btn-primary:hover::before {
+        transform: translateX(120%);
+    }
+
+    .bd-home-btn-secondary {
+        border: 1px solid rgba(210, 225, 235, 0.16);
+        background: rgba(255, 255, 255, 0.045);
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+    }
+
+    .bd-home-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .bd-home-btn-primary:hover {
+        box-shadow: 0 24px 58px rgba(181, 232, 83, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.52);
+        color: #071006;
+    }
+
+    .bd-home-btn-secondary:hover {
+        border-color: rgba(200, 255, 31, 0.32);
+        background: rgba(200, 255, 31, 0.07);
+        color: #fff;
+    }
+
+    .bd-home-trust-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 1.25rem;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: bdHomeFadeUp 0.78s var(--home-ease) 0.38s forwards;
+    }
+
+    .bd-home-trust-row span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        min-height: 2rem;
+        padding: 0 0.7rem;
+        border: 1px solid rgba(210, 225, 235, 0.1);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.035);
+        color: rgba(226, 234, 242, 0.64);
+        font-size: 0.78rem;
+        font-weight: 640;
+    }
+
+    .bd-home-trust-row i {
+        color: var(--home-lime);
+    }
+
+    .bd-product-preview {
+        position: relative;
+        opacity: 0;
+        transform:
+            translate3d(0, calc(20px + var(--preview-y)), 0)
+            rotateX(var(--preview-rotate))
+            scale(0.98);
+        transform-origin: center;
+        animation: bdHomeFadeUp 0.82s var(--home-ease) 0.22s forwards;
+        will-change: transform;
+    }
+
+    .bd-product-preview::before {
+        content: "";
+        position: absolute;
+        inset: 2rem -1rem -1.5rem;
+        border-radius: 42px;
+        background:
+            radial-gradient(circle at 58% 12%, rgba(200, 255, 31, 0.18), transparent 18rem),
+            radial-gradient(circle at 18% 86%, rgba(68, 116, 136, 0.26), transparent 18rem);
+        filter: blur(26px);
+        opacity: 0.82;
+    }
+
+    .bd-product-window {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(210, 225, 235, 0.15);
+        border-radius: 26px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.024)),
+            rgba(11, 20, 25, 0.74);
+        box-shadow:
+            0 34px 110px rgba(0, 0, 0, 0.48),
+            0 0 92px rgba(200, 255, 31, 0.045),
+            inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(24px) saturate(150%);
+        -webkit-backdrop-filter: blur(24px) saturate(150%);
+        transform: perspective(1200px) rotateY(calc(var(--hero-progress) * -3deg));
+        transition: transform 0.08s linear;
+    }
+
+    .bd-product-window::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(120deg, rgba(255, 255, 255, 0.11), transparent 23%),
+            radial-gradient(circle at 86% 4%, rgba(200, 255, 31, 0.12), transparent 14rem);
+    }
+
+    .bd-window-bar {
+        position: relative;
+        z-index: 1;
+        min-height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1rem;
+        border-bottom: 1px solid rgba(210, 225, 235, 0.1);
+    }
+
+    /* Hide the small window dots in the product preview (matches requested change) */
+    .bd-window-dots {
+        display: none !important;
+        gap: 0.38rem;
+    }
+
+    .bd-window-dots span {
+        width: 0.58rem;
+        height: 0.58rem;
+        border-radius: 999px;
+        background: rgba(226, 234, 242, 0.28);
+    }
+
+    .bd-window-dots span:first-child {
+        background: var(--home-red);
+    }
+
+    .bd-window-dots span:last-child {
+        background: var(--home-lime);
+    }
+
+    .bd-window-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        color: rgba(226, 234, 242, 0.72);
+        font-size: 0.76rem;
+        font-weight: 720;
+    }
+
+    .bd-window-badge::before {
+        content: "";
+        width: 0.42rem;
+        height: 0.42rem;
+        border-radius: 999px;
+        background: var(--home-lime);
+        box-shadow: 0 0 14px rgba(200, 255, 31, 0.58);
+    }
+
+    .bd-preview-body {
+        position: relative;
+        z-index: 1;
+        padding: 1.05rem;
+    }
+
+    .bd-preview-grid {
+        display: grid;
+        grid-template-columns: 1fr 0.78fr;
+        gap: 0.85rem;
+    }
+
+    .bd-preview-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(210, 225, 235, 0.11);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.045);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+        transition:
+            transform 0.34s var(--home-ease),
+            border-color 0.34s var(--home-ease),
+            background 0.34s var(--home-ease),
+            box-shadow 0.34s var(--home-ease);
+    }
+
+    .bd-preview-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(circle at var(--card-x, 50%) var(--card-y, 0%), rgba(200, 255, 31, 0.12), transparent 44%);
+        opacity: 0;
+        transition: opacity 0.34s var(--home-ease);
+    }
+
+    .bd-preview-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .bd-preview-main {
+        min-height: 19rem;
+        padding: 1rem;
+    }
+
+    .bd-preview-side {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .bd-preview-card h3,
+    .bd-preview-card p {
+        margin: 0;
+    }
+
+    .bd-preview-label {
+        color: var(--home-lime);
+        font-size: 0.72rem;
+        font-weight: 820;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .bd-preview-title {
+        margin-top: 0.55rem !important;
+        color: #fff;
+        font-size: 1.15rem;
+        font-weight: 820;
+    }
+
+    .bd-preview-copy {
+        margin-top: 0.35rem !important;
+        color: rgba(226, 234, 242, 0.62);
+        font-size: 0.84rem;
+        line-height: 1.5;
+    }
+
+    .bd-schedule-mini {
+        display: grid;
+        gap: 0.55rem;
+        margin-top: 1rem;
+    }
+
+    .bd-schedule-mini span {
+        display: grid;
+        grid-template-columns: 4.2rem 1fr auto;
+        align-items: center;
+        gap: 0.65rem;
+        min-height: 2.35rem;
+        padding: 0 0.7rem;
+        border: 1px solid rgba(210, 225, 235, 0.09);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.038);
+        color: rgba(226, 234, 242, 0.72);
+        font-size: 0.78rem;
+        font-weight: 640;
+        transition:
+            transform 0.24s var(--home-ease),
+            border-color 0.24s var(--home-ease),
+            background 0.24s var(--home-ease);
+    }
+
+    .bd-schedule-mini strong {
+        color: #fff;
+        font-weight: 760;
+    }
+
+    .bd-schedule-mini i {
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 999px;
+        background: var(--home-lime);
+        box-shadow: 0 0 14px rgba(200, 255, 31, 0.48);
+    }
+
+    .bd-preview-metric {
+        min-height: 8.85rem;
+        padding: 0.95rem;
+    }
+
+    .bd-preview-metric strong {
+        display: block;
+        margin-top: 0.5rem;
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 860;
+        line-height: 1;
+    }
+
+    .bd-preview-metric small {
+        display: block;
+        margin-top: 0.35rem;
+        color: rgba(226, 234, 242, 0.56);
+        font-size: 0.78rem;
+        line-height: 1.45;
+    }
+
+    .bd-preview-progress {
+        height: 0.46rem;
+        margin-top: 1rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .bd-preview-progress span {
+        display: block;
+        width: 72%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--home-lime), var(--home-lime-soft));
+        box-shadow: 0 0 18px rgba(200, 255, 31, 0.26);
+        transform-origin: left;
+        transform: scaleX(calc(0.72 + (var(--hero-progress) * 0.2)));
+    }
+
+    .bd-scroll-panels {
+        display: grid;
+        grid-template-columns: 0.82fr 1.18fr;
+        gap: 1rem;
+        align-items: start;
+        padding: 5.2rem 0;
+        border-top: 1px solid rgba(210, 225, 235, 0.08);
+    }
+
+    .bd-scroll-panels-copy {
+        position: sticky;
+        top: 6.5rem;
+        min-height: 22rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .bd-scroll-panels-copy h2 {
+        margin: 0;
+        color: #fff !important;
+        font-size: clamp(2rem, 4vw, 3.6rem);
+        font-weight: 860;
+        line-height: 1;
+    }
+
+    .bd-scroll-panels-copy h2 span {
+        color: var(--home-lime);
+    }
+
+    .bd-scroll-panels-copy p {
+        max-width: 440px;
+        margin: 1rem 0 0;
+        color: rgba(226, 234, 242, 0.64) !important;
+        line-height: 1.72;
+    }
+
+    .bd-scroll-panels-list {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .bd-scroll-panel {
+        position: relative;
+        min-height: 17rem;
+        overflow: hidden;
+        padding: 1.2rem;
+        border: 1px solid rgba(210, 225, 235, 0.12);
+        border-radius: 22px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.062), rgba(255, 255, 255, 0.022)),
+            rgba(12, 22, 28, 0.68);
+        box-shadow: 0 26px 72px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+        backdrop-filter: blur(18px) saturate(145%);
+        -webkit-backdrop-filter: blur(18px) saturate(145%);
+        transform: translate3d(0, var(--panel-shift, 0px), 0);
+        transition: transform 0.12s linear, border-color 0.24s var(--home-ease), box-shadow 0.24s var(--home-ease);
+    }
+
+    .bd-scroll-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 14% 0%, rgba(200, 255, 31, 0.14), transparent 34%),
+            linear-gradient(105deg, rgba(255, 255, 255, 0.08), transparent 28%);
+        opacity: 0.72;
+    }
+
+    .bd-scroll-panel:hover {
+        border-color: rgba(200, 255, 31, 0.28);
+        box-shadow: 0 30px 82px rgba(0, 0, 0, 0.34), 0 0 58px rgba(200, 255, 31, 0.04);
+    }
+
+    .bd-scroll-panel > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .bd-scroll-panel small {
+        color: var(--home-lime);
+        font-size: 0.72rem;
+        font-weight: 840;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .bd-scroll-panel h3 {
+        max-width: 520px;
+        margin: 0.75rem 0 0;
+        color: #fff !important;
+        font-size: clamp(1.35rem, 2.4vw, 2.1rem);
+        font-weight: 820;
+        line-height: 1.12;
+    }
+
+    .bd-scroll-panel p {
+        max-width: 540px;
+        margin: 0.8rem 0 0;
+        color: rgba(226, 234, 242, 0.64) !important;
+        line-height: 1.68;
+    }
+
+    .bd-scroll-panel-metric {
+        position: absolute;
+        right: 1.2rem;
+        bottom: 1.2rem;
+        color: rgba(255, 255, 255, 0.08);
+        font-size: clamp(4rem, 10vw, 8rem);
+        font-weight: 920;
+        line-height: 0.85;
+    }
+
+    .bd-section {
+        padding: 5.3rem 0;
+        border-top: 1px solid rgba(210, 225, 235, 0.08);
+    }
+
+    .bd-section-header {
+        max-width: 720px;
+        margin: 0 auto 2.4rem;
+        text-align: center;
+    }
+
+    .bd-section-kicker {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        padding: 0 0.7rem;
+        margin-bottom: 0.9rem;
+        border: 1px solid rgba(200, 255, 31, 0.16);
+        border-radius: 999px;
+        background: rgba(200, 255, 31, 0.05);
+        color: var(--home-lime);
+        font-size: 0.72rem;
+        font-weight: 820;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .bd-section-title {
+        margin: 0;
+        color: #fff !important;
+        font-size: clamp(2rem, 4.4vw, 4rem);
+        font-weight: 860;
+        line-height: 1;
+        letter-spacing: 0;
+    }
+
+    .bd-section-title span {
+        color: var(--home-lime);
+    }
+
+    .bd-section-copy {
+        max-width: 620px;
+        margin: 1rem auto 0;
+        color: rgba(226, 234, 242, 0.66) !important;
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .bd-stats-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.85rem;
+        margin-top: -1.6rem;
+        padding-bottom: 2rem;
+    }
+
+    .bd-stat-card,
+    .bd-feature-card,
+    .bd-step-card,
+    .bd-final-cta {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(210, 225, 235, 0.12);
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+            rgba(12, 22, 28, 0.68);
+        box-shadow: 0 22px 64px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+        backdrop-filter: blur(18px) saturate(145%);
+        -webkit-backdrop-filter: blur(18px) saturate(145%);
+        transition: transform 0.26s var(--home-ease), border-color 0.26s var(--home-ease), box-shadow 0.26s var(--home-ease), background 0.26s var(--home-ease);
+        will-change: transform;
+    }
+
+    .bd-stat-card {
+        min-height: 8.2rem;
+        padding: 1rem;
+        border-radius: 18px;
+    }
+
+    .bd-stat-card::before,
+    .bd-feature-card::before,
+    .bd-step-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(circle at 18% 0%, rgba(200, 255, 31, 0.13), transparent 42%);
+        opacity: 0;
+        transition: opacity 0.26s var(--home-ease);
+    }
+
+    .bd-stat-card::after,
+    .bd-feature-card::after,
+    .bd-step-card::after,
+    .bd-scroll-panel::after,
+    .bd-preview-card::after {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at var(--card-x, 50%) var(--card-y, 0%), rgba(200, 255, 31, 0.18), transparent 34%),
+            linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.08) 42%, transparent 58%);
+        opacity: 0;
+        transform: translateX(-16%);
+        transition:
+            opacity 0.34s var(--home-ease),
+            transform 0.54s var(--home-ease);
+    }
+
+    .bd-stat-card:hover::before,
+    .bd-feature-card:hover::before,
+    .bd-step-card:hover::before {
+        opacity: 1;
+    }
+
+    .bd-stat-card strong {
+        position: relative;
+        z-index: 1;
+        display: block;
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 860;
+        line-height: 1;
+    }
+
+    .bd-stat-card span {
+        position: relative;
+        z-index: 1;
+        display: block;
+        margin-top: 0.55rem;
+        color: rgba(226, 234, 242, 0.62);
+        font-size: 0.84rem;
+        line-height: 1.45;
+    }
+
+    .bd-steps-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.9rem;
+    }
+
+    .bd-step-card {
+        min-height: 14.5rem;
+        padding: 1.2rem;
+        border-radius: 20px;
+    }
+
+    .bd-step-index {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        margin-bottom: 1rem;
+        color: rgba(200, 255, 31, 0.72);
+        font-size: 0.75rem;
+        font-weight: 840;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .bd-card-icon {
+        position: relative;
+        z-index: 1;
+        width: 2.8rem;
+        height: 2.8rem;
+        display: grid;
+        place-items: center;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(200, 255, 31, 0.2);
+        border-radius: 14px;
+        background: rgba(200, 255, 31, 0.08);
+        color: var(--home-lime);
+        font-size: 1rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        transition:
+            transform 0.32s var(--home-ease),
+            border-color 0.32s var(--home-ease),
+            background 0.32s var(--home-ease),
+            box-shadow 0.32s var(--home-ease);
+    }
+
+    .bd-card-icon i {
+        transition: transform 0.32s var(--home-ease), filter 0.32s var(--home-ease);
+    }
+
+    .bd-step-card h3,
+    .bd-feature-card h3 {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        color: #fff !important;
+        font-size: 1.05rem;
+        font-weight: 780;
+        line-height: 1.25;
+    }
+
+    .bd-step-card p,
+    .bd-feature-card p {
+        position: relative;
+        z-index: 1;
+        margin: 0.65rem 0 0;
+        color: rgba(226, 234, 242, 0.62) !important;
+        font-size: 0.92rem;
+        line-height: 1.62;
+    }
+
+    .bd-features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.9rem;
+    }
+
+    .bd-feature-card {
+        min-height: 13rem;
+        padding: 1.2rem;
+        border-radius: 20px;
+    }
+
+    .bd-final-cta {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1.5rem;
+        align-items: center;
+        padding: clamp(1.4rem, 4vw, 2.4rem);
+        border-radius: 26px;
+        margin-bottom: 4.5rem;
+    }
+
+    .bd-final-cta::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 12% 12%, rgba(200, 255, 31, 0.14), transparent 22rem),
+            linear-gradient(115deg, rgba(255, 255, 255, 0.075), transparent 36%);
+    }
+
+    .bd-final-cta h2,
+    .bd-final-cta p,
+    .bd-final-cta .bd-home-actions {
+        position: relative;
+        z-index: 1;
+    }
+
+    .bd-final-cta h2 {
+        margin: 0;
+        color: #fff !important;
+        font-size: clamp(1.7rem, 3.2vw, 3rem);
+        font-weight: 860;
+        line-height: 1.05;
+    }
+
+    .bd-final-cta p {
+        max-width: 580px;
+        margin: 0.8rem 0 0;
+        color: rgba(226, 234, 242, 0.64) !important;
+        line-height: 1.7;
+    }
+
+    .bd-final-cta .bd-home-actions {
+        justify-content: flex-end;
+        opacity: 1;
+        transform: none;
+        animation: none;
+    }
+
+    .bd-scroll-reveal {
+        opacity: 0;
+        transform: translateY(28px) scale(0.985);
+        transition: opacity 0.72s var(--home-ease), transform 0.72s var(--home-ease);
+    }
+
+    .bd-scroll-reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .bd-preview-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: rgba(200, 255, 31, 0.24);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow:
+                0 22px 58px rgba(0, 0, 0, 0.26),
+                0 0 42px rgba(200, 255, 31, 0.035),
+                inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        .bd-preview-card:hover::before,
+        .bd-preview-card:hover::after,
+        .bd-stat-card:hover::after,
+        .bd-feature-card:hover::after,
+        .bd-step-card:hover::after,
+        .bd-scroll-panel:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .bd-schedule-mini span:hover {
+            transform: translateX(4px);
+            border-color: rgba(200, 255, 31, 0.22);
+            background: rgba(200, 255, 31, 0.055);
+        }
+
+        .bd-stat-card.bd-scroll-reveal.is-visible:hover,
+        .bd-feature-card.bd-scroll-reveal.is-visible:hover,
+        .bd-step-card.bd-scroll-reveal.is-visible:hover {
+            transform: translateY(-7px) scale(1.012);
+            border-color: rgba(200, 255, 31, 0.3);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.026)),
+                rgba(13, 24, 29, 0.76);
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.36),
+                0 0 62px rgba(200, 255, 31, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        .bd-scroll-panel.bd-scroll-reveal.is-visible:hover {
+            transform: translate3d(0, calc(var(--panel-shift, 0px) - 7px), 0) scale(1.008);
+            border-color: rgba(200, 255, 31, 0.3);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.026)),
+                rgba(13, 24, 29, 0.78);
+            box-shadow:
+                0 34px 88px rgba(0, 0, 0, 0.38),
+                0 0 62px rgba(200, 255, 31, 0.055),
+                inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        .bd-step-card:hover .bd-card-icon,
+        .bd-feature-card:hover .bd-card-icon {
+            transform: translateY(-3px) rotate(-3deg);
+            border-color: rgba(200, 255, 31, 0.42);
+            background: rgba(200, 255, 31, 0.12);
+            box-shadow: 0 0 28px rgba(200, 255, 31, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .bd-step-card:hover .bd-card-icon i,
+        .bd-feature-card:hover .bd-card-icon i {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 10px rgba(200, 255, 31, 0.36));
+        }
+
+        .bd-stat-card:hover strong {
+            color: var(--home-lime);
+            text-shadow: 0 0 24px rgba(200, 255, 31, 0.16);
+        }
+
+        .bd-stat-card:active,
+        .bd-feature-card:active,
+        .bd-step-card:active,
+        .bd-scroll-panel:active,
+        .bd-preview-card:active {
+            transform: translateY(-2px) scale(0.998);
+        }
+    }
+
+    @keyframes bdHomeFadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        .bd-home-status,
+        .bd-home-title,
+        .bd-home-copy,
+        .bd-home-actions,
+        .bd-product-preview,
+        .bd-scroll-reveal {
+            opacity: 1;
+            transform: none;
+        }
+
+        .bd-scroll-rail,
+        .bd-section-progress,
+        .bd-speed-lines {
+            display: none;
+        }
+
+        .bd-scroll-panels-copy,
+        .bd-section-progress {
+            position: static;
+        }
+    }
+
+    @media (max-width: 1040px) {
+        .bd-home-hero {
+            grid-template-columns: 1fr;
+            min-height: auto;
+            padding-top: 8rem;
+        }
+
+        .bd-home-copy-wrap {
+            max-width: 760px;
+        }
+
+        .bd-product-preview {
+            max-width: 720px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .bd-stats-strip,
+        .bd-steps-grid,
+        .bd-features-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 720px) {
+        .bd-home {
+            margin-top: -4.75rem;
+        }
+
+        .bd-home-shell {
+            width: min(calc(100% - 1.25rem), 1180px);
+        }
+
+        .bd-home-hero {
+            padding: 7rem 0 3rem;
+        }
+
+        .bd-scroll-rail {
+            display: none;
+        }
+
+        .bd-home-title {
+            font-size: clamp(2.75rem, 15vw, 4.2rem);
+        }
+
+        .bd-home-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .bd-home-btn {
+            width: 100%;
+        }
+
+        .bd-preview-grid,
+        .bd-final-cta,
+        .bd-scroll-panels {
+            grid-template-columns: 1fr;
+        }
+
+        .bd-scroll-panels {
+            padding: 4rem 0;
+        }
+
+        .bd-scroll-panels-copy {
+            position: static;
+            min-height: auto;
+            margin-bottom: 1rem;
+        }
+
+        .bd-preview-side {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .bd-section {
+            padding: 4rem 0;
+        }
+
+        .bd-stats-strip,
+        .bd-steps-grid,
+        .bd-features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .bd-final-cta .bd-home-actions {
+            justify-content: stretch;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .bd-preview-side {
+            grid-template-columns: 1fr;
+        }
+
+        .bd-preview-main {
+            min-height: auto;
+        }
+
+        .bd-schedule-mini span {
+            grid-template-columns: 1fr auto;
+        }
+
+        .bd-schedule-mini span strong {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .bd-home-footer {
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid rgba(210, 225, 235, 0.08) !important;
+        background:
+            radial-gradient(circle at 22% 0%, rgba(200, 255, 31, 0.07), transparent 24rem),
+            linear-gradient(180deg, rgba(8, 12, 16, 0.94), rgba(6, 10, 13, 0.98)) !important;
+    }
+
+    .bd-home-footer .bd-footer-shell {
+        width: min(calc(100% - 2rem), 1180px);
+        padding: 1.35rem 0 1rem;
+    }
+
+    .bd-home-footer .bd-footer-top {
+        gap: 1.1rem;
+    }
+
+    .bd-home-footer .bd-footer-logo {
+        margin-bottom: 0.42rem;
+        font-size: 1rem;
+    }
+
+    .bd-home-footer .bd-footer-identity p,
+    .bd-home-footer small,
+    .bd-home-footer .bd-footer-bottom-line span {
+        color: rgba(159, 176, 207, 0.72) !important;
+        font-size: 0.84rem;
+    }
+
+    .bd-home-footer .bd-footer-nav a {
+        min-height: 2rem;
+        padding: 0 0.72rem;
+        font-size: 0.78rem;
+        border-color: rgba(210, 225, 235, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+    }
+
+    .bd-home-footer .bd-footer-status {
+        min-width: 170px;
+        padding: 0.78rem 0.9rem;
+        border-radius: 14px;
+        background: rgba(200, 255, 31, 0.045);
+    }
+
+    .bd-home-footer .bd-footer-bottom-line {
+        margin-top: 1rem;
+        padding-top: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="bd-home">
+    <div class="bd-scroll-rail" aria-hidden="true"><span></span></div>
+    <div class="bd-speed-lines" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="bd-home-shell">
+        <section class="bd-home-hero" aria-labelledby="bd-home-title">
+            <div class="bd-home-copy-wrap">
+                <div class="bd-home-status">Sistema online para o IFRN Bloco E</div>
+
+                <h1 class="bd-home-title" id="bd-home-title">
+                    Reservas do Bloco E,
+                    <span>sem atrito.</span>
+                </h1>
+
+                <p class="bd-home-copy">
+                    O BE-Desk centraliza <strong>espa&ccedil;os</strong>, <strong>materiais</strong> e
+                    <strong>hor&aacute;rios</strong> em uma experi&ecirc;ncia institucional moderna, r&aacute;pida e segura.
+                </p>
+
+                <div class="bd-home-actions">
+                    <a href="{% url 'agendar_sala' %}" class="bd-home-btn bd-home-btn-primary">
+                        Fazer uma reserva <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    <a href="{% url 'detalhe_sala' 'Ginásio' %}" class="bd-home-btn bd-home-btn-secondary">
+                        Ver hor&aacute;rios
+                    </a>
+                </div>
+
+                <div class="bd-home-trust-row" aria-label="Indicadores de confianca">
+                    <span><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Login institucional</span>
+                    <span><i class="fa-solid fa-clock" aria-hidden="true"></i> Disponibilidade clara</span>
+                    <span><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Fluxo centralizado</span>
+                </div>
+            </div>
+
+            <div class="bd-product-preview" aria-label="Previa da interface BE-Desk">
+                <div class="bd-product-window">
+                    <div class="bd-window-bar">
+                        <div class="bd-window-dots" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div class="bd-window-badge">Painel BE-Desk</div>
+                    </div>
+
+                    <div class="bd-preview-body">
+                        <div class="bd-preview-grid">
+                            <div class="bd-preview-card bd-preview-main">
+                                <span class="bd-preview-label">BE-Desk Bloco E</span>
+                                <h3 class="bd-preview-title">Tudo para reservar em um s&oacute; lugar</h3>
+                                <p class="bd-preview-copy">Acesse locais, materiais, hor&aacute;rios e feedbacks em uma plataforma institucional integrada ao SUAP.</p>
+
+                                <div class="bd-schedule-mini">
+                                    <span><strong>Locais</strong> Salas, gin&aacute;sio e ambientes <i aria-hidden="true"></i></span>
+                                    <span><strong>Reservas</strong> Solicita&ccedil;&otilde;es com data e hor&aacute;rio <i aria-hidden="true"></i></span>
+                                    <span><strong>Materiais</strong> Recursos de apoio ao uso <i aria-hidden="true"></i></span>
+                                    <span><strong>Feedback</strong> Canal para avalia&ccedil;&atilde;o e melhoria <i aria-hidden="true"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="bd-preview-side">
+                                <div class="bd-preview-card bd-preview-metric">
+                                    <span class="bd-preview-label">Login</span>
+                                    <strong>SUAP</strong>
+                                    <small>Acesso com matr&iacute;cula e senha institucional via API oficial.</small>
+                                    <div class="bd-preview-progress"><span></span></div>
+                                </div>
+
+                                <div class="bd-preview-card bd-preview-metric">
+                                    <span class="bd-preview-label">Fluxo</span>
+                                    <strong>4</strong>
+                                    <small>Escolha o local, defina hor&aacute;rio, inclua materiais e acompanhe.</small>
+                                    <div class="bd-preview-progress"><span style="width: 64%"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="bd-stats-strip" aria-label="Resumo da plataforma">
+            <div class="bd-stat-card bd-scroll-reveal">
+                <strong>1</strong>
+                <span>ponto central para reservas, materiais e disponibilidade.</span>
+            </div>
+            <div class="bd-stat-card bd-scroll-reveal">
+                <strong>4</strong>
+                <span>etapas simples do pedido ao uso do espa&ccedil;o.</span>
+            </div>
+            <div class="bd-stat-card bd-scroll-reveal">
+                <strong>24h</strong>
+                <span>hist&oacute;rico acess&iacute;vel para consulta e acompanhamento.</span>
+            </div>
+            <div class="bd-stat-card bd-scroll-reveal">
+                <strong>IFRN</strong>
+                <span>experi&ecirc;ncia institucional alinhada ao Bloco E.</span>
+            </div>
+        </div>
+
+        
+        <div class="bd-section-progress" aria-hidden="true">
+            <div class="bd-section-progress-inner">
+                <span class="is-active"></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <section class="bd-scroll-panels" aria-labelledby="bd-motion-title">
+            <div class="bd-scroll-panels-copy">
+                <span class="bd-section-kicker">Login institucional</span>
+                <h2 id="bd-motion-title">Acesso seguro via <span>API do SUAP.</span></h2>
+                <p>O BE-Desk utiliza a autentica&ccedil;&atilde;o institucional do IFRN para validar o acesso com praticidade, seguran&ccedil;a e confian&ccedil;a.</p>
+            </div>
+
+            <div class="bd-scroll-panels-list">
+                <article class="bd-scroll-panel bd-scroll-reveal">
+                    <small>Autentica&ccedil;&atilde;o</small>
+                    <h3>Login conectado diretamente ao SUAP.</h3>
+                    <p>A matr&iacute;cula e a senha s&atilde;o verificadas pela API institucional, mantendo o fluxo familiar para alunos e servidores.</p>
+                    <div class="bd-scroll-panel-metric">01</div>
+                </article>
+
+                <article class="bd-scroll-panel bd-scroll-reveal">
+                    <small>Seguran&ccedil;a</small>
+                    <h3>Credenciais institucionais, acesso controlado.</h3>
+                    <p>O sistema valida a identidade do usu&aacute;rio antes de liberar reservas, materiais e recursos internos do Bloco E.</p>
+                    <div class="bd-scroll-panel-metric">02</div>
+                </article>
+
+                <article class="bd-scroll-panel bd-scroll-reveal">
+                    <small>Confian&ccedil;a</small>
+                    <h3>Uma experi&ecirc;ncia oficial para o IFRN.</h3>
+                    <p>A integra&ccedil;&atilde;o com o SUAP refor&ccedil;a a legitimidade da plataforma e reduz atrito no primeiro acesso.</p>
+                    <div class="bd-scroll-panel-metric">03</div>
+                </article>
+            </div>
+        </section>
+
+        <section class="bd-section" aria-labelledby="bd-flow-title">
+            <div class="bd-section-header bd-scroll-reveal">
+                <span class="bd-section-kicker">Fluxo de uso</span>
+                <h2 class="bd-section-title" id="bd-flow-title">Do pedido ao espa&ccedil;o reservado, <span>sem confus&atilde;o.</span></h2>
+                <p class="bd-section-copy">Uma jornada clara para alunos e servidores, com menos ru&iacute;do operacional e mais previsibilidade.</p>
+            </div>
+
+            <div class="bd-steps-grid">
+                <article class="bd-step-card bd-scroll-reveal">
+                    <span class="bd-step-index">Etapa 01</span>
+                    <div class="bd-card-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></div>
+                    <h3>Escolha o local</h3>
+                    <p>Consulte salas, gin&aacute;sio e ambientes dispon&iacute;veis no Bloco E.</p>
+                </article>
+
+                <article class="bd-step-card bd-scroll-reveal">
+                    <span class="bd-step-index">Etapa 02</span>
+                    <div class="bd-card-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
+                    <h3>Defina o hor&aacute;rio</h3>
+                    <p>Veja disponibilidade e envie a solicita&ccedil;&atilde;o com data e per&iacute;odo.</p>
+                </article>
+
+                <article class="bd-step-card bd-scroll-reveal">
+                    <span class="bd-step-index">Etapa 03</span>
+                    <div class="bd-card-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></div>
+                    <h3>Inclua materiais</h3>
+                    <p>Adicione recursos de apoio junto da reserva para evitar solicita&ccedil;&otilde;es soltas.</p>
+                </article>
+
+                <article class="bd-step-card bd-scroll-reveal">
+                    <span class="bd-step-index">Etapa 04</span>
+                    <div class="bd-card-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
+                    <h3>Acompanhe tudo</h3>
+                    <p>Verifique aprova&ccedil;&otilde;es e mantenha o hist&oacute;rico organizado.</p>
+                </article>
+            </div>
+        </section>
+
+       
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const revealItems = document.querySelectorAll(".bd-scroll-reveal");
+        const home = document.querySelector(".bd-home");
+        const hero = document.querySelector(".bd-home-hero");
+        const sectionDots = document.querySelectorAll(".bd-section-progress-inner span");
+        const sectionTargets = document.querySelectorAll(".bd-scroll-panels, .bd-section, .bd-final-cta");
+        const scrollPanels = document.querySelectorAll(".bd-scroll-panel");
+        const hoverCards = document.querySelectorAll(".bd-stat-card, .bd-feature-card, .bd-step-card, .bd-scroll-panel, .bd-preview-card");
+
+        if (reduceMotion) {
+            revealItems.forEach((item) => item.classList.add("is-visible"));
+            return;
+        }
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("is-visible");
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.16,
+            rootMargin: "0px 0px -8% 0px",
+        });
+
+        revealItems.forEach((item) => revealObserver.observe(item));
+
+        hoverCards.forEach((card) => {
+            card.addEventListener("pointermove", (event) => {
+                const rect = card.getBoundingClientRect();
+                const x = ((event.clientX - rect.left) / rect.width) * 100;
+                const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+                card.style.setProperty("--card-x", `${x.toFixed(2)}%`);
+                card.style.setProperty("--card-y", `${y.toFixed(2)}%`);
+            });
+
+            card.addEventListener("pointerleave", () => {
+                card.style.removeProperty("--card-x");
+                card.style.removeProperty("--card-y");
+            });
+        });
+
+        if (!home || !hero) return;
+
+        let ticking = false;
+
+        const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+        const updateScrollEffects = () => {
+            const doc = document.documentElement;
+            const scrollTop = window.scrollY || doc.scrollTop;
+            const scrollMax = Math.max(1, doc.scrollHeight - window.innerHeight);
+            const homeRect = home.getBoundingClientRect();
+            const heroRect = hero.getBoundingClientRect();
+            const heroTravel = Math.max(1, heroRect.height + window.innerHeight);
+
+            const pageProgress = clamp(scrollTop / scrollMax, 0, 1);
+            const heroProgress = clamp((window.innerHeight - heroRect.top) / heroTravel, 0, 1);
+            const homeProgress = clamp((window.innerHeight - homeRect.top) / Math.max(1, homeRect.height + window.innerHeight), 0, 1);
+
+            home.style.setProperty("--home-scroll", pageProgress.toFixed(4));
+            home.style.setProperty("--hero-progress", heroProgress.toFixed(4));
+            home.style.setProperty("--grid-shift", `${Math.round(homeProgress * 96)}px`);
+            home.style.setProperty("--preview-y", `${(heroProgress - 0.35) * -34}px`);
+            home.style.setProperty("--preview-rotate", `${(heroProgress - 0.5) * 3.5}deg`);
+            home.style.setProperty("--stripe-shift", `${Math.round(Math.sin(homeProgress * Math.PI) * 38)}px`);
+
+            let activeIndex = 0;
+            sectionTargets.forEach((section, index) => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.45) {
+                    activeIndex = index;
+                }
+            });
+
+            sectionDots.forEach((dot, index) => {
+                dot.classList.toggle("is-active", index === activeIndex);
+            });
+
+            scrollPanels.forEach((panel, index) => {
+                const rect = panel.getBoundingClientRect();
+                const panelProgress = clamp((window.innerHeight - rect.top) / (window.innerHeight + rect.height), 0, 1);
+                const shift = (0.5 - panelProgress) * (index + 1) * 18;
+                panel.style.setProperty("--panel-shift", `${shift.toFixed(1)}px`);
+            });
+
+            ticking = false;
+        };
+
+        const requestScrollUpdate = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateScrollEffects);
+                ticking = true;
+            }
+        };
+
+        updateScrollEffects();
+        window.addEventListener("scroll", requestScrollUpdate, { passive: true });
+        window.addEventListener("resize", requestScrollUpdate);
+    });
+</script>
+{% endblock %}
+
+{% block footer %}
+<footer class="footer bd-simple-footer bd-home-footer">
+    <div class="bd-footer-shell">
+        <div class="bd-footer-top">
+            <div class="bd-footer-identity">
+                <a href="{% url 'inicio' %}" class="bd-footer-logo">BE-DESK</a>
+                <p>Plataforma institucional para reservas, hor&aacute;rios e recursos do IFRN Bloco E.</p>
+            </div>
+
+            <nav class="bd-footer-nav" aria-label="Links do rodap&eacute;">
+                <a href="{% url 'inicio' %}">In&iacute;cio</a>
+                <a href="{% url 'lista_locais' %}">Locais</a>
+                <a href="{% url 'lista_reserva' %}">Reservas</a>
+                <a href="{% url 'blog_index' %}">Blog</a>
+                {% if user.is_authenticated %}<a href="{% url 'user_profile' %}">Perfil</a>{% endif %}
+            </nav>
+
+            <div class="bd-footer-status">
+                <span>Sistema online</span>
+                <strong>IFRN Bloco E</strong>
+            </div>
+        </div>
+
+        <div class="bd-footer-bottom-line">
+            <small>&copy; {% now "Y" %} BE-Desk &middot; IFRN Bloco E</small>
+            <span>Organiza&ccedil;&atilde;o institucional com experi&ecirc;ncia SaaS.</span>
+        </div>
+    </div>
+</footer>
+{% endblock %}

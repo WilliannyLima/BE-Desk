@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} - Blog{% endblock %}
+
+{% block main_container_class %}bd-blog-main flex-grow-1{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}?v=20260813">
+{% endblock %}
+
+{% block content %}
+<article class="bd-blog-page bd-blog-article-page" aria-labelledby="bd-blog-article-title">
+  <div class="bd-blog-shell bd-blog-article-shell">
+    <a href="{% url 'blog_index' %}" class="bd-blog-back">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Voltar ao blog
+    </a>
+
+    <header class="bd-blog-article-header">
+      <span class="bd-blog-kicker">Publica&ccedil;&atilde;o BE-Desk</span>
+      <h1 id="bd-blog-article-title">{{ post.title }}</h1>
+      <div class="bd-blog-meta bd-blog-article-meta">
+        <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+        <span>{{ post.published_at|date:'d M Y' }}</span>
+      </div>
+    </header>
+
+    {% if post.cover %}
+    <figure class="bd-blog-article-cover">
+      <img src="{{ post.cover.url }}" alt="{{ post.title }}">
+    </figure>
+    {% endif %}
+
+    <div class="bd-blog-article-content">
+      {{ post.content|linebreaks }}
+    </div>
+  </div>
+</article>
+{% endblock %}

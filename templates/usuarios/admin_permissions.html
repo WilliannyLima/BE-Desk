@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Gerenciar Permissões - Admin{% endblock %}
+
+{% block content %}
+<main class="container p-6">
+  <h1>Gerenciar Permissões</h1>
+  <form method="get" style="margin-bottom:1rem">
+    <input type="search" name="q" placeholder="Pesquisar por nome, usuário ou matrícula" value="{{ q }}" class="form-control">
+  </form>
+
+  <div style="margin-top:1rem">
+    <table class="table">
+      <thead><tr><th>Usuário</th><th>Nome</th><th>Matrícula</th><th>Staff</th><th>Superuser</th><th>Ações</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.username }}</td>
+          <td>{{ u.get_full_name }}</td>
+          <td>{{ u.profile.matricula }}</td>
+          <td>{{ u.is_staff }}</td>
+          <td>{{ u.is_superuser }}</td>
+          <td>
+            <form method="post" style="display:inline">{% csrf_token %}
+              <input type="hidden" name="user_id" value="{{ u.id }}">
+              <input type="hidden" name="action" value="update">
+              <label><input type="checkbox" name="is_staff" {% if u.is_staff %}checked{% endif %}> Staff</label>
+              <label style="margin-left:0.5rem"><input type="checkbox" name="is_superuser" {% if u.is_superuser %}checked{% endif %}> Superuser</label>
+              <button class="btn btn-primary" type="submit">Atualizar</button>
+            </form>
+            <form method="post" style="display:inline;margin-left:0.5rem">{% csrf_token %}
+              <input type="hidden" name="user_id" value="{{ u.id }}">
+              <input type="hidden" name="action" value="remove">
+              <button class="btn btn-danger" type="submit">Remover Permissões</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</main>
+{% endblock %}
