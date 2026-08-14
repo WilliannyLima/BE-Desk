@@ -275,7 +275,7 @@
 
   .bd-admin-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 1rem;
     margin-top: 1rem;
   }
@@ -583,11 +583,10 @@
       <div class="hero-left">
         <div class="hero-kicker">Painel administrativo online</div>
         <h1 class="hero-title">Controle do BE-Desk, <span style="color:var(--bd-accent); display:block">em um lugar.</span></h1>
-        <p class="hero-sub">Gerencie salas, recursos e permissões com a mesma experiência visual da página inicial.</p>
+        <p class="hero-sub">Gerencie salas e permissões com a mesma experiência visual da página inicial.</p>
       </div>
       <div class="hero-actions">
         <a class="btn btn-primary" href="{% url 'criar_sala' %}">Criar sala</a>
-        <a class="btn btn-ghost" href="{% url 'criar_recurso' %}">Criar recurso</a>
         <a class="btn btn-ghost" href="{% url 'blog_admin' %}">Gerenciar Blog</a>
         <a class="btn btn-ghost" href="{% url 'blog_admin_create' %}">Criar Postagem</a>
       </div>
@@ -598,11 +597,6 @@
         <div class="label">SALAS</div>
         <div class="value">{{ salas|length }}</div>
         <div class="desc">Ambientes cadastrados para solicitações e consulta de disponibilidade.</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">RECURSOS</div>
-        <div class="value">{{ recursos|length }}</div>
-        <div class="desc">Materiais disponíveis para apoiar reservas e atividades do Bloco E.</div>
       </div>
       <div class="stat-card">
         <div class="label">ACESSO</div>
@@ -645,43 +639,6 @@
         <div class="bd-admin-panel-footer">
           <a class="bd-admin-btn bd-admin-btn-secondary" href="{% url 'criar_sala' %}">
             <i class="fa-solid fa-plus" aria-hidden="true"></i> Nova sala
-          </a>
-        </div>
-      </section>
-
-      <section class="bd-admin-panel card-surface" aria-labelledby="bd-admin-recursos-title">
-        <div class="bd-admin-panel-header">
-          <div>
-            <span class="bd-admin-panel-kicker">Materiais</span>
-            <h2 id="bd-admin-recursos-title">Recursos cadastrados</h2>
-          </div>
-          <div class="bd-admin-icon" aria-hidden="true">
-            <i class="fa-solid fa-box-open"></i>
-          </div>
-        </div>
-
-        <ul class="bd-admin-list">
-          {% for r in recursos %}
-            <li>
-              <div class="bd-admin-item-main">
-                <strong>{{ r.nome }}</strong>
-                <small>Recurso dispon&iacute;vel para solicita&ccedil;&atilde;o</small>
-              </div>
-              <span class="bd-admin-tag">Ativo</span>
-            </li>
-          {% empty %}
-            <li class="bd-admin-empty">
-              <div class="bd-admin-item-main">
-                <strong>Nenhum recurso cadastrado.</strong>
-                <small>Adicione materiais para associar &agrave;s reservas.</small>
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
-
-        <div class="bd-admin-panel-footer">
-          <a class="bd-admin-btn bd-admin-btn-secondary" href="{% url 'criar_recurso' %}">
-            <i class="fa-solid fa-plus" aria-hidden="true"></i> Novo recurso
           </a>
         </div>
       </section>

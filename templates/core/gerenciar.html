@@ -132,6 +132,23 @@
 }
 .action-btn { border-radius: 8px; padding: 6px 12px; font-weight: 600; font-size: 0.8rem; transition: transform 0.2s; }
 .action-btn:hover { transform: translateY(-2px); }
+
+/* --- Light mode --- */
+[data-theme="light"] .dashboard-container { color: #334155; }
+[data-theme="light"] .kpi-details h3 { color: #102033; }
+[data-theme="light"] .chart-card h5 { color: #102033; }
+[data-theme="light"] .dash-header h2 { color: #102033; }
+[data-theme="light"] .filter-select {
+    background-color: #ffffff;
+    color: #102033;
+    border-color: rgba(15,23,42,0.14);
+}
+[data-theme="light"] .filter-select:hover {
+    border-color: rgba(15,23,42,0.28);
+}
+[data-theme="light"] .table-dark {
+    --bs-table-color: #475569;
+}
 </style>
 
 <section class="profile-page dashboard-page">
@@ -141,7 +158,7 @@
     <div class="dashboard-hero">
         <div>
             <div class="title"><i class="fa-solid fa-chart-pie" style="color: var(--bd-accent);"></i> Dashboard Estatístico</div>
-            <div style="color:var(--bd-muted); margin-top:6px">Visão geral de reservas, recursos e pendências.</div>
+            <div style="color:var(--bd-muted); margin-top:6px">Visão geral de reservas e pendências.</div>
         </div>
         <div class="dashboard-actions">
             <span id="current-time" class="text-secondary fw-semibold d-none d-md-block"></span>
@@ -184,26 +201,11 @@
             </div>
             <div style="margin-top:10px"><div class="kpi-label">Pendências</div></div>
         </div>
-        <div class="kpi-card">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                <div class="kpi-value">{{ kpi_materiais }}</div>
-                <div class="kpi-icon purple"><i class="fa-solid fa-boxes-stacked"></i></div>
-            </div>
-            <div style="margin-top:10px"><div class="kpi-label">Materiais Cadastrados</div></div>
-        </div>
     </div>
 
     <!-- Charts Row 1 -->
     <div class="row mb-2 g-4">
-        <div class="col-lg-7">
-            <div class="chart-card card-surface">
-                <h5><i class="fa-solid fa-boxes-packing text-danger"></i> Materiais Mais Solicitados</h5>
-                <div style="height: 280px; position: relative;">
-                    <canvas id="materialsChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-5">
+        <div class="col-12">
             <div class="chart-card card-surface">
                 <h5><i class="fa-solid fa-location-dot text-warning"></i> Locais Mais Utilizados</h5>
                 <div style="height: 280px; position: relative; display: flex; justify-content: center;">
@@ -256,7 +258,7 @@
 
     <div class="row g-4">
         <!-- Salas Pendentes -->
-        <div class="col-lg-6">
+        <div class="col-12">
             <div class="chart-card h-auto card-surface">
                 <h5>Reservas de Salas Pendentes</h5>
                 {% if salas_pendentes %}
@@ -293,49 +295,6 @@
                     <div class="text-center p-4 text-secondary">
                         <i class="fa-solid fa-mug-hot fs-1 mb-3"></i>
                         <p class="mb-0">Tudo limpo! Nenhuma reserva pendente.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Recursos Pendentes -->
-        <div class="col-lg-6">
-            <div class="chart-card h-auto card-surface">
-                <h5>Pedidos de Recursos Pendentes</h5>
-                {% if recursos_pendentes %}
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Usuário</th>
-                                    <th>Recurso</th>
-                                    <th>Data Prevista</th>
-                                    <th class="text-end">Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for ag in recursos_pendentes %}
-                                <tr>
-                                    <td class="text-white">{{ ag.usuario }}</td>
-                                    <td>{{ ag.recurso.nome }}</td>
-                                    <td>{{ ag.data_prevista|date:"d/m/Y H:i" }}</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-success action-btn js-status me-1" data-url="{% url 'aprovar_recurso' ag.id %}">
-                                            <i class="fa-solid fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-danger action-btn js-status" data-url="{% url 'rejeitar_recurso' ag.id %}">
-                                            <i class="fa-solid fa-xmark"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center p-4 text-secondary">
-                        <i class="fa-solid fa-boxes-stacked fs-1 mb-3"></i>
-                        <p class="mb-0">Nenhum recurso pendente no momento.</p>
                     </div>
                 {% endif %}
             </div>
@@ -384,9 +343,6 @@
     };
 
     // Dynamic data from Django
-    const matLabels = {{ mat_labels|safe }};
-    const matData = {{ mat_data|safe }};
-    
     const locaisLabels = {{ locais_labels|safe }};
     const locaisData = {{ locais_data|safe }};
     
@@ -399,42 +355,7 @@
     const diaLabels = {{ dia_labels|safe }};
     const diaData = {{ dia_data|safe }};
 
-    // --- 1. Materials Chart (Bar) ---
-    const ctxMaterials = document.getElementById('materialsChart').getContext('2d');
-    new Chart(ctxMaterials, {
-        type: 'bar',
-        data: {
-            labels: matLabels,
-            datasets: [{
-                label: ' Solicitações',
-                data: matData,
-                backgroundColor: [colorRed, colorGold, colorDarkRed, colorLightGold, colorGray, '#374151'],
-                borderRadius: 6,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: tooltipStyle
-            },
-            scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false } },
-                x: { grid: { display: false, drawBorder: false } }
-            },
-            onClick: (e, elements) => { 
-                if(elements.length) {
-                    const label = e.chart.data.labels[elements[0].index];
-                    const value = e.chart.data.datasets[0].data[elements[0].index];
-                    alert(`Detalhes do Material:\n${label}: ${value} solicitações no período.`); 
-                }
-            }
-        }
-    });
-
-    // --- 2. Locations Chart (Doughnut) ---
+    // --- 1. Locations Chart (Doughnut) ---
     const ctxLocations = document.getElementById('locationsChart').getContext('2d');
     new Chart(ctxLocations, {
         type: 'doughnut',

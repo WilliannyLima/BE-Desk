@@ -1648,7 +1648,8 @@
                 <a href="{% url 'inicio' %}">In&iacute;cio</a>
                 <a href="{% url 'lista_locais' %}">Locais</a>
                 <a href="{% url 'lista_reserva' %}">Reservas</a>
-                <a href="{% url 'lista_recursos' %}">Materiais</a>
+                <a href="{% url 'blog_index' %}">Blog</a>
+                {% if user.is_authenticated %}<a href="{% url 'user_profile' %}">Perfil</a>{% endif %}
             </nav>
 
             <div class="bd-footer-status">

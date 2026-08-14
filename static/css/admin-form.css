@@ -1,0 +1,427 @@
+/* ===================================================================
+   BE-DESK — ADMIN FORM
+   Formulário administrativo compartilhado (criar sala, criar postagem…).
+   Segue a mesma linguagem visual do resto do sistema: painel com cantos
+   arredondados, labels acima do campo, verde institucional como destaque.
+   Suporta modo escuro (padrão) e modo claro ([data-theme="light"]).
+   =================================================================== */
+
+.bd-adminform-page {
+  padding: 6.5rem 0 4rem;
+}
+
+.bd-adminform-shell {
+  width: min(calc(100% - 2rem), 720px);
+  margin: 0 auto;
+}
+
+.bd-adminform-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.bd-adminform-back:hover {
+  color: var(--accent);
+  transform: translateX(-2px);
+}
+
+.bd-adminform-header {
+  margin-bottom: 1.75rem;
+}
+
+.bd-adminform-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  background: var(--accent-glow);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 820;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bd-adminform-header h1 {
+  margin: 0.7rem 0 0;
+  color: var(--text-primary);
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  font-weight: 880;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+.bd-adminform-header p {
+  margin: 0.6rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+/* Painel do formulário */
+.bd-adminform {
+  padding: clamp(1.4rem, 3vw, 2.25rem);
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* Campos */
+.bd-adminform-field {
+  margin-bottom: 1.4rem;
+}
+
+.bd-adminform-field > label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--text-primary);
+  font-size: 0.86rem;
+  font-weight: 740;
+}
+
+.bd-adminform-required {
+  margin-left: 0.15rem;
+  color: var(--danger);
+}
+
+.bd-adminform-field input[type="text"],
+.bd-adminform-field input[type="number"],
+.bd-adminform-field input[type="email"],
+.bd-adminform-field input[type="url"],
+.bd-adminform-field input[type="datetime-local"],
+.bd-adminform-field textarea,
+.bd-adminform-field select {
+  width: 100%;
+  padding: 0.72rem 0.9rem;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.55;
+  outline: none;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+
+.bd-adminform-field textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.bd-adminform-field input::placeholder,
+.bd-adminform-field textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.bd-adminform-field input:focus,
+.bd-adminform-field textarea:focus,
+.bd-adminform-field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.bd-adminform-help {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+/* Erros */
+.bd-adminform-field.has-error input,
+.bd-adminform-field.has-error textarea,
+.bd-adminform-field.has-error select {
+  border-color: var(--danger);
+}
+
+.bd-adminform-field-error {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+  color: var(--danger);
+  font-size: 0.82rem;
+  font-weight: 640;
+}
+
+.bd-adminform-errors {
+  margin-bottom: 1.4rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--danger);
+  border-radius: 12px;
+  background: rgba(248, 113, 113, 0.08);
+  color: var(--danger);
+  font-size: 0.86rem;
+  font-weight: 620;
+}
+
+.bd-adminform-errors ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+/* Upload de imagem (dropzone) */
+.bd-adminform-dropzone {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 11rem;
+  padding: 1.4rem;
+  border: 2px dashed var(--border-card);
+  border-radius: 14px;
+  background: var(--bg-card-hover);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.22s ease, background 0.22s ease;
+}
+
+.bd-adminform-dropzone:hover,
+.bd-adminform-dropzone.dragover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.bd-adminform-dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.bd-adminform-dropzone > i {
+  font-size: 1.7rem;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.bd-adminform-dropzone-text strong {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: var(--text-primary);
+  font-weight: 720;
+}
+
+.bd-adminform-dropzone-text small {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.bd-adminform-dropzone-preview {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.bd-adminform-dropzone-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bd-adminform-dropzone-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(9, 15, 20, 0.66);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.bd-adminform-dropzone:hover .bd-adminform-dropzone-overlay {
+  opacity: 1;
+}
+
+/* Ações */
+.bd-adminform-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.bd-adminform-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.9rem;
+  padding: 0 1.4rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 780;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bd-adminform-btn:hover {
+  transform: translateY(-2px);
+}
+
+.bd-adminform-btn-primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.bd-adminform-btn-secondary {
+  border-color: var(--border-card);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.bd-adminform-btn-secondary:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+@media (max-width: 576px) {
+  .bd-adminform-page {
+    padding-top: 5.5rem;
+  }
+  .bd-adminform-actions .bd-adminform-btn {
+    width: 100%;
+  }
+}
+
+/* ===================================================================
+   MODO CLARO
+   Os tokens (--bg-card, --text-primary…) já são redefinidos em
+   base.html para [data-theme="light"], então a maior parte se adapta
+   sozinha. Abaixo só os ajustes que dependem de contraste próprio.
+   =================================================================== */
+
+[data-theme="light"] .bd-adminform {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 44px rgba(16, 35, 60, 0.06);
+}
+
+[data-theme="light"] .bd-adminform-header h1 {
+  color: #0b1830;
+}
+
+[data-theme="light"] .bd-adminform-header p,
+[data-theme="light"] .bd-adminform-back {
+  color: #5b6b82;
+}
+
+[data-theme="light"] .bd-adminform-field > label {
+  color: #0b1830;
+}
+
+[data-theme="light"] .bd-adminform-field input[type="text"],
+[data-theme="light"] .bd-adminform-field input[type="number"],
+[data-theme="light"] .bd-adminform-field input[type="email"],
+[data-theme="light"] .bd-adminform-field input[type="url"],
+[data-theme="light"] .bd-adminform-field input[type="datetime-local"],
+[data-theme="light"] .bd-adminform-field textarea,
+[data-theme="light"] .bd-adminform-field select {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.1);
+  color: #0b1830;
+}
+
+[data-theme="light"] .bd-adminform-field input::placeholder,
+[data-theme="light"] .bd-adminform-field textarea::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme="light"] .bd-adminform-field input:focus,
+[data-theme="light"] .bd-adminform-field textarea:focus,
+[data-theme="light"] .bd-adminform-field select:focus {
+  border-color: #047857;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+}
+
+[data-theme="light"] .bd-adminform-help {
+  color: #718198;
+}
+
+[data-theme="light"] .bd-adminform-dropzone {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #5b6b82;
+}
+
+[data-theme="light"] .bd-adminform-dropzone:hover,
+[data-theme="light"] .bd-adminform-dropzone.dragover {
+  border-color: rgba(4, 120, 87, 0.4);
+  background: rgba(4, 120, 87, 0.05);
+}
+
+[data-theme="light"] .bd-adminform-dropzone > i {
+  color: #047857;
+}
+
+[data-theme="light"] .bd-adminform-dropzone-text strong {
+  color: #0b1830;
+}
+
+[data-theme="light"] .bd-adminform-dropzone-text small {
+  color: #718198;
+}
+
+[data-theme="light"] .bd-adminform-btn-primary {
+  background: #047857;
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(4, 120, 87, 0.18);
+}
+
+[data-theme="light"] .bd-adminform-btn-primary:hover {
+  background: #065f46;
+}
+
+[data-theme="light"] .bd-adminform-btn-secondary {
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #334155;
+}
+
+[data-theme="light"] .bd-adminform-btn-secondary:hover {
+  border-color: rgba(4, 120, 87, 0.28);
+  background: rgba(4, 120, 87, 0.06);
+  color: #047857;
+}
+
+[data-theme="light"] .bd-adminform-errors {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+[data-theme="light"] .bd-adminform-field-error {
+  color: #b91c1c;
+}

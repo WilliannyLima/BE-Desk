@@ -2,8 +2,8 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
-from bedesk.models import Sala, Recurso, Profile
-from usuarios.forms_admin import SalaForm, RecursoForm, PermissionForm
+from bedesk.models import Sala, Profile
+from usuarios.forms_admin import SalaForm, PermissionForm
 from blog.models import Post
 from blog.forms import PostForm
 from django.contrib.auth import get_user_model
@@ -25,16 +25,15 @@ def superuser_required(view_func):
 @staff_required
 def admin_dashboard(request):
     salas = Sala.objects.all()
-    recursos = Recurso.objects.all()
     recent_posts = Post.objects.order_by('-created_at')[:6]
-    return render(request, 'usuarios/admin_dashboard.html', {'salas': salas, 'recursos': recursos, 'recent_posts': recent_posts})
+    return render(request, 'usuarios/admin_dashboard.html', {'salas': salas, 'recent_posts': recent_posts})
 
 
 @login_required
 @staff_required
 def criar_sala(request):
     if request.method == 'POST':
-        form = SalaForm(request.POST)
+        form = SalaForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Sala criada.')
@@ -42,20 +41,6 @@ def criar_sala(request):
     else:
         form = SalaForm()
     return render(request, 'usuarios/admin_edit.html', {'form': form, 'title': 'Criar Sala'})
-
-
-@login_required
-@staff_required
-def criar_recurso(request):
-    if request.method == 'POST':
-        form = RecursoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Recurso criado.')
-            return redirect('admin_dashboard')
-    else:
-        form = RecursoForm()
-    return render(request, 'usuarios/admin_edit.html', {'form': form, 'title': 'Criar Recurso'})
 
 
 @login_required

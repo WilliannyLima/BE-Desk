@@ -1,6 +1,6 @@
 from django.urls import path
 
-from core.views.dashboard import gerenciar_reservas, mudar_status_recurso, mudar_status_reserva
+from core.views.dashboard import gerenciar_reservas, mudar_status_reserva
 from core.views.public import inicio, reserva_sucesso
 
 urlpatterns = [
@@ -19,17 +19,4 @@ urlpatterns = [
         {"novo_status": "REJEITADO"},
         name="rejeitar_reserva",
     ),
-    path(
-        "gerenciar/recurso/aprovar/<int:reserva_id>/",
-        mudar_status_recurso,
-        {"novo_status": "APROVADO"},
-        name="aprovar_recurso",
-    ),
-    path(
-        "gerenciar/recurso/rejeitar/<int:reserva_id>/",
-        mudar_status_recurso,
-        {"novo_status": "REJEITADO"},
-        name="rejeitar_recurso",
-    ),
-    
 ]

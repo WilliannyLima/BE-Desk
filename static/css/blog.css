@@ -1500,3 +1500,117 @@
 .bd-blog-skip-link:focus {
   top: 0.5rem;
 }
+
+/* ===================================================================
+   MODO CLARO — formulários e páginas administrativas do blog
+   As variáveis (--blog-panel, --blog-line…) já são redefinidas em
+   base.html para [data-theme="light"] .bd-blog-page, mas os campos do
+   formulário usavam cores fixas do tema escuro (texto branco sobre
+   fundo branco). Abaixo ficam apenas esses ajustes de contraste.
+   =================================================================== */
+
+[data-theme="light"] .bd-blog-form-header h1,
+[data-theme="light"] .bd-blog-admin-header h1 {
+  color: #0f172a;
+}
+
+[data-theme="light"] .bd-blog-form-header p {
+  color: #64748b;
+}
+
+[data-theme="light"] .bd-blog-form {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 44px rgba(16, 35, 60, 0.06);
+}
+
+[data-theme="light"] .bd-blog-form::before {
+  background: radial-gradient(circle at 78% 0%, rgba(5, 150, 105, 0.06), transparent 18rem);
+}
+
+[data-theme="light"] .bd-blog-field label,
+[data-theme="light"] .bd-blog-toggle-label {
+  color: #0f172a;
+}
+
+[data-theme="light"] .bd-blog-field input[type="text"],
+[data-theme="light"] .bd-blog-field input[type="url"],
+[data-theme="light"] .bd-blog-field input[type="datetime-local"],
+[data-theme="light"] .bd-blog-field textarea,
+[data-theme="light"] .bd-blog-field select {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.1);
+  color: #0f172a;
+}
+
+[data-theme="light"] .bd-blog-field input::placeholder,
+[data-theme="light"] .bd-blog-field textarea::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme="light"] .bd-blog-field input:focus,
+[data-theme="light"] .bd-blog-field textarea:focus,
+[data-theme="light"] .bd-blog-field select:focus {
+  border-color: #047857;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+}
+
+[data-theme="light"] .bd-blog-field .bd-blog-help {
+  color: #718198;
+}
+
+[data-theme="light"] .bd-blog-field .bd-blog-field-error {
+  color: #b91c1c;
+}
+
+[data-theme="light"] .bd-blog-form-errors {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+[data-theme="light"] .bd-blog-dropzone {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #5b6b82;
+}
+
+[data-theme="light"] .bd-blog-dropzone:hover,
+[data-theme="light"] .bd-blog-dropzone.dragover {
+  border-color: rgba(4, 120, 87, 0.4);
+  background: rgba(4, 120, 87, 0.05);
+}
+
+[data-theme="light"] .bd-blog-dropzone i {
+  color: #047857;
+}
+
+[data-theme="light"] .bd-blog-dropzone-text strong {
+  color: #0f172a;
+}
+
+[data-theme="light"] .bd-blog-dropzone-text small {
+  color: #718198;
+}
+
+[data-theme="light"] .bd-blog-current-cover {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .bd-blog-current-cover span {
+  color: #5b6b82;
+}
+
+[data-theme="light"] .bd-blog-form-actions {
+  border-top-color: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .bd-blog-back {
+  color: #5b6b82;
+}
+
+[data-theme="light"] .bd-blog-back:hover {
+  color: #047857;
+}

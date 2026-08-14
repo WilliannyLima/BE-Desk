@@ -3,16 +3,16 @@
 
 {% block title %}Perfil - BE-Desk{% endblock %}
 
+{% block body_class %}profile-page-body{% endblock %}
+
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/login.css' %}">
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
 
 {% block content %}
 
-<main class="container mx-auto p-6">
+<div class="container">
   <section class="profile-page profile-page-user">
-  
 
     <div class="profile-shell">
       <div>
@@ -37,7 +37,7 @@
             <!-- ações removidas: página somente leitura -->
           </div>
 
-          <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:12px 0">
+          <hr class="profile-divider">
 
           <div class="info-grid">
             <div class="info-row"><div class="info-label">Nome</div><div class="info-value">{{ suap_data.nome|default:user.get_full_name }}</div></div>
@@ -48,32 +48,33 @@
             <div class="info-row"><div class="info-label">Vínculo</div><div class="info-value">{{ suap_data.tipo_vinculo|default:'—' }}</div></div>
           </div>
         </div>
-
-        <div class="profile-card" style="margin-top:1rem">
-          <h4 style="margin:0 0 10px 0;color:#cfe8ff;font-weight:800">Atividades Recentes</h4>
-          <div style="color:#9fb0cf">Nenhuma atividade registrada.</div>
-        </div>
       </div>
 
       <aside class="sidebar">
         <div class="profile-card">
-          <h4 style="margin:0 0 10px 0;color:#cfe8ff;font-weight:800">Estatísticas</h4>
+          <h4 class="profile-card-title">Estatísticas</h4>
           <div class="stats-grid">
             <div class="stat"><div class="num">0</div><div class="lbl">Reservas</div></div>
             <div class="stat"><div class="num">0h</div><div class="lbl">Horas</div></div>
-            <div class="stat"><div class="num">0</div><div class="lbl">Recursos</div></div>
           </div>
         </div>
 
         <div class="profile-card">
-          <h4 style="margin:0 0 10px 0;color:#cfe8ff;font-weight:800">Segurança</h4>
-          <div style="color:#9fb0cf">Autenticação: SUAP</div>
+          <h4 class="profile-card-title">Segurança</h4>
+          <div class="profile-card-empty"><span class="security-dot" aria-hidden="true"></span>Autenticação: SUAP</div>
         </div>
       </aside>
     </div>
+
+    <div class="profile-card profile-activities">
+      <h4 class="profile-card-title">Atividades Recentes</h4>
+      <div class="profile-card-empty profile-empty-state">
+        <i class="fa-regular fa-clock" aria-hidden="true"></i>
+        Nenhuma atividade registrada.
+      </div>
+    </div>
   </section>
-  
-</main>
+</div>
 
 {% endblock %}
 

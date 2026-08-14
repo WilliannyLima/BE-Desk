@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'core',
     'usuarios',
     'reservas',
-    'materiais',
     'notificacoes',
     'relatorios',
     'integracao_suap',

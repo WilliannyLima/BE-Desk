@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from bedesk.models import Sala, Recurso
+from bedesk.models import Sala
 
 User = get_user_model()
 
@@ -9,13 +9,11 @@ User = get_user_model()
 class SalaForm(forms.ModelForm):
     class Meta:
         model = Sala
-        fields = ['nome', 'capacidade']
-
-
-class RecursoForm(forms.ModelForm):
-    class Meta:
-        model = Recurso
-        fields = ['nome', 'descricao']
+        fields = ['nome', 'capacidade', 'foto']
+        widgets = {
+            'nome': forms.TextInput(attrs={'placeholder': 'Ex.: Ginásio, Sala 12, Quadra'}),
+            'capacidade': forms.NumberInput(attrs={'min': 1}),
+        }
 
 
 class PermissionForm(forms.Form):
