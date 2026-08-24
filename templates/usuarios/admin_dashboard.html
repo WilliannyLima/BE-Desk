@@ -5,6 +5,7 @@
 {% block main_container_class %}bd-admin-main flex-grow-1{% endblock %}
 
 {% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admin-form.css' %}?v=20260814">
 <style>
   :root {
     --admin-bg: #070d10;
@@ -413,10 +414,7 @@
     --admin-muted: #64748b;
     --admin-lime: #047857;
     --admin-lime-soft: #059669;
-    background:
-      radial-gradient(circle at 16% 4%, rgba(4, 120, 87, 0.09), transparent 28rem),
-      radial-gradient(circle at 85% 10%, rgba(37, 99, 235, 0.08), transparent 30rem),
-      linear-gradient(180deg, #f8fbfd 0%, #eef3f7 58%, #f8fbfd 100%) !important;
+    background: #f4f7fa !important;
     color: #102033 !important;
   }
 
@@ -428,11 +426,7 @@
       radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.13) 1px, transparent 0);
   }
 
-  [data-theme="light"] .bd-admin::after {
-    background:
-      radial-gradient(circle at 50% 0%, transparent 0, transparent 32rem, rgba(238, 243, 247, 0.18) 58rem),
-      linear-gradient(180deg, transparent 0%, rgba(248, 251, 253, 0.86) 100%) !important;
-  }
+  [data-theme="light"] .bd-admin::after { background: none !important; }
 
   [data-theme="light"] .bd-admin .custom-pill-navbar {
     background: rgba(255, 255, 255, 0.84) !important;
@@ -622,9 +616,19 @@
             <li>
               <div class="bd-admin-item-main">
                 <strong>{{ s.nome }}</strong>
-                <small>Capacidade do ambiente</small>
+                <small>{{ s.capacidade }} pessoa{{ s.capacidade|pluralize }} &middot; {{ s.total_reservas }} reserva{{ s.total_reservas|pluralize }}</small>
               </div>
-              <span class="bd-admin-tag">{{ s.capacidade }} pessoas</span>
+              <div class="bd-admin-item-actions">
+                <span class="bd-admin-tag">{{ s.capacidade }} pessoas</span>
+                <a class="bd-admin-icon-btn" href="{% url 'editar_sala' s.pk %}"
+                   title="Editar {{ s.nome }}" aria-label="Editar {{ s.nome }}">
+                  <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                </a>
+                <a class="bd-admin-icon-btn is-danger" href="{% url 'excluir_sala' s.pk %}"
+                   title="Excluir {{ s.nome }}" aria-label="Excluir {{ s.nome }}">
+                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                </a>
+              </div>
             </li>
           {% empty %}
             <li class="bd-admin-empty">

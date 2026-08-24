@@ -1,44 +1,134 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Gerenciar Permissões - Admin{% endblock %}
+{% block title %}Papéis e permissões - Admin{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admin-form.css' %}?v=20260814">
+<link rel="stylesheet" href="{% static 'css/reservas.css' %}?v=20260814">
+{% endblock %}
 
 {% block content %}
-<main class="container p-6">
-  <h1>Gerenciar Permissões</h1>
-  <form method="get" style="margin-bottom:1rem">
-    <input type="search" name="q" placeholder="Pesquisar por nome, usuário ou matrícula" value="{{ q }}" class="form-control">
-  </form>
+<section class="bd-adminform-page">
+  <div class="bd-adminform-shell bd-perm-shell">
 
-  <div style="margin-top:1rem">
-    <table class="table">
-      <thead><tr><th>Usuário</th><th>Nome</th><th>Matrícula</th><th>Staff</th><th>Superuser</th><th>Ações</th></tr></thead>
-      <tbody>
-        {% for u in users %}
-        <tr>
-          <td>{{ u.username }}</td>
-          <td>{{ u.get_full_name }}</td>
-          <td>{{ u.profile.matricula }}</td>
-          <td>{{ u.is_staff }}</td>
-          <td>{{ u.is_superuser }}</td>
-          <td>
-            <form method="post" style="display:inline">{% csrf_token %}
-              <input type="hidden" name="user_id" value="{{ u.id }}">
-              <input type="hidden" name="action" value="update">
-              <label><input type="checkbox" name="is_staff" {% if u.is_staff %}checked{% endif %}> Staff</label>
-              <label style="margin-left:0.5rem"><input type="checkbox" name="is_superuser" {% if u.is_superuser %}checked{% endif %}> Superuser</label>
-              <button class="btn btn-primary" type="submit">Atualizar</button>
-            </form>
-            <form method="post" style="display:inline;margin-left:0.5rem">{% csrf_token %}
-              <input type="hidden" name="user_id" value="{{ u.id }}">
-              <input type="hidden" name="action" value="remove">
-              <button class="btn btn-danger" type="submit">Remover Permissões</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <a href="{% url 'admin_dashboard' %}" class="bd-adminform-back">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Painel administrativo
+    </a>
+
+    <header class="bd-adminform-header">
+      <span class="bd-adminform-kicker">Segurança</span>
+      <h1>Papéis e permissões</h1>
+      <p>
+        Defina quem é professor, aluno bolsista ou aluno. Apenas professores
+        podem alterar papéis.
+      </p>
+    </header>
+
+    <!-- Resumo -->
+    <div class="bd-reservas-stats bd-perm-stats">
+      <div class="bd-reservas-stat">
+        <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
+        <span><strong>{{ total_professores }}</strong> professor{{ total_professores|pluralize:"es" }}</span>
+      </div>
+      <div class="bd-reservas-stat">
+        <i class="fa-solid fa-user-graduate" aria-hidden="true"></i>
+        <span><strong>{{ total_bolsistas }}</strong> bolsista{{ total_bolsistas|pluralize }}</span>
+      </div>
+      <div class="bd-reservas-stat">
+        <i class="fa-solid fa-users" aria-hidden="true"></i>
+        <span><strong>{{ total_alunos }}</strong> aluno{{ total_alunos|pluralize }}</span>
+      </div>
+    </div>
+
+    <!-- Busca -->
+    <form method="get" class="bd-perm-search" role="search">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <input type="search" name="q" value="{{ q }}"
+             placeholder="Buscar por nome, usuário, e-mail ou matrícula"
+             aria-label="Buscar usuários">
+      <button type="submit" class="bd-adminform-btn bd-adminform-btn-primary">Buscar</button>
+    </form>
+
+    <!-- Lista -->
+    {% if users %}
+    <div class="bd-reservas-card">
+      <table class="bd-reservas-table">
+        <thead>
+          <tr>
+            <th scope="col">Usuário</th>
+            <th scope="col">Matrícula</th>
+            <th scope="col">Papel atual</th>
+            <th scope="col" class="bd-reservas-acao">Alterar papel</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>
+              <span class="bd-reservas-th-mobile">Usuário</span>
+              <span>
+                <span class="bd-reservas-sala">{{ u.get_full_name|default:u.username }}</span>
+                <span class="bd-reservas-relativo">{{ u.email|default:u.username }}</span>
+              </span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Matrícula</span>
+              <span>{{ u.profile.matricula|default:"—" }}</span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Papel</span>
+              {% if u.is_superuser %}
+                <span class="bd-reservas-badge is-aprovado">Professor</span>
+              {% elif u.is_staff %}
+                <span class="bd-reservas-badge is-pendente">Aluno bolsista</span>
+              {% else %}
+                <span class="bd-reservas-badge is-concluida">Aluno</span>
+              {% endif %}
+            </td>
+            <td class="bd-reservas-acao">
+              <span class="bd-reservas-th-mobile">Alterar</span>
+              {% if u == request.user %}
+                <span class="bd-perm-self" title="Você não pode alterar seu próprio papel">
+                  <i class="fa-solid fa-lock" aria-hidden="true"></i> Você
+                </span>
+              {% else %}
+                <form method="post" class="bd-perm-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="user_id" value="{{ u.id }}">
+                  <select name="papel" aria-label="Papel de {{ u.get_full_name|default:u.username }}">
+                    <option value="ALUNO" {% if not u.is_staff and not u.is_superuser %}selected{% endif %}>Aluno</option>
+                    <option value="BOLSISTA" {% if u.is_staff and not u.is_superuser %}selected{% endif %}>Aluno bolsista</option>
+                    <option value="PROFESSOR" {% if u.is_superuser %}selected{% endif %}>Professor</option>
+                  </select>
+                  <button type="submit" class="bd-reservas-btn bd-perm-save">Salvar</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="bd-reservas-empty">
+      <i class="fa-solid fa-user-slash" aria-hidden="true"></i>
+      <strong>Nenhum usuário encontrado</strong>
+      <p>{% if q %}Nada corresponde a &ldquo;{{ q }}&rdquo;. Tente outro termo.{% else %}Ainda não há usuários cadastrados.{% endif %}</p>
+    </div>
+    {% endif %}
+
+    <!-- Legenda -->
+    <div class="bd-perm-legend">
+      <h2>O que cada papel pode fazer</h2>
+      <ul>
+        <li><strong>Professor</strong> — tudo, incluindo definir os papéis dos demais.</li>
+        <li><strong>Aluno bolsista</strong> — aprova e rejeita reservas, cadastra locais e publica no blog. Não altera papéis.</li>
+        <li><strong>Aluno</strong> — solicita reservas e acompanha as próprias.</li>
+      </ul>
+    </div>
+
   </div>
-</main>
+</section>
 {% endblock %}

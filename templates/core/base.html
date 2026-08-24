@@ -24,6 +24,7 @@
 
   <link rel="stylesheet" href="{% static 'css/bedesk-theme.css' %}">
   <link rel="stylesheet" href="{% static 'css/brand.css' %}">
+  <link rel="stylesheet" href="{% static 'css/modal.css' %}?v=20260814">
 
   <style>
     .bd-simple-footer {
@@ -214,23 +215,16 @@
 
     /* ── HOME ── */
     [data-theme="light"] .bd-home {
-      background:
-        radial-gradient(circle at 16% 5%, rgba(16, 185, 129, 0.07), transparent 28rem),
-        radial-gradient(circle at 86% 12%, rgba(14, 165, 233, 0.07), transparent 30rem),
-        #f0f4f8 !important;
+      background: #f4f7fa !important;
       color: #1e293b !important;
-      --home-bg: #f0f4f8;
+      --home-bg: #f4f7fa;
       --home-text: #1e293b;
       --home-muted: #64748b;
       --home-lime: #059669;
       --home-lime-soft: #10b981;
     }
     [data-theme="light"] .bd-home::before { opacity: 0.08 !important; }
-    [data-theme="light"] .bd-home::after {
-      background:
-        radial-gradient(circle at 50% 0%, transparent 0, transparent 32rem, rgba(240,244,248,0.2) 58rem),
-        linear-gradient(180deg, transparent, rgba(240,244,248,0.85)) !important;
-    }
+    [data-theme="light"] .bd-home::after { background: none !important; }
     [data-theme="light"] .bd-speed-lines { opacity: 0.12 !important; }
     [data-theme="light"] .bd-home-title { color: #0f172a !important; }
     [data-theme="light"] .bd-home-title span { color: #059669 !important; text-shadow: none !important; }
@@ -345,12 +339,9 @@
 
     /* ── BLOG ── */
     [data-theme="light"] .bd-blog-page {
-      background:
-        radial-gradient(circle at 14% 5%, rgba(5,150,105,0.07), transparent 28rem),
-        radial-gradient(circle at 86% 8%, rgba(14, 165, 233, 0.07), transparent 30rem),
-        #f0f4f8 !important;
+      background: #f4f7fa !important;
       color: #1e293b !important;
-      --blog-bg: #f0f4f8;
+      --blog-bg: #f4f7fa;
       --blog-panel: rgba(255,255,255,0.75);
       --blog-panel-strong: rgba(255,255,255,0.9);
       --blog-line: rgba(0,0,0,0.08);
@@ -360,10 +351,7 @@
       --blog-lime-soft: #10b981;
     }
     [data-theme="light"] .bd-blog-page::before { opacity: 0.06 !important; }
-    [data-theme="light"] .bd-blog-page::after {
-      background:
-        linear-gradient(180deg, transparent 0%, rgba(240,244,248,0.85) 100%) !important;
-    }
+    [data-theme="light"] .bd-blog-page::after { background: none !important; }
     /* Hero */
     [data-theme="light"] .bd-blog-hero h1,
     [data-theme="light"] .bd-blog-article-header h1 { color: #0f172a !important; }
@@ -443,7 +431,7 @@
     [data-theme="light"] .bd-blog-cover-placeholder span { color: #94a3b8 !important; }
     [data-theme="light"] {
       color-scheme: light;
-      --bg-base: #eef3f7;
+      --bg-base: #f4f7fa;
       --bg-surface: #f8fbfd;
       --bg-card: #ffffff;
       --bg-card-hover: #f1f6f8;
@@ -465,18 +453,16 @@
       --shadow-card: 0 14px 34px rgba(15, 23, 42, 0.08);
       --shadow-glow: 0 18px 44px rgba(4, 120, 87, 0.1);
       --shadow-heavy: 0 22px 50px rgba(15, 23, 42, 0.12);
-      --bd-bg: #eef3f7;
+      --bd-bg: #f4f7fa;
       --bd-surface: #ffffff;
       --bd-accent: #047857;
       --bd-accent-2: #059669;
       --bd-muted: #64748b;
       --bd-text: #102033;
     }
+    [data-theme="light"] html,
     [data-theme="light"] body {
-      background:
-        radial-gradient(circle at 12% 0%, rgba(4, 120, 87, 0.08), transparent 26rem),
-        radial-gradient(circle at 88% 3%, rgba(37, 99, 235, 0.07), transparent 28rem),
-        linear-gradient(180deg, #f7fafc 0%, #eef3f7 42%, #f8fbfd 100%) !important;
+      background: #f4f7fa !important;
       color: #102033 !important;
     }
     [data-theme="light"] ::selection {
@@ -1378,6 +1364,7 @@
         {% if user.is_staff %}
         <a href="{% url 'admin_dashboard' %}" class="pill-nav-item">Admin</a>
         <a href="{% url 'listar_pendentes' %}" class="pill-nav-item">Dashboard</a>
+        <a href="{% url 'aprovacoes' %}" class="pill-nav-item">Aprovações</a>
         {% endif %}
       </div>
 
@@ -1474,6 +1461,7 @@
         <hr class="border-secondary my-1">
         <a href="{% url 'admin_dashboard' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-chart-line me-3 text-secondary"></i>Admin</a>
         <a href="{% url 'listar_pendentes' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-clipboard-list me-3 text-secondary"></i>Dashboard</a>
+        <a href="{% url 'aprovacoes' %}" class="text-white text-decoration-none fs-5"><i class="fa-solid fa-list-check me-3 text-secondary"></i>Aprovações</a>
         {% endif %}
         {% if user.is_authenticated %}
         <hr class="border-secondary my-1">
@@ -1748,6 +1736,86 @@
         }
       });
     })();
+  </script>
+
+  <!-- Modal de confirmação: substitui o confirm() nativo do navegador,
+       que não respeita o visual do site. Qualquer formulário com
+       data-confirm="mensagem" passa por aqui. -->
+  <div class="bd-modal" id="bdModal" role="dialog" aria-modal="true"
+       aria-labelledby="bdModalTitle" aria-describedby="bdModalText" hidden>
+    <div class="bd-modal-backdrop" data-modal-close></div>
+    <div class="bd-modal-box">
+      <div class="bd-modal-icon" aria-hidden="true">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h2 class="bd-modal-title" id="bdModalTitle">Confirmar</h2>
+      <p class="bd-modal-text" id="bdModalText"></p>
+      <div class="bd-modal-actions">
+        <button type="button" class="bd-modal-btn bd-modal-btn-cancel" data-modal-close>Cancelar</button>
+        <button type="button" class="bd-modal-btn bd-modal-btn-confirm" id="bdModalOk">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    const modal = document.getElementById('bdModal');
+    if (!modal) return;
+
+    const titulo = document.getElementById('bdModalTitle');
+    const texto = document.getElementById('bdModalText');
+    const btnOk = document.getElementById('bdModalOk');
+
+    let formPendente = null;
+    let focoAnterior = null;
+
+    function abrir(form) {
+      formPendente = form;
+      focoAnterior = document.activeElement;
+
+      titulo.textContent = form.dataset.confirmTitle || 'Confirmar ação';
+      texto.textContent = form.dataset.confirm || 'Deseja continuar?';
+      btnOk.textContent = form.dataset.confirmOk || 'Confirmar';
+
+      modal.hidden = false;
+      modal.classList.add('is-open');
+      btnOk.focus();
+    }
+
+    function fechar() {
+      modal.classList.remove('is-open');
+      modal.hidden = true;
+      formPendente = null;
+      if (focoAnterior) focoAnterior.focus();
+    }
+
+    // Intercepta o envio, não o clique: pega Enter no teclado também.
+    document.addEventListener('submit', function (e) {
+      const form = e.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      if (!form.dataset.confirm || form.dataset.confirmed === '1') return;
+      e.preventDefault();
+      abrir(form);
+    });
+
+    btnOk.addEventListener('click', function () {
+      if (!formPendente) return;
+      const form = formPendente;
+      form.dataset.confirmed = '1';
+      fechar();
+      // requestSubmit preserva o botão de envio e a validação nativa.
+      if (form.requestSubmit) form.requestSubmit();
+      else form.submit();
+    });
+
+    modal.addEventListener('click', function (e) {
+      if (e.target.hasAttribute('data-modal-close')) fechar();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) fechar();
+    });
+  })();
   </script>
 
   {% block extra_scripts %}{% endblock %}
