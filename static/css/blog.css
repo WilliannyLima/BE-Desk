@@ -1614,3 +1614,31 @@
 [data-theme="light"] .bd-blog-back:hover {
   color: #047857;
 }
+
+/* Botão de busca — modo claro.
+   O gradiente usa --blog-lime-dark (#6ea208, oliva) e #537a07 fixo; o
+   tema claro só redefine --blog-lime, então o botão continuava oliva,
+   fora da paleta institucional. Ícone quase-preto sobre verde também
+   tinha contraste ruim. */
+[data-theme="light"] .bd-blog-search button {
+  background: linear-gradient(135deg, #047857, #059669);
+  box-shadow: 0 8px 20px rgba(4, 120, 87, 0.24);
+}
+
+[data-theme="light"] .bd-blog-search button:hover {
+  background: linear-gradient(135deg, #065f46, #047857);
+  box-shadow: 0 10px 24px rgba(4, 120, 87, 0.3);
+}
+
+[data-theme="light"] .bd-blog-search button i {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .bd-blog-search button:focus-visible {
+  outline-color: rgba(4, 120, 87, 0.35);
+}
+
+[data-theme="light"] .blog-search button {
+  background: linear-gradient(135deg, #047857, #059669);
+  color: #ffffff;
+}
