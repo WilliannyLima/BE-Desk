@@ -1,0 +1,159 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Aprovações - BE-Desk{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/reservas.css' %}?v=20260814">
+{% endblock %}
+
+{% block content %}
+<div class="container bd-reservas-page">
+
+  <div class="bd-reservas-hero">
+    <div class="bd-reservas-kicker">
+      <i class="fa-solid fa-list-check" aria-hidden="true"></i> Operacional
+    </div>
+    <h1>Fila de <span>aprovações</span></h1>
+    <p>Analise as solicitações de reserva do Bloco E e decida aprovar ou rejeitar.</p>
+  </div>
+
+  <div class="bd-reservas-stats">
+    <div class="bd-reservas-stat">
+      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+      <span><strong>{{ total_pendentes }}</strong> aguardando decisão</span>
+    </div>
+    <a class="bd-reservas-stat" href="{% url 'listar_pendentes' %}">
+      <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+      <span>Ver dashboard</span>
+    </a>
+  </div>
+
+  <!-- Pendentes -->
+  <section class="bd-reservas-section" aria-labelledby="bd-pendentes">
+    <div class="bd-reservas-section-head">
+      <h2 id="bd-pendentes">Aguardando decisão</h2>
+      {% if total_pendentes %}
+      <span class="bd-reservas-count">{{ total_pendentes }} pendente{{ total_pendentes|pluralize }}</span>
+      {% endif %}
+    </div>
+
+    {% if pendentes %}
+    <div class="bd-reservas-card">
+      <table class="bd-reservas-table">
+        <thead>
+          <tr>
+            <th scope="col">Solicitante</th>
+            <th scope="col">Local</th>
+            <th scope="col">Início</th>
+            <th scope="col">Título</th>
+            <th scope="col" class="bd-reservas-acao">Decisão</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reserva in pendentes %}
+          <tr data-reserva="{{ reserva.id }}">
+            <td>
+              <span class="bd-reservas-th-mobile">Solicitante</span>
+              <span class="bd-reservas-sala">{{ reserva.usuario.get_full_name|default:reserva.usuario.username }}</span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Local</span>
+              <span>{{ reserva.sala.nome }}</span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Início</span>
+              <span>
+                <span class="bd-reservas-data">{{ reserva.data_inicio|date:"d/m/Y H:i" }}</span>
+                <span class="bd-reservas-relativo">em {{ reserva.data_inicio|timeuntil }}</span>
+              </span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Título</span>
+              <span>
+                {{ reserva.nome }}
+                {% if reserva.motivo %}<span class="bd-reservas-motivo" title="{{ reserva.motivo }}">{{ reserva.motivo }}</span>{% endif %}
+              </span>
+            </td>
+            <td class="bd-reservas-acao">
+              <span class="bd-reservas-th-mobile">Decisão</span>
+              <span class="bd-aprov-actions">
+                <form method="post" action="{% url 'aprovar_reserva' reserva.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="bd-reservas-btn bd-aprov-ok">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> Aprovar
+                  </button>
+                </form>
+                <form method="post" action="{% url 'rejeitar_reserva' reserva.id %}"
+                      onsubmit="return confirm('Rejeitar a reserva de {{ reserva.sala.nome|escapejs }}?');">
+                  {% csrf_token %}
+                  <button type="submit" class="bd-reservas-btn">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i> Rejeitar
+                  </button>
+                </form>
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="bd-reservas-empty">
+      <i class="fa-solid fa-mug-hot" aria-hidden="true"></i>
+      <strong>Tudo em dia</strong>
+      <p>Nenhuma solicitação aguardando decisão no momento.</p>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- Decididas recentemente -->
+  {% if decididas %}
+  <section class="bd-reservas-section" aria-labelledby="bd-decididas">
+    <div class="bd-reservas-section-head">
+      <h2 id="bd-decididas">Decididas recentemente</h2>
+    </div>
+
+    <div class="bd-reservas-card">
+      <table class="bd-reservas-table">
+        <thead>
+          <tr>
+            <th scope="col">Solicitante</th>
+            <th scope="col">Local</th>
+            <th scope="col">Início</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reserva in decididas %}
+          <tr>
+            <td>
+              <span class="bd-reservas-th-mobile">Solicitante</span>
+              <span class="bd-reservas-sala">{{ reserva.usuario.get_full_name|default:reserva.usuario.username }}</span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Local</span>
+              <span>{{ reserva.sala.nome }}</span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Início</span>
+              <span class="bd-reservas-data">{{ reserva.data_inicio|date:"d/m/Y H:i" }}</span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Status</span>
+              {% if reserva.status == 'APROVADO' %}
+                <span class="bd-reservas-badge is-aprovado">Aprovada</span>
+              {% else %}
+                <span class="bd-reservas-badge is-rejeitado">Rejeitada</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}
