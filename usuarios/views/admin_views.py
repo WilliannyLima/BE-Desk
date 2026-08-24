@@ -87,35 +87,40 @@ def gerenciar_permissoes(request):
     q = request.GET.get('q', '').strip()
 
     # Handle POST actions: update or remove permissions for a user
+    # Papel -> flags do Django. Professor também recebe is_staff para
+    # continuar acessando o painel operacional.
+    FLAGS_POR_PAPEL = {
+        Profile.PROFESSOR: {'is_staff': True, 'is_superuser': True},
+        Profile.BOLSISTA: {'is_staff': True, 'is_superuser': False},
+        Profile.ALUNO: {'is_staff': False, 'is_superuser': False},
+    }
+
     if request.method == 'POST':
-        action = request.POST.get('action')
         uid = request.POST.get('user_id')
-        if not uid:
-            messages.error(request, 'Usuário inválido.')
+        papel = request.POST.get('papel')
+
+        if not uid or papel not in FLAGS_POR_PAPEL:
+            messages.error(request, 'Usuário ou papel inválido.')
             return redirect('gerenciar_permissoes')
+
         user = get_object_or_404(User, pk=uid)
-        if action == 'update':
-            is_staff = True if request.POST.get('is_staff') == 'on' else False
-            is_super = True if request.POST.get('is_superuser') == 'on' else False
-            # prevent removing own superuser flag accidentally
-            if user == request.user and not is_super:
-                messages.error(request, 'Você não pode remover seu próprio acesso de superusuário.')
-                return redirect('gerenciar_permissoes')
-            user.is_staff = is_staff
-            user.is_superuser = is_super
-            user.save()
-            messages.success(request, f'Permissões atualizadas para {user.username}.')
+
+        # Um professor não pode rebaixar a si mesmo: evita o sistema
+        # ficar sem ninguém capaz de gerenciar papéis.
+        if user == request.user and papel != Profile.PROFESSOR:
+            messages.error(request, 'Você não pode alterar seu próprio papel de professor.')
             return redirect(f"{request.path}?q={q}")
-        elif action == 'remove':
-            # Clear permissions
-            if user == request.user:
-                messages.error(request, 'Você não pode remover suas próprias permissões aqui.')
-                return redirect('gerenciar_permissoes')
-            user.is_staff = False
-            user.is_superuser = False
-            user.save()
-            messages.success(request, f'Permissões removidas de {user.username}.')
-            return redirect(f"{request.path}?q={q}")
+
+        for flag, valor in FLAGS_POR_PAPEL[papel].items():
+            setattr(user, flag, valor)
+        user.save()
+
+        nome = user.get_full_name() or user.username
+        messages.success(
+            request,
+            f'{nome} agora é {Profile.PAPEL_LABELS[papel].lower()}.',
+        )
+        return redirect(f"{request.path}?q={q}")
 
     users = User.objects.all().select_related('profile')
     if q:
@@ -124,7 +129,13 @@ def gerenciar_permissoes(request):
         )
     users = users.order_by('username')[:200]
 
-    return render(request, 'usuarios/admin_permissions.html', {'users': users, 'q': q})
+    return render(request, 'usuarios/admin_permissions.html', {
+        'users': users,
+        'q': q,
+        'total_professores': User.objects.filter(is_superuser=True).count(),
+        'total_bolsistas': User.objects.filter(is_staff=True, is_superuser=False).count(),
+        'total_alunos': User.objects.filter(is_staff=False, is_superuser=False).count(),
+    })
 
 
 @login_required

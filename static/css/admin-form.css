@@ -558,3 +558,167 @@
   background: #fef2f2;
   color: #b91c1c;
 }
+
+/* ── Papéis e permissões ── */
+.bd-perm-shell {
+  width: min(calc(100% - 2rem), 1080px);
+}
+
+.bd-perm-stats {
+  margin: 0 0 1.5rem;
+  justify-content: flex-start;
+}
+
+.bd-perm-search {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  padding: 0.4rem 0.4rem 0.4rem 0.9rem;
+  border: 1px solid var(--border-card);
+  border-radius: 14px;
+  background: var(--bg-card);
+}
+
+.bd-perm-search > i {
+  color: var(--accent);
+}
+
+.bd-perm-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 560;
+}
+
+.bd-perm-search input::placeholder {
+  color: var(--text-muted);
+}
+
+.bd-perm-search .bd-adminform-btn {
+  min-height: 2.4rem;
+  padding: 0 1.1rem;
+  font-size: 0.84rem;
+}
+
+.bd-perm-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.bd-perm-form select {
+  min-height: 2.3rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 640;
+  outline: none;
+}
+
+.bd-perm-form select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.bd-reservas-btn.bd-perm-save:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.bd-perm-self {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.bd-perm-legend {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--border-card);
+  border-radius: 18px;
+  background: var(--bg-card);
+}
+
+.bd-perm-legend h2 {
+  margin: 0 0 0.7rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 820;
+}
+
+.bd-perm-legend ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+.bd-perm-legend strong {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .bd-perm-search,
+[data-theme="light"] .bd-perm-legend {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .bd-perm-search > i {
+  color: #047857;
+}
+
+[data-theme="light"] .bd-perm-search input,
+[data-theme="light"] .bd-perm-legend h2,
+[data-theme="light"] .bd-perm-legend strong {
+  color: #0b1830;
+}
+
+[data-theme="light"] .bd-perm-legend ul {
+  color: #5b6b82;
+}
+
+[data-theme="light"] .bd-perm-form select {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.1);
+  color: #0b1830;
+}
+
+[data-theme="light"] .bd-perm-form select:focus {
+  border-color: #047857;
+  box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+}
+
+[data-theme="light"] .bd-reservas-btn.bd-perm-save:hover {
+  border-color: rgba(4, 120, 87, 0.28);
+  background: rgba(4, 120, 87, 0.06);
+  color: #047857;
+}
+
+[data-theme="light"] .bd-perm-self {
+  color: #94a3b8;
+}
+
+@media (max-width: 576px) {
+  .bd-perm-search {
+    flex-wrap: wrap;
+  }
+  .bd-perm-form {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
