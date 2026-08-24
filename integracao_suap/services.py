@@ -164,8 +164,15 @@ def pegar_dados_aluno(access_token, timeout=8):
     # Mapeamento preferencial para o endpoint v2 /meus-dados/
     nome = dados.get('nome_usual') or dados.get('nome') or dados.get('nome_registro') or dados.get('nome_completo')
     matricula = dados.get('matricula') or dados.get('identificacao') or dados.get('siape') or dados.get('siape_matricula')
-    # v2 costuma usar 'email' ou 'email_academico'
-    email = dados.get('email') or dados.get('email_academico') or dados.get('email_pessoal') or dados.get('email_secundario')
+
+    # O SUAP expõe dois e-mails distintos: o institucional (acadêmico) e o
+    # pessoal/secundário. Antes eram colapsados num campo só, escondendo um
+    # deles conforme a ordem do fallback.
+    email_institucional = dados.get('email') or dados.get('email_academico')
+    email_pessoal = dados.get('email_secundario') or dados.get('email_pessoal')
+    email = email_institucional or email_pessoal
+
+    data_nascimento = dados.get('data_nascimento') or dados.get('nascimento')
 
     # fotos no v2 estão em campos específicos (ex: url_foto_150x200)
     foto = None
@@ -177,33 +184,45 @@ def pegar_dados_aluno(access_token, timeout=8):
     if not foto:
         foto = dados.get('foto') or dados.get('url_foto')
 
-    # tentar extrair curso/campus/vinculo a partir de vinculos
-    curso = None
-    campus = None
-    tipo_vinculo = None
     if isinstance(vinculos, dict):
         # alguns endpoints retornam {'results': [...]}
         items = vinculos.get('results', vinculos if isinstance(vinculos, list) else [])
     else:
         items = vinculos if isinstance(vinculos, list) else []
 
-    if items:
-        # pega o primeiro vínculo como resumo
+    # Curso/campus/situação vêm do vínculo ATIVO, que o v2 devolve embutido
+    # em /meus-dados/ sob a chave 'vinculo'. Usar o primeiro item de
+    # /meus-vinculos/ era errado: aquela lista traz todos os vínculos do
+    # usuário (projetos, programas de extensão, matrículas antigas), então o
+    # curso exibido acabava sendo o de um programa qualquer.
+    vinculo_ativo = dados.get('vinculo') if isinstance(dados.get('vinculo'), dict) else {}
+
+    curso = vinculo_ativo.get('curso') or vinculo_ativo.get('nome_curso')
+    campus = vinculo_ativo.get('campus') or vinculo_ativo.get('nome_campus')
+    situacao = vinculo_ativo.get('situacao')
+    tipo_vinculo = dados.get('tipo_vinculo') or vinculo_ativo.get('tipo')
+
+    # Fallback para /meus-vinculos/ apenas se o vínculo ativo não trouxer.
+    if (not curso or not campus or not tipo_vinculo) and items:
         v = items[0] if isinstance(items, list) else items
-        # v2 frequentemente embute detalhes em 'detalhamento'
-        detalhamento = v.get('detalhamento') if isinstance(v, dict) else None
-        detalhe = detalhamento if isinstance(detalhamento, dict) else None
-        curso = (detalhe.get('curso') if detalhe else None) or v.get('curso') or v.get('nome_curso')
-        campus = v.get('campus') or v.get('nome_campus') or (detalhe.get('campus') if detalhe else None)
-        tipo_vinculo = v.get('tipo') or v.get('tipo_vinculo') or v.get('vinculo')
+        if isinstance(v, dict):
+            detalhamento = v.get('detalhamento')
+            detalhe = detalhamento if isinstance(detalhamento, dict) else {}
+            curso = curso or detalhe.get('curso') or v.get('curso') or v.get('nome_curso')
+            campus = campus or v.get('campus') or v.get('nome_campus') or detalhe.get('campus')
+            tipo_vinculo = tipo_vinculo or v.get('tipo') or v.get('tipo_vinculo') or v.get('vinculo')
 
     usuario = {
         'nome': nome,
         'matricula': matricula,
         'email': email,
+        'email_institucional': email_institucional,
+        'email_pessoal': email_pessoal,
+        'data_nascimento': data_nascimento,
         'foto': foto,
         'curso': curso,
         'campus': campus,
+        'situacao': situacao,
         'vinculos': items,
         'tipo_vinculo': tipo_vinculo,
         'raw': {'dados': dados, 'vinculos': vinculos}
