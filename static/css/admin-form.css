@@ -425,3 +425,136 @@
 [data-theme="light"] .bd-adminform-field-error {
   color: #b91c1c;
 }
+
+/* ── Confirmação de exclusão ── */
+.bd-adminform-danger {
+  text-align: center;
+}
+
+.bd-adminform-danger-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--danger);
+  font-size: 1.3rem;
+}
+
+.bd-adminform-danger h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.6rem;
+  font-weight: 860;
+}
+
+.bd-adminform-danger p {
+  margin: 0.6rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.bd-adminform-danger-target {
+  display: inline-block;
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.bd-adminform-danger .bd-adminform-actions {
+  justify-content: center;
+}
+
+.bd-adminform-btn-danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.bd-adminform-btn-danger:hover {
+  filter: brightness(0.94);
+}
+
+/* Ações na lista de locais do painel */
+.bd-admin-item-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.bd-admin-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.bd-admin-icon-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-border);
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.bd-admin-icon-btn.is-danger:hover {
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--danger);
+}
+
+[data-theme="light"] .bd-adminform-danger h1,
+[data-theme="light"] .bd-adminform-danger-target {
+  color: #0b1830;
+}
+
+[data-theme="light"] .bd-adminform-danger p {
+  color: #5b6b82;
+}
+
+[data-theme="light"] .bd-adminform-danger-icon {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+[data-theme="light"] .bd-adminform-danger-target {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .bd-adminform-btn-danger {
+  background: #b91c1c;
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(185, 28, 28, 0.18);
+}
+
+[data-theme="light"] .bd-admin-icon-btn {
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #475569;
+}
+
+[data-theme="light"] .bd-admin-icon-btn:hover {
+  border-color: rgba(4, 120, 87, 0.28);
+  background: rgba(4, 120, 87, 0.06);
+  color: #047857;
+}
+
+[data-theme="light"] .bd-admin-icon-btn.is-danger:hover {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #b91c1c;
+}

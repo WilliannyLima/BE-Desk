@@ -2,12 +2,12 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
-from bedesk.models import Sala, Profile
+from bedesk.models import Sala, Profile, Agendamento
 from usuarios.forms_admin import SalaForm, PermissionForm
 from blog.models import Post
 from blog.forms import PostForm
 from django.contrib.auth import get_user_model
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 
 User = get_user_model()
@@ -24,7 +24,7 @@ def superuser_required(view_func):
 @login_required
 @staff_required
 def admin_dashboard(request):
-    salas = Sala.objects.all()
+    salas = Sala.objects.annotate(total_reservas=Count('agendamento')).order_by('nome')
     recent_posts = Post.objects.order_by('-created_at')[:6]
     return render(request, 'usuarios/admin_dashboard.html', {'salas': salas, 'recent_posts': recent_posts})
 
@@ -41,6 +41,44 @@ def criar_sala(request):
     else:
         form = SalaForm()
     return render(request, 'usuarios/admin_edit.html', {'form': form, 'title': 'Criar Sala'})
+
+
+@login_required
+@staff_required
+def editar_sala(request, pk):
+    sala = get_object_or_404(Sala, pk=pk)
+    if request.method == 'POST':
+        form = SalaForm(request.POST, request.FILES, instance=sala)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Sala "{sala.nome}" atualizada.')
+            return redirect('admin_dashboard')
+    else:
+        form = SalaForm(instance=sala)
+    return render(request, 'usuarios/admin_edit.html', {
+        'form': form,
+        'title': f'Editar {sala.nome}',
+    })
+
+
+@login_required
+@staff_required
+def excluir_sala(request, pk):
+    sala = get_object_or_404(Sala, pk=pk)
+    # Agendamento.sala usa on_delete=CASCADE: excluir a sala apaga junto
+    # todas as reservas ligadas a ela, incluindo o histórico dos usuários.
+    total_reservas = Agendamento.objects.filter(sala=sala).count()
+
+    if request.method == 'POST':
+        nome = sala.nome
+        sala.delete()
+        messages.success(request, f'Sala "{nome}" excluída.')
+        return redirect('admin_dashboard')
+
+    return render(request, 'usuarios/admin_delete.html', {
+        'sala': sala,
+        'total_reservas': total_reservas,
+    })
 
 
 @login_required

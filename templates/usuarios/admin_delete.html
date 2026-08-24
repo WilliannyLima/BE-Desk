@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Excluir {{ sala.nome }} - Admin{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admin-form.css' %}?v=20260814">
+{% endblock %}
+
+{% block content %}
+<section class="bd-adminform-page">
+  <div class="bd-adminform-shell">
+
+    <a href="{% url 'admin_dashboard' %}" class="bd-adminform-back">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Painel administrativo
+    </a>
+
+    <div class="bd-adminform bd-adminform-danger" role="alertdialog"
+         aria-labelledby="bd-delete-title" aria-describedby="bd-delete-desc">
+      <div class="bd-adminform-danger-icon" aria-hidden="true">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+
+      <h1 id="bd-delete-title">Excluir local</h1>
+      <p id="bd-delete-desc">
+        Esta ação é permanente e não pode ser desfeita.
+      </p>
+
+      <div class="bd-adminform-danger-target">{{ sala.nome }}</div>
+
+      {% if total_reservas %}
+      <div class="bd-adminform-errors" role="alert">
+        <strong>Atenção:</strong> este local possui
+        {{ total_reservas }} reserva{{ total_reservas|pluralize }} vinculada{{ total_reservas|pluralize }}.
+        Excluir o local apaga junto essas reservas, incluindo o histórico dos usuários.
+      </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="bd-adminform-actions">
+          <button type="submit" class="bd-adminform-btn bd-adminform-btn-danger">
+            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+            Excluir permanentemente
+          </button>
+          <a href="{% url 'admin_dashboard' %}" class="bd-adminform-btn bd-adminform-btn-secondary">
+            Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
