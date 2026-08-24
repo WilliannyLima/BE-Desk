@@ -1,89 +1,198 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Minhas Reservas{% endblock %}
+{% block title %}Minhas Reservas - BE-Desk{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/reservas.css' %}?v=20260814">
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4 reservas-page">
+<div class="container bd-reservas-page reservas-page">
 
-    <h2 class="mb-4">Minhas Próximas Reservas</h2>
+  <!-- Hero -->
+  <div class="bd-reservas-hero">
+    <div class="bd-reservas-kicker">
+      <i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Minhas reservas
+    </div>
+    <h1>Acompanhe suas <span>reservas</span></h1>
+    <p>Veja o que está agendado, cancele o que não vai usar e consulte o histórico do Bloco E.</p>
+  </div>
+
+  <!-- Resumo -->
+  <div class="bd-reservas-stats">
+    <div class="bd-reservas-stat">
+      <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+      <span><strong>{{ kpi_proximas }}</strong> próximas</span>
+    </div>
+    <div class="bd-reservas-stat">
+      <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+      <span><strong>{{ kpi_aprovadas }}</strong> aprovadas</span>
+    </div>
+    <div class="bd-reservas-stat">
+      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+      <span><strong>{{ kpi_pendentes }}</strong> pendentes</span>
+    </div>
+  </div>
+
+  <!-- Próximas reservas -->
+  <section class="bd-reservas-section" aria-labelledby="bd-reservas-proximas">
+    <div class="bd-reservas-section-head">
+      <h2 id="bd-reservas-proximas">Próximas reservas</h2>
+      {% if reservas_ativas %}
+      <a href="{% url 'agendar_sala' %}" class="bd-reservas-btn">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> Nova reserva
+      </a>
+      {% endif %}
+    </div>
 
     {% if reservas_ativas %}
-    <div class="table-responsive shadow-sm rounded">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Sala</th>
-                    <th>Início</th>
-                    <th>Título</th> <th>Status</th>
-                    <th class="text-center">Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for reserva in reservas_ativas %}
-                <tr>
-                    <td>{{ reserva.sala.nome }}</td>
-                    <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
-                    <td>{{ reserva.nome }}</td> <td>
-                        {% if reserva.status == 'APROVADO' %}
-                            <span class="badge bg-success">{{ reserva.status }}</span>
-                        {% else %}
-                            <span class="badge bg-warning text-dark">{{ reserva.status }}</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">
-                        <a href="{% url 'cancelar_reserva_usuario' reserva.id %}" class="btn btn-warning btn-sm">
-                            Cancelar
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="bd-reservas-card">
+      <table class="bd-reservas-table">
+        <thead>
+          <tr>
+            <th scope="col">Local</th>
+            <th scope="col">Início</th>
+            <th scope="col">Título</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="bd-reservas-acao">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reserva in reservas_ativas %}
+          <tr>
+            <td>
+              <span class="bd-reservas-th-mobile">Local</span>
+              <span class="bd-reservas-sala">{{ reserva.sala.nome }}</span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Início</span>
+              <span>
+                <span class="bd-reservas-data">{{ reserva.data_inicio|date:"d/m/Y H:i" }}</span>
+                <span class="bd-reservas-relativo">em {{ reserva.data_inicio|timeuntil }}</span>
+              </span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Título</span>
+              <span>
+                {{ reserva.nome }}
+                {% if reserva.motivo %}<span class="bd-reservas-motivo" title="{{ reserva.motivo }}">{{ reserva.motivo }}</span>{% endif %}
+              </span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Status</span>
+              {% if reserva.status == 'APROVADO' %}
+                <span class="bd-reservas-badge is-aprovado">Aprovada</span>
+              {% else %}
+                <span class="bd-reservas-badge is-pendente">Pendente</span>
+              {% endif %}
+            </td>
+            <td class="bd-reservas-acao">
+              <span class="bd-reservas-th-mobile">Ação</span>
+              <form method="post" action="{% url 'cancelar_reserva_usuario' reserva.id %}"
+                    onsubmit="return confirm('Cancelar a reserva de {{ reserva.sala.nome|escapejs }} em {{ reserva.data_inicio|date:"d/m/Y H:i" }}? Esta ação não pode ser desfeita.');">
+                {% csrf_token %}
+                <button type="submit" class="bd-reservas-btn">
+                  <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancelar
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
     {% else %}
-    <div class="alert alert-info" role="alert">
-        Você não possui reservas pendentes ou aprovadas para o futuro.
+    <div class="bd-reservas-empty">
+      <i class="fa-regular fa-calendar-plus" aria-hidden="true"></i>
+      <strong>Nenhuma reserva agendada</strong>
+      <p>Você não possui reservas pendentes ou aprovadas para o futuro. Escolha um local e reserve em poucos cliques.</p>
+      <a href="{% url 'agendar_sala' %}" class="bd-reservas-btn bd-reservas-btn-primary">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> Fazer uma reserva
+      </a>
     </div>
     {% endif %}
+  </section>
 
-    <hr class="my-5">
-
-    <h2 class="mb-4">Meu Histórico</h2>
+  <!-- Histórico -->
+  <section class="bd-reservas-section" aria-labelledby="bd-reservas-historico">
+    <div class="bd-reservas-section-head">
+      <h2 id="bd-reservas-historico">Histórico</h2>
+      {% if reservas_historico.paginator.count %}
+      <span class="bd-reservas-count">{{ reservas_historico.paginator.count }} registro{{ reservas_historico.paginator.count|pluralize }}</span>
+      {% endif %}
+    </div>
 
     {% if reservas_historico %}
-    <div class="table-responsive shadow-sm rounded">
-        <table class="table table-hover align-middle">
-            <thead class="table-secondary">
-                <tr>
-                    <th>Sala</th>
-                    <th>Data</th>
-                    <th>Título</th> <th>Status</th>
-                    <th class="text-center">Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for reserva in reservas_historico %}
-                <tr class="{% if reserva.status == 'REJEITADO' %}text-muted{% endif %}">
-                    <td>{{ reserva.sala.nome }}</td>
-                    <td>{{ reserva.data_inicio|date:"d/m/Y H:i" }}</td>
-                    <td>{{ reserva.nome }}</td> <td>
-                        {% if reserva.status == 'APROVADO' %}
-                            <span class="badge bg-secondary">{{ reserva.status }} (Passada)</span>
-                        {% else %}
-                            <span class="badge bg-danger">{{ reserva.status }}</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">-</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="bd-reservas-card">
+      <table class="bd-reservas-table">
+        <thead>
+          <tr>
+            <th scope="col">Local</th>
+            <th scope="col">Início</th>
+            <th scope="col">Título</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reserva in reservas_historico %}
+          <tr>
+            <td>
+              <span class="bd-reservas-th-mobile">Local</span>
+              <span class="bd-reservas-sala">{{ reserva.sala.nome }}</span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Início</span>
+              <span>
+                <span class="bd-reservas-data">{{ reserva.data_inicio|date:"d/m/Y H:i" }}</span>
+                <span class="bd-reservas-relativo">há {{ reserva.data_inicio|timesince }}</span>
+              </span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Título</span>
+              <span>
+                {{ reserva.nome }}
+                {% if reserva.motivo %}<span class="bd-reservas-motivo" title="{{ reserva.motivo }}">{{ reserva.motivo }}</span>{% endif %}
+              </span>
+            </td>
+            <td>
+              <span class="bd-reservas-th-mobile">Status</span>
+              {% if reserva.status == 'APROVADO' %}
+                <span class="bd-reservas-badge is-concluida">Concluída</span>
+              {% else %}
+                <span class="bd-reservas-badge is-rejeitado">Cancelada</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+
+    {% if reservas_historico.has_other_pages %}
+    <nav class="bd-reservas-pagination" aria-label="Paginação do histórico">
+      {% if reservas_historico.has_previous %}
+      <a href="?page={{ reservas_historico.previous_page_number }}">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Anterior
+      </a>
+      {% endif %}
+      <span>Página {{ reservas_historico.number }} de {{ reservas_historico.paginator.num_pages }}</span>
+      {% if reservas_historico.has_next %}
+      <a href="?page={{ reservas_historico.next_page_number }}">
+        Próxima <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </a>
+      {% endif %}
+    </nav>
+    {% endif %}
+
     {% else %}
-    <div class="alert alert-light" role="alert">
-        Seu histórico de reservas está vazio.
+    <div class="bd-reservas-empty">
+      <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+      <strong>Histórico vazio</strong>
+      <p>Suas reservas passadas e canceladas aparecerão aqui.</p>
     </div>
     {% endif %}
+  </section>
 
 </div>
 {% endblock %}
