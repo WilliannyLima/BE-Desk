@@ -54,8 +54,32 @@ from django.dispatch import receiver
 
 # 1. O Modelo do Perfil
 class Profile(models.Model):
+    # Papéis do sistema. Derivados das flags do Django para evitar duas
+    # fontes de verdade: professor = superuser, bolsista = staff.
+    PROFESSOR = 'PROFESSOR'
+    BOLSISTA = 'BOLSISTA'
+    ALUNO = 'ALUNO'
+
+    PAPEL_LABELS = {
+        PROFESSOR: 'Professor',
+        BOLSISTA: 'Aluno bolsista',
+        ALUNO: 'Aluno',
+    }
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     matricula = models.CharField(max_length=50, blank=True, verbose_name="Matrícula")
+
+    @property
+    def papel(self):
+        if self.user.is_superuser:
+            return self.PROFESSOR
+        if self.user.is_staff:
+            return self.BOLSISTA
+        return self.ALUNO
+
+    @property
+    def papel_label(self):
+        return self.PAPEL_LABELS[self.papel]
 
     def __str__(self):
         return f'{self.user.username} Profile'

@@ -14,8 +14,17 @@
 
 html,body{
   font-family: var(--bd-font-family);
-  background: linear-gradient(180deg, var(--bd-bg) 0%, #07121a 100%);
+  background: var(--bd-bg);
   color: var(--bd-text);
+}
+
+/* O gradiente era aplicado em html E body; o tema claro sobrescrevia
+   apenas o body, então o html seguia escuro e vazava como um degradê
+   cinza atrás do conteúdo. Fundo liso nos dois temas. */
+[data-theme="light"] html,
+[data-theme="light"] body{
+  background: #f4f7fa;
+  color: #102033;
 }
 
 a{ color: var(--bd-accent); }

@@ -2,7 +2,9 @@ from datetime import date, datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from bedesk.models import Agendamento, Sala
 from notificacoes.services.notificar import (
@@ -53,14 +55,20 @@ def lista_reservas(request):
         .order_by("-data_inicio", "horario")
     )
 
+    historico_page = Paginator(reservas_historico, 10).get_page(request.GET.get("page"))
+
     context = {
         "reservas_ativas": reservas_ativas,
-        "reservas_historico": reservas_historico,
+        "reservas_historico": historico_page,
+        "kpi_proximas": reservas_ativas.count(),
+        "kpi_aprovadas": reservas_ativas.filter(status="APROVADO").count(),
+        "kpi_pendentes": reservas_ativas.filter(status="PENDENTE").count(),
     }
     return render(request, "reservas/lista_reservas.html", context)
 
 
 @login_required
+@require_POST
 def cancelar_reserva_usuario(request, agendamento_id):
     reserva = get_object_or_404(Agendamento, pk=agendamento_id, usuario=request.user)
 

@@ -49,10 +49,12 @@ def user_profile(request):
                 # preferir valores simples e expor raw.dados para acesso detalhado
                 suap_data['nome'] = suap_data.get('nome') or (suap_data.get('raw',{}).get('dados',{}).get('nome_usual'))
                 suap_data['matricula'] = suap_data.get('matricula') or (suap_data.get('raw',{}).get('dados',{}).get('matricula'))
-                suap_data['email'] = suap_data.get('email') or (suap_data.get('raw',{}).get('dados',{}).get('email'))
+                raw_d = suap_data.get('raw', {}).get('dados', {})
+                suap_data['email'] = suap_data.get('email') or raw_d.get('email')
+                suap_data['email_academico'] = suap_data.get('email_academico') or raw_d.get('email')
+                suap_data['email_escolar'] = suap_data.get('email_escolar') or raw_d.get('email_secundario')
                 # preferir foto 150x200 se disponível em raw
                 if not suap_data.get('foto'):
-                    raw_d = suap_data.get('raw',{}).get('dados',{})
                     suap_data['foto'] = raw_d.get('url_foto_150x200') or raw_d.get('url_foto_75x100')
         except Exception:
             suap_data = None

@@ -1,523 +1,270 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - BE-Desk{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=20260814">
+{% endblock %}
+
 {% block content %}
+<div class="container bd-dash-page">
 
-<style>
-/* Dashboard specific styles */
-.dashboard-container {
-    background-color: #0b0f19;
-    color: #e5e7eb;
-    padding: 20px 0;
-    border-radius: 12px;
-}
-.kpi-card {
-    background-color: #1e222d;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    height: 100%;
-}
-.kpi-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-    border-color: rgba(212, 175, 55, 0.4); /* Gold border on hover */
-}
-.kpi-icon {
-    font-size: 2rem;
-    color: #ef4444; /* Red brand color */
-    background: rgba(239, 68, 68, 0.1);
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 14px;
-}
-.kpi-icon.gold { color: #d4af37; background: rgba(212, 175, 55, 0.1); }
-.kpi-icon.blue { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
-.kpi-icon.green { color: #10b981; background: rgba(16, 185, 129, 0.1); }
-.kpi-icon.purple { color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
-
-.kpi-details {
-    margin-top: 20px;
-}
-.kpi-details h3 {
-    margin: 0;
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #fff;
-    line-height: 1.2;
-}
-.kpi-details span {
-    color: #9ca3af;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-}
-.chart-card {
-    background-color: #1e222d;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    height: calc(100% - 24px);
-    transition: border-color 0.3s ease;
-}
-.chart-card:hover {
-    border-color: rgba(255,255,255,0.1);
-}
-.chart-card h5 {
-    color: #f3f4f6;
-    margin-bottom: 24px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.trend-up { color: #10b981; font-size: 0.85rem; font-weight: 600; background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 20px; }
-.trend-down { color: #ef4444; font-size: 0.85rem; font-weight: 600; background: rgba(239, 68, 68, 0.1); padding: 4px 10px; border-radius: 20px; }
-
-/* Dashboard Header */
-.dash-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-.dash-header h2 {
-    margin: 0;
-    font-weight: 800;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-size: 1.8rem;
-}
-.filter-select {
-    background-color: #11141A;
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 10px 20px;
-    outline: none;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.filter-select:hover {
-    border-color: rgba(255,255,255,0.3);
-}
-
-/* Operational Tables overrides for Dark Theme */
-.table-dark {
-    --bs-table-bg: transparent;
-    --bs-table-color: #9ca3af;
-    --bs-table-border-color: rgba(255,255,255,0.05);
-}
-.table-dark th {
-    color: #fff;
-    font-weight: 600;
-    border-bottom: 2px solid rgba(255,255,255,0.1);
-}
-.table-dark td {
-    vertical-align: middle;
-}
-.action-btn { border-radius: 8px; padding: 6px 12px; font-weight: 600; font-size: 0.8rem; transition: transform 0.2s; }
-.action-btn:hover { transform: translateY(-2px); }
-
-/* --- Light mode --- */
-[data-theme="light"] .dashboard-container { color: #334155; }
-[data-theme="light"] .kpi-details h3 { color: #102033; }
-[data-theme="light"] .chart-card h5 { color: #102033; }
-[data-theme="light"] .dash-header h2 { color: #102033; }
-[data-theme="light"] .filter-select {
-    background-color: #ffffff;
-    color: #102033;
-    border-color: rgba(15,23,42,0.14);
-}
-[data-theme="light"] .filter-select:hover {
-    border-color: rgba(15,23,42,0.28);
-}
-[data-theme="light"] .table-dark {
-    --bs-table-color: #475569;
-}
-</style>
-
-<section class="profile-page dashboard-page">
-  <div class="profile-banner"></div>
-  <div class="container dashboard-container card-surface">
-    <!-- Header -->
-    <div class="dashboard-hero">
-        <div>
-            <div class="title"><i class="fa-solid fa-chart-pie" style="color: var(--bd-accent);"></i> Dashboard Estatístico</div>
-            <div style="color:var(--bd-muted); margin-top:6px">Visão geral de reservas e pendências.</div>
-        </div>
-        <div class="dashboard-actions">
-            <span id="current-time" class="text-secondary fw-semibold d-none d-md-block"></span>
-            <select class="filter-select">
-                <option value="mes">Este Mês</option>
-                <option value="3meses">Últimos 3 Meses</option>
-                <option value="ano">Este Ano</option>
-            </select>
-            <a class="btn btn-primary" href="{% url 'criar_sala' %}">Criar Sala</a>
-        </div>
+  <!-- Cabeçalho -->
+  <div class="bd-dash-head">
+    <div>
+      <div class="bd-dash-kicker">
+        <i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Estatísticas
+      </div>
+      <h1>Dashboard</h1>
+      <p>Visão geral das reservas do Bloco E &middot; {{ periodo_label|lower }}.</p>
     </div>
 
-    <!-- KPIs -->
-    <div class="dashboard-kpis">
-        <div class="kpi-card">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                <div class="kpi-value">{{ kpi_total_reservas }}</div>
-                <div class="kpi-icon gold"><i class="fa-solid fa-calendar-check"></i></div>
-            </div>
-            <div style="margin-top:10px"><div class="kpi-label">Total de Reservas</div></div>
-        </div>
-        <div class="kpi-card">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                <div class="kpi-value">{{ kpi_locais_ativos }}</div>
-                <div class="kpi-icon blue"><i class="fa-solid fa-door-open"></i></div>
-            </div>
-            <div style="margin-top:10px"><div class="kpi-label">Locais Ativos</div></div>
-        </div>
-        <div class="kpi-card">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                <div class="kpi-value">{{ kpi_taxa_ocupacao }}%</div>
-                <div class="kpi-icon green"><i class="fa-solid fa-percent"></i></div>
-            </div>
-            <div style="margin-top:10px"><div class="kpi-label">Taxa de Ocupação</div></div>
-        </div>
-        <div class="kpi-card" style="border-color: rgba(239, 68, 68, 0.3);">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                <div class="kpi-value">{{ kpi_pendencias }}</div>
-                <div class="kpi-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-            </div>
-            <div style="margin-top:10px"><div class="kpi-label">Pendências</div></div>
-        </div>
-    </div>
+    <div class="bd-dash-head-actions">
+      <form method="get" class="bd-dash-filter">
+        <label for="periodo">Período</label>
+        <select name="periodo" id="periodo" onchange="this.form.submit()">
+          {% for valor, rotulo in periodos %}
+          <option value="{{ valor }}" {% if valor == periodo %}selected{% endif %}>{{ rotulo }}</option>
+          {% endfor %}
+        </select>
+        <noscript><button type="submit" class="bd-dash-btn">Aplicar</button></noscript>
+      </form>
 
-    <!-- Charts Row 1 -->
-    <div class="row mb-2 g-4">
-        <div class="col-12">
-            <div class="chart-card card-surface">
-                <h5><i class="fa-solid fa-location-dot text-warning"></i> Locais Mais Utilizados</h5>
-                <div style="height: 280px; position: relative; display: flex; justify-content: center;">
-                    <canvas id="locationsChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Row 2 -->
-    <div class="row mb-2 g-4">
-        <div class="col-12">
-            <div class="chart-card card-surface">
-                <h5><i class="fa-solid fa-chart-line text-primary"></i> Reservas por Mês (Últimos 6 meses)</h5>
-                <div style="height: 300px; position: relative;">
-                    <canvas id="reservationsChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Row 3 -->
-    <div class="row mb-5 g-4">
-        <div class="col-lg-7">
-            <div class="chart-card card-surface">
-                <h5><i class="fa-solid fa-calendar-week text-success"></i> Ocupação por Dia da Semana</h5>
-                <div style="height: 280px; position: relative;">
-                    <canvas id="weekdayChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-5">
-            <div class="chart-card">
-                <h5><i class="fa-solid fa-clipboard-list text-info"></i> Status das Reservas</h5>
-                <div style="height: 280px; position: relative; display: flex; justify-content: center;">
-                    <canvas id="statusChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- OPERACIONAL - MESCLANDO FUNCIONALIDADE ANTIGA -->
-    <!-- ============================================== -->
-    <hr style="border-color: rgba(255,255,255,0.1); margin: 50px 0;">
-    
-    <div class="dash-header mb-4">
-        <h2><i class="fa-solid fa-list-check" style="color: #d4af37;"></i> Gerenciamento Operacional</h2>
-    </div>
-
-    <div class="row g-4">
-        <!-- Salas Pendentes -->
-        <div class="col-12">
-            <div class="chart-card h-auto card-surface">
-                <h5>Reservas de Salas Pendentes</h5>
-                {% if salas_pendentes %}
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Usuário</th>
-                                    <th>Sala</th>
-                                    <th>Data</th>
-                                    <th class="text-end">Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for ag in salas_pendentes %}
-                                <tr>
-                                    <td class="text-white">{{ ag.usuario }}</td>
-                                    <td>{{ ag.sala.nome }}</td>
-                                    <td>{{ ag.data_inicio|date:"d/m/Y H:i" }}</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-success action-btn js-status me-1" data-url="{% url 'aprovar_reserva' ag.id %}">
-                                            <i class="fa-solid fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-danger action-btn js-status" data-url="{% url 'rejeitar_reserva' ag.id %}">
-                                            <i class="fa-solid fa-xmark"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center p-4 text-secondary">
-                        <i class="fa-solid fa-mug-hot fs-1 mb-3"></i>
-                        <p class="mb-0">Tudo limpo! Nenhuma reserva pendente.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+      <a href="{% url 'aprovacoes' %}" class="bd-dash-btn bd-dash-btn-primary">
+        <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+        Aprovações
+        {% if kpi_pendencias %}<span class="bd-dash-btn-badge">{{ kpi_pendencias }}</span>{% endif %}
+      </a>
     </div>
   </div>
-</section>
 
-<!-- Add Chart.js -->
+  <!-- KPIs -->
+  <div class="bd-dash-kpis">
+    <div class="bd-dash-kpi">
+      <div class="bd-dash-kpi-top">
+        <span class="bd-dash-kpi-value">{{ kpi_total_reservas }}</span>
+        <span class="bd-dash-kpi-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>
+      </div>
+      <span class="bd-dash-kpi-label">Reservas no período</span>
+    </div>
+
+    <div class="bd-dash-kpi">
+      <div class="bd-dash-kpi-top">
+        <span class="bd-dash-kpi-value">{{ kpi_taxa_aprovacao }}%</span>
+        <span class="bd-dash-kpi-icon is-green"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i></span>
+      </div>
+      <span class="bd-dash-kpi-label">Taxa de aprovação</span>
+      <span class="bd-dash-kpi-hint">sobre as já decididas</span>
+    </div>
+
+    <a class="bd-dash-kpi {% if kpi_pendencias %}is-alert{% endif %}" href="{% url 'aprovacoes' %}">
+      <div class="bd-dash-kpi-top">
+        <span class="bd-dash-kpi-value">{{ kpi_pendencias }}</span>
+        <span class="bd-dash-kpi-icon is-amber"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+      </div>
+      <span class="bd-dash-kpi-label">Aguardando decisão</span>
+      <span class="bd-dash-kpi-hint">total do sistema</span>
+    </a>
+
+    <div class="bd-dash-kpi">
+      <div class="bd-dash-kpi-top">
+        <span class="bd-dash-kpi-value">{{ kpi_locais_ativos }}</span>
+        <span class="bd-dash-kpi-icon is-blue"><i class="fa-solid fa-door-open" aria-hidden="true"></i></span>
+      </div>
+      <span class="bd-dash-kpi-label">Locais cadastrados</span>
+    </div>
+
+    <div class="bd-dash-kpi">
+      <div class="bd-dash-kpi-top">
+        <span class="bd-dash-kpi-value is-text">{{ kpi_local_top }}</span>
+        <span class="bd-dash-kpi-icon is-blue"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
+      </div>
+      <span class="bd-dash-kpi-label">Local mais reservado</span>
+    </div>
+
+    <div class="bd-dash-kpi">
+      <div class="bd-dash-kpi-top">
+        <span class="bd-dash-kpi-value">{{ kpi_horario_pico }}</span>
+        <span class="bd-dash-kpi-icon is-purple"><i class="fa-regular fa-clock" aria-hidden="true"></i></span>
+      </div>
+      <span class="bd-dash-kpi-label">Horário de pico</span>
+    </div>
+  </div>
+
+  {% if tem_dados %}
+  <!-- Gráficos -->
+  <div class="bd-dash-grid">
+    <div class="bd-dash-card is-wide">
+      <h2><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Reservas por mês</h2>
+      <p class="bd-dash-card-hint">Últimos 6 meses, independente do filtro acima.</p>
+      <div class="bd-dash-chart"><canvas id="chartMeses"></canvas></div>
+    </div>
+
+    <div class="bd-dash-card">
+      <h2><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Locais mais utilizados</h2>
+      <div class="bd-dash-chart"><canvas id="chartLocais"></canvas></div>
+    </div>
+
+    <div class="bd-dash-card">
+      <h2><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Situação das reservas</h2>
+      <div class="bd-dash-chart"><canvas id="chartStatus"></canvas></div>
+    </div>
+
+    <div class="bd-dash-card">
+      <h2><i class="fa-solid fa-calendar-week" aria-hidden="true"></i> Por dia da semana</h2>
+      <div class="bd-dash-chart"><canvas id="chartDias"></canvas></div>
+    </div>
+
+    <div class="bd-dash-card">
+      <h2><i class="fa-regular fa-clock" aria-hidden="true"></i> Por horário</h2>
+      <p class="bd-dash-card-hint">Faixa de funcionamento, 07h às 18h.</p>
+      <div class="bd-dash-chart"><canvas id="chartHoras"></canvas></div>
+    </div>
+  </div>
+  {% else %}
+  <div class="bd-dash-empty">
+    <i class="fa-solid fa-chart-simple" aria-hidden="true"></i>
+    <strong>Sem dados no período</strong>
+    <p>Nenhuma reserva encontrada em {{ periodo_label|lower }}. Escolha outro período para ver os gráficos.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if tem_dados %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    // Real-time clock for header
-    function updateTime() {
-        const now = new Date();
-        const formatted = now.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-        const el = document.getElementById('current-time');
-        if(el) el.innerText = formatted.charAt(0).toUpperCase() + formatted.slice(1);
-    }
-    updateTime();
-    setInterval(updateTime, 60000);
+(function () {
+  // Os gráficos precisam acompanhar o tema: antes as cores dos eixos
+  // eram fixas do modo escuro e ficavam ilegíveis no modo claro.
+  const claro = document.documentElement.getAttribute('data-theme') === 'light';
 
-    // Global Chart Configuration for Dark Theme
-    Chart.defaults.color = '#9ca3af';
-    Chart.defaults.font.family = "'Inter', 'Segoe UI', Roboto, sans-serif";
-    
-    // Brand Colors
-    const colorRed = '#ef4444';
-    const colorGold = '#d4af37';
-    const colorDarkRed = '#991b1b';
-    const colorLightGold = '#fde047';
-    const colorGray = '#4b5563';
-    const colorGreen = '#10b981';
-    const colorBlue = '#3b82f6';
-    
-    const tooltipStyle = {
-        backgroundColor: 'rgba(17, 20, 26, 0.9)',
-        titleColor: '#fff',
-        bodyColor: '#ccc',
-        borderColor: 'rgba(255,255,255,0.1)',
-        borderWidth: 1,
-        padding: 12,
-        boxPadding: 4,
-        cornerRadius: 8,
-        displayColors: true,
-    };
+  const cor = {
+    texto:   claro ? '#5b6b82' : '#9ca3af',
+    grade:   claro ? 'rgba(15,23,42,0.07)' : 'rgba(255,255,255,0.05)',
+    verde:   claro ? '#047857' : '#b5e853',
+    verde2:  claro ? '#10b981' : '#8bbf35',
+    azul:    claro ? '#2563eb' : '#3b82f6',
+    ambar:   claro ? '#b45309' : '#fbbf24',
+    vermelho:claro ? '#b91c1c' : '#f87171',
+    roxo:    claro ? '#7c3aed' : '#a78bfa',
+  };
 
-    // Dynamic data from Django
-    const locaisLabels = {{ locais_labels|safe }};
-    const locaisData = {{ locais_data|safe }};
-    
-    const statusLabels = {{ status_labels|safe }};
-    const statusData = {{ status_data|safe }};
-    
-    const mesesLabels = {{ meses_labels|safe }};
-    const mesesData = {{ meses_data|safe }};
-    
-    const diaLabels = {{ dia_labels|safe }};
-    const diaData = {{ dia_data|safe }};
+  Chart.defaults.color = cor.texto;
+  Chart.defaults.font.family = "'Inter', 'Segoe UI', Roboto, sans-serif";
 
-    // --- 1. Locations Chart (Doughnut) ---
-    const ctxLocations = document.getElementById('locationsChart').getContext('2d');
-    new Chart(ctxLocations, {
-        type: 'doughnut',
-        data: {
-            labels: locaisLabels,
-            datasets: [{
-                data: locaisData,
-                backgroundColor: [colorRed, colorGold, colorGreen, colorBlue],
-                borderWidth: 0,
-                hoverOffset: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: { padding: 10 },
-            plugins: {
-                legend: { position: 'right', labels: { color: '#e5e7eb', font: { size: 12 }, padding: 20 } },
-                tooltip: tooltipStyle
-            },
-            cutout: '75%',
-        }
-    });
+  const tooltip = {
+    backgroundColor: claro ? 'rgba(11,24,48,0.92)' : 'rgba(17,20,26,0.92)',
+    titleColor: '#fff',
+    bodyColor: claro ? '#e2e8f0' : '#ccc',
+    borderColor: claro ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    padding: 12,
+    cornerRadius: 8,
+  };
 
-    // --- 3. Reservations Line Chart (Last 6 Months) ---
-    const ctxRes = document.getElementById('reservationsChart').getContext('2d');
-    
-    // Create gradient for the line chart fill
-    const gradientFill = ctxRes.createLinearGradient(0, 0, 0, 300);
-    gradientFill.addColorStop(0, 'rgba(212, 175, 55, 0.4)');
-    gradientFill.addColorStop(1, 'rgba(212, 175, 55, 0.0)');
+  const eixos = {
+    y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: cor.grade, drawBorder: false } },
+    x: { grid: { display: false, drawBorder: false } },
+  };
 
-    new Chart(ctxRes, {
-        type: 'line',
-        data: {
-            labels: mesesLabels,
-            datasets: [{
-                label: ' Total de Reservas',
-                data: mesesData,
-                borderColor: colorGold,
-                backgroundColor: gradientFill,
-                borderWidth: 4,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#1e222d',
-                pointBorderColor: colorGold,
-                pointBorderWidth: 3,
-                pointRadius: 6,
-                pointHoverRadius: 8,
-                pointHoverBackgroundColor: colorGold
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: tooltipStyle
-            },
-            scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false } },
-                x: { grid: { display: false, drawBorder: false } }
-            }
-        }
-    });
+  const base = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip } };
 
-    // --- 4. Weekday Occupation ---
-    const ctxWeek = document.getElementById('weekdayChart').getContext('2d');
-    new Chart(ctxWeek, {
-        type: 'bar',
-        data: {
-            labels: diaLabels,
-            datasets: [{
-                label: ' Reservas',
-                data: diaData,
-                backgroundColor: colorBlue,
-                borderRadius: 6,
-                barThickness: 'flex',
-                maxBarThickness: 40
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: tooltipStyle
-            },
-            scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false } },
-                x: { grid: { display: false, drawBorder: false } }
-            }
-        }
-    });
+  // Linha — reservas por mês
+  const ctxMeses = document.getElementById('chartMeses').getContext('2d');
+  const fill = ctxMeses.createLinearGradient(0, 0, 0, 300);
+  fill.addColorStop(0, claro ? 'rgba(4,120,87,0.22)' : 'rgba(181,232,83,0.32)');
+  fill.addColorStop(1, claro ? 'rgba(4,120,87,0)' : 'rgba(181,232,83,0)');
 
-    // --- 5. Status Doughnut ---
-    const ctxStatus = document.getElementById('statusChart').getContext('2d');
-    new Chart(ctxStatus, {
-        type: 'doughnut',
-        data: {
-            labels: statusLabels,
-            datasets: [{
-                data: statusData,
-                backgroundColor: [colorGreen, colorGold, colorRed],
-                borderWidth: 0,
-                hoverOffset: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: { padding: 10 },
-            plugins: {
-                legend: { position: 'bottom', labels: { color: '#e5e7eb', padding: 20 } },
-                tooltip: tooltipStyle
-            },
-            cutout: '70%',
-        }
-    });
+  new Chart(ctxMeses, {
+    type: 'line',
+    data: {
+      labels: {{ meses_labels|safe }},
+      datasets: [{
+        label: ' Reservas',
+        data: {{ meses_data|safe }},
+        borderColor: cor.verde,
+        backgroundColor: fill,
+        borderWidth: 3,
+        fill: true,
+        tension: 0.35,
+        pointBackgroundColor: claro ? '#fff' : '#1e222d',
+        pointBorderColor: cor.verde,
+        pointBorderWidth: 3,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }],
+    },
+    options: { ...base, scales: eixos },
+  });
 
-    // --- Operational Functionality JS ---
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return '';
-    }
+  // Barra horizontal — locais
+  new Chart(document.getElementById('chartLocais'), {
+    type: 'bar',
+    data: {
+      labels: {{ locais_labels|safe }},
+      datasets: [{
+        label: ' Reservas',
+        data: {{ locais_data|safe }},
+        backgroundColor: [cor.verde, cor.azul, cor.roxo, cor.ambar, cor.verde2],
+        borderRadius: 6,
+      }],
+    },
+    options: {
+      ...base,
+      indexAxis: 'y',
+      scales: {
+        x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: cor.grade, drawBorder: false } },
+        y: { grid: { display: false, drawBorder: false } },
+      },
+    },
+  });
 
-    async function handleStatusClick(event) {
-        const btn = event.target.closest('.js-status');
-        if (!btn) return;
+  // Rosca — situação
+  new Chart(document.getElementById('chartStatus'), {
+    type: 'doughnut',
+    data: {
+      labels: {{ status_labels|safe }},
+      datasets: [{
+        data: {{ status_data|safe }},
+        backgroundColor: [cor.verde, cor.ambar, cor.vermelho],
+        borderWidth: 0,
+        hoverOffset: 8,
+      }],
+    },
+    options: {
+      ...base,
+      cutout: '68%',
+      plugins: {
+        tooltip,
+        legend: { display: true, position: 'bottom', labels: { color: cor.texto, padding: 16, boxWidth: 12 } },
+      },
+    },
+  });
 
-        const url = btn.getAttribute('data-url');
-        const csrftoken = getCookie('csrftoken');
+  // Barra — dia da semana
+  new Chart(document.getElementById('chartDias'), {
+    type: 'bar',
+    data: {
+      labels: {{ dia_labels|safe }},
+      datasets: [{ label: ' Reservas', data: {{ dia_data|safe }}, backgroundColor: cor.azul, borderRadius: 6, maxBarThickness: 38 }],
+    },
+    options: { ...base, scales: eixos },
+  });
 
-        btn.disabled = true;
-
-        try {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            });
-
-            if (!res.ok) throw new Error('Falha ao atualizar status');
-
-            const row = btn.closest('tr');
-            if (row) {
-                // Smooth remove animation
-                row.style.transition = 'opacity 0.3s ease';
-                row.style.opacity = '0';
-                setTimeout(() => row.remove(), 300);
-            }
-        } catch (err) {
-            btn.disabled = false;
-            alert('Não foi possível atualizar o status. Tente novamente.');
-        }
-    }
-
-    document.addEventListener('click', handleStatusClick);
+  // Barra — horário
+  new Chart(document.getElementById('chartHoras'), {
+    type: 'bar',
+    data: {
+      labels: {{ hora_labels|safe }},
+      datasets: [{ label: ' Reservas', data: {{ hora_data|safe }}, backgroundColor: cor.roxo, borderRadius: 5, maxBarThickness: 26 }],
+    },
+    options: { ...base, scales: eixos },
+  });
+})();
 </script>
-
+{% endif %}
 {% endblock %}
