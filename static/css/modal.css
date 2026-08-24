@@ -1,0 +1,187 @@
+/* ===================================================================
+   BE-DESK — MODAL DE CONFIRMAÇÃO
+   Substitui o confirm() nativo do navegador, que ignora o visual do
+   site. Usado por qualquer <form data-confirm="mensagem">.
+   =================================================================== */
+
+.bd-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.bd-modal.is-open {
+  display: flex;
+}
+
+.bd-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 13, 16, 0.62);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: bdModalFade 0.18s ease both;
+}
+
+.bd-modal-box {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 26rem);
+  padding: 1.75rem;
+  border: 1px solid var(--border-card);
+  border-radius: 22px;
+  background: var(--bg-card);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.42);
+  text-align: center;
+  animation: bdModalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bd-modal-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3.1rem;
+  height: 3.1rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--danger);
+  font-size: 1.2rem;
+}
+
+.bd-modal-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 840;
+  letter-spacing: -0.01em;
+}
+
+.bd-modal-text {
+  margin: 0.55rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.bd-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.bd-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0 1.3rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 780;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.bd-modal-btn:hover {
+  transform: translateY(-1px);
+}
+
+.bd-modal-btn-cancel {
+  border-color: var(--border-card);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.bd-modal-btn-cancel:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.bd-modal-btn-confirm {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.bd-modal-btn-confirm:hover {
+  filter: brightness(0.94);
+}
+
+.bd-modal-btn:focus-visible {
+  outline: 3px solid var(--accent-glow);
+  outline-offset: 2px;
+}
+
+@keyframes bdModalFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bdModalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-modal-backdrop,
+  .bd-modal-box {
+    animation: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .bd-modal-actions .bd-modal-btn {
+    width: 100%;
+  }
+}
+
+/* ── Modo claro ── */
+[data-theme="light"] .bd-modal-backdrop {
+  background: rgba(11, 24, 48, 0.42);
+}
+
+[data-theme="light"] .bd-modal-box {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 30px 80px rgba(16, 35, 60, 0.22);
+}
+
+[data-theme="light"] .bd-modal-title {
+  color: #0b1830;
+}
+
+[data-theme="light"] .bd-modal-text {
+  color: #5b6b82;
+}
+
+[data-theme="light"] .bd-modal-icon {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+[data-theme="light"] .bd-modal-btn-cancel {
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #475569;
+}
+
+[data-theme="light"] .bd-modal-btn-cancel:hover {
+  border-color: rgba(15, 23, 42, 0.24);
+  color: #0b1830;
+}
+
+[data-theme="light"] .bd-modal-btn-confirm {
+  background: #b91c1c;
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(185, 28, 28, 0.18);
+}

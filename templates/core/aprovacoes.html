@@ -65,7 +65,14 @@
               <span class="bd-reservas-th-mobile">Início</span>
               <span>
                 <span class="bd-reservas-data">{{ reserva.data_inicio|date:"d/m/Y H:i" }}</span>
-                <span class="bd-reservas-relativo">em {{ reserva.data_inicio|timeuntil }}</span>
+                {% if reserva.data_inicio >= agora %}
+                  <span class="bd-reservas-relativo">em {{ reserva.data_inicio|timeuntil }}</span>
+                {% else %}
+                  <span class="bd-reservas-relativo is-late">
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                    venceu há {{ reserva.data_inicio|timesince }}
+                  </span>
+                {% endif %}
               </span>
             </td>
             <td>
@@ -85,7 +92,9 @@
                   </button>
                 </form>
                 <form method="post" action="{% url 'rejeitar_reserva' reserva.id %}"
-                      onsubmit="return confirm('Rejeitar a reserva de {{ reserva.sala.nome|escapejs }}?');">
+                      data-confirm-title="Rejeitar solicitação"
+                      data-confirm="Rejeitar a reserva de {{ reserva.sala.nome }} em {{ reserva.data_inicio|date:'d/m/Y H:i' }}, solicitada por {{ reserva.usuario.get_full_name|default:reserva.usuario.username }}? O solicitante será notificado."
+                      data-confirm-ok="Rejeitar">
                   {% csrf_token %}
                   <button type="submit" class="bd-reservas-btn">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i> Rejeitar

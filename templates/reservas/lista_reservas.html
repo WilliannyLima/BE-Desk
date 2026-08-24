@@ -90,7 +90,9 @@
             <td class="bd-reservas-acao">
               <span class="bd-reservas-th-mobile">Ação</span>
               <form method="post" action="{% url 'cancelar_reserva_usuario' reserva.id %}"
-                    onsubmit="return confirm('Cancelar a reserva de {{ reserva.sala.nome|escapejs }} em {{ reserva.data_inicio|date:"d/m/Y H:i" }}? Esta ação não pode ser desfeita.');">
+                    data-confirm-title="Cancelar reserva"
+                    data-confirm="Cancelar a reserva de {{ reserva.sala.nome }} em {{ reserva.data_inicio|date:'d/m/Y H:i' }}? Esta ação não pode ser desfeita."
+                    data-confirm-ok="Cancelar reserva">
                 {% csrf_token %}
                 <button type="submit" class="bd-reservas-btn">
                   <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancelar

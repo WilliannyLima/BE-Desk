@@ -6,6 +6,7 @@ from django.db.models import Count
 from django.db.models.functions import ExtractHour, ExtractWeekDay, TruncMonth
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from bedesk.models import Agendamento, Sala
@@ -174,6 +175,9 @@ def aprovacoes(request):
         "pendentes": pendentes,
         "decididas": decididas,
         "total_pendentes": pendentes.count(),
+        # Para o template distinguir solicitação futura de vencida: sem
+        # isso, uma data já passada exibia "em 0 minuto".
+        "agora": timezone.now(),
     })
 
 

@@ -604,3 +604,15 @@ a.bd-reservas-stat:hover {
   background: rgba(4, 120, 87, 0.06);
   color: #047857;
 }
+
+.bd-reservas-relativo.is-late {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--warning);
+  font-weight: 700;
+}
+
+[data-theme="light"] .bd-reservas-relativo.is-late {
+  color: #b45309;
+}

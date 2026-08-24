@@ -24,6 +24,7 @@
 
   <link rel="stylesheet" href="{% static 'css/bedesk-theme.css' %}">
   <link rel="stylesheet" href="{% static 'css/brand.css' %}">
+  <link rel="stylesheet" href="{% static 'css/modal.css' %}?v=20260814">
 
   <style>
     .bd-simple-footer {
@@ -1735,6 +1736,86 @@
         }
       });
     })();
+  </script>
+
+  <!-- Modal de confirmação: substitui o confirm() nativo do navegador,
+       que não respeita o visual do site. Qualquer formulário com
+       data-confirm="mensagem" passa por aqui. -->
+  <div class="bd-modal" id="bdModal" role="dialog" aria-modal="true"
+       aria-labelledby="bdModalTitle" aria-describedby="bdModalText" hidden>
+    <div class="bd-modal-backdrop" data-modal-close></div>
+    <div class="bd-modal-box">
+      <div class="bd-modal-icon" aria-hidden="true">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h2 class="bd-modal-title" id="bdModalTitle">Confirmar</h2>
+      <p class="bd-modal-text" id="bdModalText"></p>
+      <div class="bd-modal-actions">
+        <button type="button" class="bd-modal-btn bd-modal-btn-cancel" data-modal-close>Cancelar</button>
+        <button type="button" class="bd-modal-btn bd-modal-btn-confirm" id="bdModalOk">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    const modal = document.getElementById('bdModal');
+    if (!modal) return;
+
+    const titulo = document.getElementById('bdModalTitle');
+    const texto = document.getElementById('bdModalText');
+    const btnOk = document.getElementById('bdModalOk');
+
+    let formPendente = null;
+    let focoAnterior = null;
+
+    function abrir(form) {
+      formPendente = form;
+      focoAnterior = document.activeElement;
+
+      titulo.textContent = form.dataset.confirmTitle || 'Confirmar ação';
+      texto.textContent = form.dataset.confirm || 'Deseja continuar?';
+      btnOk.textContent = form.dataset.confirmOk || 'Confirmar';
+
+      modal.hidden = false;
+      modal.classList.add('is-open');
+      btnOk.focus();
+    }
+
+    function fechar() {
+      modal.classList.remove('is-open');
+      modal.hidden = true;
+      formPendente = null;
+      if (focoAnterior) focoAnterior.focus();
+    }
+
+    // Intercepta o envio, não o clique: pega Enter no teclado também.
+    document.addEventListener('submit', function (e) {
+      const form = e.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      if (!form.dataset.confirm || form.dataset.confirmed === '1') return;
+      e.preventDefault();
+      abrir(form);
+    });
+
+    btnOk.addEventListener('click', function () {
+      if (!formPendente) return;
+      const form = formPendente;
+      form.dataset.confirmed = '1';
+      fechar();
+      // requestSubmit preserva o botão de envio e a validação nativa.
+      if (form.requestSubmit) form.requestSubmit();
+      else form.submit();
+    });
+
+    modal.addEventListener('click', function (e) {
+      if (e.target.hasAttribute('data-modal-close')) fechar();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) fechar();
+    });
+  })();
   </script>
 
   {% block extra_scripts %}{% endblock %}
