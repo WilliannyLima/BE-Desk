@@ -156,6 +156,24 @@ def pegar_dados_aluno(access_token, timeout=8):
         except requests.RequestException:
             pass
 
+    # Dados acadêmicos (curso, IRA, situação, e-mails escolares) vêm de um
+    # endpoint próprio, focado no aluno. Só responde para vínculo de aluno:
+    # para servidor retorna erro e o dict fica vazio, sem quebrar o resto.
+    ensino = {}
+    try:
+        res_ensino = requests.get(f"{API_BASE}/api/ensino/meus-dados-aluno/", headers=headers, timeout=timeout)
+        tried.append(('ensino/meus-dados-aluno', res_ensino.status_code))
+        if res_ensino.status_code == 200:
+            try:
+                ensino = res_ensino.json()
+            except ValueError:
+                ensino = {}
+    except requests.RequestException:
+        pass
+
+    if not isinstance(ensino, dict):
+        ensino = {}
+
     # if both empty, give up
     if not dados and not vinculos:
         logging.getLogger(__name__).warning('Falha ao obter dados SUAP, tentativas: %s', tried)
@@ -165,12 +183,12 @@ def pegar_dados_aluno(access_token, timeout=8):
     nome = dados.get('nome_usual') or dados.get('nome') or dados.get('nome_registro') or dados.get('nome_completo')
     matricula = dados.get('matricula') or dados.get('identificacao') or dados.get('siape') or dados.get('siape_matricula')
 
-    # O SUAP expõe dois e-mails distintos: o institucional (acadêmico) e o
-    # pessoal/secundário. Antes eram colapsados num campo só, escondendo um
-    # deles conforme a ordem do fallback.
-    email_institucional = dados.get('email') or dados.get('email_academico')
-    email_pessoal = dados.get('email_secundario') or dados.get('email_pessoal')
-    email = email_institucional or email_pessoal
+    # São dois e-mails distintos, ambos vindos de /meus-dados-aluno/:
+    # o acadêmico e o escolar. Antes eram colapsados num campo só via
+    # fallback encadeado, escondendo um deles.
+    email_academico = ensino.get('email_academico') or dados.get('email_academico') or dados.get('email')
+    email_escolar = ensino.get('email_escolar') or dados.get('email_secundario') or dados.get('email_pessoal')
+    email = email_academico or email_escolar
 
     data_nascimento = dados.get('data_nascimento') or dados.get('nascimento')
 
@@ -197,11 +215,16 @@ def pegar_dados_aluno(access_token, timeout=8):
     # curso exibido acabava sendo o de um programa qualquer.
     vinculo_ativo = dados.get('vinculo') if isinstance(dados.get('vinculo'), dict) else {}
 
-    curso = vinculo_ativo.get('curso') or vinculo_ativo.get('nome_curso')
+    # Curso, situação e IRA vêm de /meus-dados-aluno/, que é o endpoint
+    # focado no curso. O vínculo ativo de /meus-dados/ serve de reserva.
+    curso = ensino.get('curso') or vinculo_ativo.get('curso') or vinculo_ativo.get('nome_curso')
+    situacao = ensino.get('situacao') or vinculo_ativo.get('situacao')
+    ira = ensino.get('ira')  # só existe para vínculo de aluno
+    periodo = ensino.get('periodo_referencia')
+    matriz = ensino.get('matriz')
+    ingresso = ensino.get('ingresso')
+
     campus = vinculo_ativo.get('campus') or vinculo_ativo.get('nome_campus')
-    situacao = vinculo_ativo.get('situacao')
-    # Índice de Rendimento Acadêmico — só existe para vínculo de aluno.
-    ira = vinculo_ativo.get('ira')
     tipo_vinculo = dados.get('tipo_vinculo') or vinculo_ativo.get('tipo')
 
     # Fallback para /meus-vinculos/ apenas se o vínculo ativo não trouxer.
@@ -218,17 +241,20 @@ def pegar_dados_aluno(access_token, timeout=8):
         'nome': nome,
         'matricula': matricula,
         'email': email,
-        'email_institucional': email_institucional,
-        'email_pessoal': email_pessoal,
+        'email_academico': email_academico,
+        'email_escolar': email_escolar,
         'data_nascimento': data_nascimento,
         'foto': foto,
         'curso': curso,
         'campus': campus,
         'situacao': situacao,
         'ira': ira,
+        'periodo_referencia': periodo,
+        'matriz': matriz,
+        'ingresso': ingresso,
         'vinculos': items,
         'tipo_vinculo': tipo_vinculo,
-        'raw': {'dados': dados, 'vinculos': vinculos}
+        'raw': {'dados': dados, 'vinculos': vinculos, 'ensino': ensino}
     }
 
     # Normalizar foto absoluta

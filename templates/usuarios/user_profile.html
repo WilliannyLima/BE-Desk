@@ -42,8 +42,8 @@
           <div class="info-grid">
             <div class="info-row"><div class="info-label">Nome</div><div class="info-value">{{ suap_data.nome|default:user.get_full_name }}</div></div>
             <div class="info-row"><div class="info-label">Matrícula</div><div class="info-value">{{ suap_data.matricula|default:user.username }}</div></div>
-            <div class="info-row"><div class="info-label">E-mail institucional</div><div class="info-value">{{ suap_data.email_institucional|default:user.email|default:'—' }}</div></div>
-            <div class="info-row"><div class="info-label">E-mail pessoal</div><div class="info-value">{{ suap_data.email_pessoal|default:'—' }}</div></div>
+            <div class="info-row"><div class="info-label">E-mail acadêmico</div><div class="info-value">{{ suap_data.email_academico|default:user.email|default:'—' }}</div></div>
+            <div class="info-row"><div class="info-label">E-mail escolar</div><div class="info-value">{{ suap_data.email_escolar|default:'—' }}</div></div>
             <div class="info-row"><div class="info-label">Curso</div><div class="info-value">{{ suap_data.curso|default:'—' }}</div></div>
             <div class="info-row"><div class="info-label">Campus</div><div class="info-value">{{ suap_data.campus|default:'—' }}</div></div>
             <div class="info-row"><div class="info-label">Vínculo</div><div class="info-value">{{ suap_data.tipo_vinculo|default:'—' }}{% if suap_data.situacao %} &middot; {{ suap_data.situacao }}{% endif %}</div></div>
