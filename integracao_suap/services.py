@@ -200,6 +200,8 @@ def pegar_dados_aluno(access_token, timeout=8):
     curso = vinculo_ativo.get('curso') or vinculo_ativo.get('nome_curso')
     campus = vinculo_ativo.get('campus') or vinculo_ativo.get('nome_campus')
     situacao = vinculo_ativo.get('situacao')
+    # Índice de Rendimento Acadêmico — só existe para vínculo de aluno.
+    ira = vinculo_ativo.get('ira')
     tipo_vinculo = dados.get('tipo_vinculo') or vinculo_ativo.get('tipo')
 
     # Fallback para /meus-vinculos/ apenas se o vínculo ativo não trouxer.
@@ -223,6 +225,7 @@ def pegar_dados_aluno(access_token, timeout=8):
         'curso': curso,
         'campus': campus,
         'situacao': situacao,
+        'ira': ira,
         'vinculos': items,
         'tipo_vinculo': tipo_vinculo,
         'raw': {'dados': dados, 'vinculos': vinculos}

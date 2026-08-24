@@ -47,7 +47,7 @@
             <div class="info-row"><div class="info-label">Curso</div><div class="info-value">{{ suap_data.curso|default:'—' }}</div></div>
             <div class="info-row"><div class="info-label">Campus</div><div class="info-value">{{ suap_data.campus|default:'—' }}</div></div>
             <div class="info-row"><div class="info-label">Vínculo</div><div class="info-value">{{ suap_data.tipo_vinculo|default:'—' }}{% if suap_data.situacao %} &middot; {{ suap_data.situacao }}{% endif %}</div></div>
-            <div class="info-row"><div class="info-label">Usuário desde</div><div class="info-value">{{ user.date_joined|date:"d/m/Y" }}</div></div>
+            <div class="info-row"><div class="info-label">IRA</div><div class="info-value">{{ suap_data.ira|default:'—' }}</div></div>
           </div>
         </div>
       </div>
