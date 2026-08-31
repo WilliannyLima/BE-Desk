@@ -5,3 +5,5 @@ db.sqlite3
 .env
 BE-Desk/db.sqlite3
 .claude
+node_modules/
+media/
